@@ -7,6 +7,19 @@ const apiAxios = axios.create({
     withCredentials: true,
 });
 
+export interface Transaction {
+    transaction_id: string;
+    client_id: number,
+    account_id: string,
+    account_owner: string,
+    date: string; // or Date
+    name: string;
+    pending: boolean,
+    amount: number
+    // Add other fields as necessary
+}
+
+
 // Login endpoint
 export const loginUserApi = async (email: string, password: string) => {
     const endpoint = `${API_BASE_URL}/login`;
@@ -20,3 +33,14 @@ export const getUserApi = async () => {
     return response.data
 }
 
+export const generateLinkToken = async () => {
+    const endpoint = `${API_BASE_URL}/plaid/generateLinkToken`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const getUserTransactions = async () => {
+    const endpoint = `${API_BASE_URL}/transactions/getUserTransactions`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}

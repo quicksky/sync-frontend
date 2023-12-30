@@ -1,12 +1,14 @@
 // store.ts
-import { configureStore, Action } from '@reduxjs/toolkit';
+import {configureStore, Action} from '@reduxjs/toolkit';
 import userReducer from './userSlice';
-import { ThunkAction } from 'redux-thunk';
+import sessionReducer from './session_slice'
+import {ThunkAction} from 'redux-thunk';
 import {useDispatch} from "react-redux";
 
 const store = configureStore({
     reducer: {
         user: userReducer,
+        session: sessionReducer
     },
 });
 
