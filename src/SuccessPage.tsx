@@ -1,25 +1,37 @@
 import React, {useEffect, useState} from 'react';
-import {Container, Typography} from '@mui/material';
+import {Box, CircularProgress, Container, Typography} from '@mui/material';
 import {RootState, useAppDispatch} from "./redux/store";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchUser, selectUser} from "./redux/userSlice";
 
 
+import TransactionList from './TransactionList';
+import {getUserTransactions, Transaction} from "./Backend";
+
 const SuccessPage: React.FC = () => {
-    const dispatch = useAppDispatch();
-
-    const user = useSelector(selectUser)
-
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [error, setError] = useState<boolean>(false)
 
     useEffect(() => {
-        dispatch(fetchUser())
-    }, [])
+        // Fetch transactions from the backend
+        // Example: axios.get('/api/transactions').then(response => setTransactions(response.data))
+        setIsLoading(true)
+        getUserTransactions().then(r => setTransactions(r)).catch(() => setError(true)).finally(() => setIsLoading(false))
+    }, []);
+
 
     return (
-        <Container>
-            <Typography variant="h4">Login Successful!</Typography>
-            <Typography variant="body1">Welcome back, {user ? user.first_name : "not found"}</Typography>
-        </Container>
+        <Box style={{padding: '30px'}}>
+            <Typography variant="h4" style={{marginBottom: '30px'}}>
+                My Transactions
+            </Typography>
+            {isLoading ? (
+                <CircularProgress/>
+            ) : (
+                <TransactionList transactions={transactions}/>
+            )}
+        </Box>
     );
 };
 
