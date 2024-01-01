@@ -2,11 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {Box, CircularProgress, Typography} from '@mui/material';
 
 
-//import TransactionList from './TransactionList';
 import {getUserTransactions, Transaction} from "./Backend";
+import TransactionList from "./TransactionList";
 
 const SuccessPage: React.FC = () => {
-    const [, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [, setError] = useState<boolean>(false)
 
@@ -26,8 +26,7 @@ const SuccessPage: React.FC = () => {
             {isLoading ? (
                 <CircularProgress/>
             ) : (
-                // <TransactionList transactions={transactions}/>
-                undefined
+                <TransactionList transactions={transactions}/>
             )}
         </Box>
     );
