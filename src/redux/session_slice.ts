@@ -1,6 +1,6 @@
 // userSlice.ts
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {generateLinkToken, getUserApi, loginUserApi} from '../Backend';
+import {generateLinkToken} from '../Backend';
 import {RootState} from "./store";
 
 interface Session {
