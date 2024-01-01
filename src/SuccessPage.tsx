@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {fetchUser, selectUser} from "./redux/userSlice";
 
 
-import TransactionList from './TransactionList';
+//import TransactionList from './TransactionList';
 import {getUserTransactions, Transaction} from "./Backend";
 
 const SuccessPage: React.FC = () => {
@@ -29,7 +29,8 @@ const SuccessPage: React.FC = () => {
             {isLoading ? (
                 <CircularProgress/>
             ) : (
-                <TransactionList transactions={transactions}/>
+                // <TransactionList transactions={transactions}/>
+                undefined
             )}
         </Box>
     );
