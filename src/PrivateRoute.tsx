@@ -17,7 +17,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({element}) => {
         dispatch(fetchUser())
     }, [dispatch, isAuthenticated]);
 
-    return isAuthenticated ? element : <Navigate to="/login"/>;
+    return isAuthenticated ? element : <Navigate to="/"/>;
 };
 
 export default PrivateRoute;
