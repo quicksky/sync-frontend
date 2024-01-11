@@ -1,10 +1,8 @@
-// PrivateRoute.tsx
 import React, {useEffect} from 'react';
-import {Route, Navigate, RouteProps} from 'react-router-dom';
-import {useDispatch, useSelector} from "react-redux";
+import {Navigate} from 'react-router-dom';
+import {useSelector} from "react-redux";
 import {fetchUser, selectUserState} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
-import {getUserTransactions} from "./Backend";
 
 
 interface PrivateRouteProps {
@@ -16,7 +14,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({element}) => {
     const sessionState = useSelector(selectUserState)
     console.log(sessionState)
     const isAuthenticated = sessionState && sessionState.status !== 'failed'
-    //
     useEffect(() => {
         dispatch(fetchUser())
     }, [isAuthenticated]);
