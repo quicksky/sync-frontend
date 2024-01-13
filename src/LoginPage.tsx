@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, TextField, Container, Typography, Paper} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
