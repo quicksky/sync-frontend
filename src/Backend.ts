@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,
@@ -42,5 +42,17 @@ export const generateLinkToken = async () => {
 export const getUserTransactions = async () => {
     const endpoint = `${API_BASE_URL}/transactions/getUserTransactions`
     const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const resetUserPassword = async (password: string, token: string) => {
+    const endpoint = `${API_BASE_URL}/user/resetPassword`
+    const response = await apiAxios.post(endpoint, {password, token})
+    return response.data
+}
+
+export const exchangeToken = async (token: string) => {
+    const endpoint = `${API_BASE_URL}/plaid/exchangeToken`
+    const response = await apiAxios.post(endpoint, {token})
     return response.data
 }

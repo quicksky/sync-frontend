@@ -1,6 +1,6 @@
 // userSlice.ts
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {generateLinkToken} from '../Backend';
+import {exchangeToken, generateLinkToken} from '../Backend';
 import {RootState} from "./store";
 
 interface Session {
@@ -23,6 +23,10 @@ export const fetchLinkToken = createAsyncThunk('plaid/fetchLinkToken', async () 
     return await generateLinkToken();
 });
 
+export const exchangeAndStoreLinkToken = createAsyncThunk('plaid/exchangeToken', async (token: string) => {
+    return await exchangeToken(token);
+})
+
 
 const sessionSlice = createSlice({
     name: 'session',
@@ -43,6 +47,20 @@ const sessionSlice = createSlice({
                 state.session = null;
                 state.error = action.error.message || null;
             })
+            .addCase(exchangeAndStoreLinkToken.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.session = action.payload
+                state.error = null
+            })
+            .addCase(exchangeAndStoreLinkToken.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(exchangeAndStoreLinkToken.rejected, (state, action) => {
+                state.status = 'failed';
+                state.session = null
+                state.error = action.error.message || null
+            })
+
 
     }
 });

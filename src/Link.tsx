@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {Button} from "@mui/material";
 import {usePlaidLink} from "react-plaid-link";
 import {useAppDispatch} from "./redux/store";
-import {fetchLinkToken, selectSession} from "./redux/session_slice";
+import {exchangeAndStoreLinkToken, fetchLinkToken, selectSession} from "./redux/session_slice";
 import {useSelector} from "react-redux";
 
 const Link: React.FC = () => {
@@ -96,7 +96,7 @@ const Link: React.FC = () => {
 
     const onSuccess = React.useCallback(
         (public_token: string) => {
-            console.log(public_token)
+            dispatch(exchangeAndStoreLinkToken(public_token))
         },
         []
     );
