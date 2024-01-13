@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const API_BASE_URL = 'https://sync.quicksky.io';
+const API_BASE_URL = 'https://service.quicksky.io';
 
 const apiAxios = axios.create({
     withCredentials: true,
