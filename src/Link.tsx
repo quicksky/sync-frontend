@@ -98,7 +98,7 @@ const Link: React.FC = () => {
         (public_token: string) => {
             dispatch(exchangeAndStoreLinkToken(public_token))
         },
-        []
+        [dispatch]
     );
 
 

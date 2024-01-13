@@ -56,6 +56,7 @@ const Onboarding: React.FC = () => {
             <Button variant="contained" color="primary" onClick={handleSubmit}>
                 Submit
             </Button>
+            {error ? <Typography>{errorText}</Typography> : undefined}
         </Container>
     )
 
