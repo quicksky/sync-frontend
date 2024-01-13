@@ -5,7 +5,6 @@ import {Button, Container, TextField, Typography} from "@mui/material";
 
 const Onboarding: React.FC = () => {
     const params = new URLSearchParams(document.location.search);
-    const dispatch = useAppDispatch();
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<boolean>(false)
