@@ -1,7 +1,8 @@
 import axios from 'axios';
+import {parseContentDispositionFilename} from "./helpers/parseContentDisposition";
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,
@@ -12,11 +13,10 @@ export interface Transaction {
     client_id: number,
     account_id: string,
     account_owner: string,
-    date: string; // or Date
+    date: string;
     name: string;
     pending: boolean,
     amount: number
-    // Add other fields as necessary
 }
 
 
@@ -24,6 +24,12 @@ export interface Transaction {
 export const loginUserApi = async (email: string, password: string) => {
     const endpoint = `${API_BASE_URL}/login`;
     const response = await apiAxios.post(endpoint, {email, password});
+    return response.data
+}
+
+export const logoutUserApi = async () => {
+    const endpoint = `${API_BASE_URL}/logout`;
+    const response = await apiAxios.get(endpoint)
     return response.data
 }
 
@@ -55,4 +61,18 @@ export const exchangeToken = async (token: string) => {
     const endpoint = `${API_BASE_URL}/plaid/exchangeToken`
     const response = await apiAxios.post(endpoint, {token})
     return response.data
+}
+
+export const generateExport = async (dateRange: { start_date: string, end_date: string }): Promise<{
+    fileName: string;
+    data: BinaryData;
+}> => {
+    const endpoint = `${API_BASE_URL}/export/generateExport`
+    return apiAxios.post(endpoint, dateRange, {responseType: "blob"}).then((res) => {
+        console.log(res.headers)
+        return {
+            fileName: parseContentDispositionFilename(res.headers["content-disposition"]) || `test.xlsx`,
+            data: res.data,
+        }
+    })
 }

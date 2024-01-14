@@ -1,21 +1,23 @@
 import React, {useState} from 'react';
-import {Button, TextField, Container, Typography, Paper} from '@mui/material';
+import {Button, TextField, Container, Typography, Paper, Alert} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
 
 const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
     const handleLogin = () => {
+        setError(false)
         dispatch(loginUser({email: username, password: password})).unwrap().then(() => {
             navigate("/success")
-        }).catch(() => {
-            alert("Invaliud")
+        }).catch((r) => {
+            setError(true)
         })
     };
 
@@ -35,14 +37,18 @@ const LoginPage: React.FC = () => {
                 boxShadow: "4px 4px 4px rgba(0, 0, 0, 0.25)",
                 borderRadius: "25px",
                 padding: '20px',
+                display: 'flex',
+                flexDirection: "column",
+                width: "35%"
             }}>
-                <Typography variant="h4">Login</Typography>
+                <Typography variant="h4">Sync</Typography>
                 <TextField
                     label="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     margin="normal"
                     fullWidth
+                    sx={{mb: 2}}
                 />
                 <TextField
                     type="password"
@@ -51,7 +57,9 @@ const LoginPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     margin="normal"
                     fullWidth
+
                 />
+                {error ? (<Alert severity="error">Incorrect email or password</Alert>) : undefined}
                 <Button variant="contained" color="primary" onClick={handleLogin}>
                     Login
                 </Button>

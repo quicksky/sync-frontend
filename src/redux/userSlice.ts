@@ -8,6 +8,7 @@ interface User {
     email: string;
     first_name: string;
     last_name: string;
+    role: number;
 }
 
 interface UserState {
@@ -67,6 +68,6 @@ const userSlice = createSlice({
 });
 
 export default userSlice.reducer;
-export const selectUser = (state: RootState) => state.user.user;
+export const selectUser = (state: RootState): User | null => state.user.user;
 export const selectUserState = (state: RootState) => state.user
 
