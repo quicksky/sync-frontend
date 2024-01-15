@@ -3,69 +3,91 @@ import {Button, TextField, Container, Typography, Paper, Alert} from '@mui/mater
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
+import {ThemeProvider} from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Grid from "@mui/material/Grid";
+import Link from "@mui/material/Link";
 
 const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<boolean>(false);
+    const [, setError] = useState<boolean>(false);
+    //error text
 
     const navigate = useNavigate();
 
-    const handleLogin = () => {
+    const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries((formData as any).entries());
+        const email = formJson.email;
+        const password = formJson.password;
         setError(false)
-        dispatch(loginUser({email: username, password: password})).unwrap().then(() => {
+        dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
             navigate("/success")
-        }).catch((r) => {
+        }).catch(() => {
             setError(true)
         })
     };
 
     return (
-        <Container style={{
-            display: 'flex',
-            height: '100vh', // Full viewport height
-            alignItems: 'center', // Vertical centering
-            justifyContent: 'center', // Horizontal centering
-        }}>
-            <Paper style={{
-                backgroundColor: '#ffffff',
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                verticalAlign: "middle",
-                boxShadow: "4px 4px 4px rgba(0, 0, 0, 0.25)",
-                borderRadius: "25px",
-                padding: '20px',
-                display: 'flex',
-                flexDirection: "column",
-                width: "35%"
-            }}>
-                <Typography variant="h4">Sync</Typography>
-                <TextField
-                    label="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{mb: 2}}
-                />
-                <TextField
-                    type="password"
-                    label="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    margin="normal"
-                    fullWidth
-
-                />
-                {error ? (<Alert severity="error">Incorrect email or password</Alert>) : undefined}
-                <Button variant="contained" color="primary" onClick={handleLogin}>
-                    Login
-                </Button>
-            </Paper>
+        <Container component="main" maxWidth="xs">
+            <CssBaseline/>
+            <Box
+                sx={{
+                    mt: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Avatar sx={{m: 1, bgcolor: '#FFFFFF'}}>
+                    <LockOutlinedIcon/>
+                </Avatar>
+                <Typography component="h1" variant="h5" color='primary'>
+                    Sign in
+                </Typography>
+                <Box component="form" onSubmit={handleLogin} noValidate sx={{mt: 1}}>
+                    <TextField
+                        margin="normal"
+                        focused
+                        required
+                        fullWidth
+                        id="email"
+                        name="email"
+                        label="Email Address"
+                        sx={{input: {color: '#FFFFFF'}}}
+                    />
+                    <TextField
+                        margin="normal"
+                        focused
+                        required
+                        fullWidth
+                        id="password"
+                        name="password"
+                        label="Password"
+                        sx={{input: {color: '#FFFFFF'}}}
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{mt: 2, mb: 2}}
+                    >
+                        Sign In
+                    </Button>
+                    {/*<Grid container>*/}
+                    {/*    <Grid item xs>*/}
+                    {/*        <Link href="#" variant="body2">*/}
+                    {/*            Forgot password?*/}
+                    {/*        </Link>*/}
+                    {/*    </Grid>*/}
+                    {/*</Grid>*/}
+                </Box>
+            </Box>
         </Container>
-    );
-};
-
-export default LoginPage;
+    )
+}
+export default LoginPage

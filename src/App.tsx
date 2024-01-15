@@ -11,8 +11,11 @@ import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 const theme = createTheme({
     palette: {
         background: {
-            default: '#050A30' // Your desired background color
-        }
+            default: "#20202e",
+        },
+        primary: {
+            main: "#FFFFFF",
+        },
     },
 });
 
