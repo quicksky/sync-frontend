@@ -50,19 +50,18 @@ const LoginPage: React.FC = () => {
                     <TextField
                         margin="normal"
                         focused
-                        required
                         fullWidth
                         id="email"
                         name="email"
-                        label="Email Address"
+                        label="Email"
                         sx={{input: {color: '#FFFFFF'}}}
                     />
                     <TextField
                         margin="normal"
                         focused
-                        required
                         fullWidth
                         id="password"
+                        type="password"
                         name="password"
                         label="Password"
                         sx={{input: {color: '#FFFFFF'}}}
