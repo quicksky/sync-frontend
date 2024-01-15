@@ -1,15 +1,12 @@
 import React, {useState} from 'react';
-import {Button, TextField, Container, Typography, Paper, Alert} from '@mui/material';
+import {Button, TextField, Container, Typography} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
-import {ThemeProvider} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
 
 const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
