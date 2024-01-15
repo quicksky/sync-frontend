@@ -1,49 +1,96 @@
-import React, {useEffect, useState} from 'react';
-import {Button, TextField, Container, Typography} from '@mui/material';
-import {useNavigate} from 'react-router-dom';
-import {fetchUser, loginUser} from "./redux/userSlice";
-import {useAppDispatch} from "./redux/store";
+import * as React from 'react';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const LoginPage: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
 
+// TODO remove, this demo shouldn't need to reset the theme.
+const defaultTheme = createTheme({
+    palette: {
+        background: {
+            default: "#20202e",
+        },
+        primary: {
+            main: "#FFFFFF",
+        },
+    }
+});
 
-    const navigate = useNavigate();
-
-
-    const handleLogin = () => {
-        dispatch(loginUser({email: username, password: password})).unwrap().then(() => {
-            navigate("/success")
-        }).catch(() => {
-            alert("Invaliud")
-        })
+export default function SignIn() {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        console.log({
+            email: data.get('email'),
+            password: data.get('password'),
+        });
     };
 
     return (
-        <Container>
-            <Typography variant="h4">Login</Typography>
-            <TextField
-                label="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                margin="normal"
-                fullWidth
-            />
-            <TextField
-                type="password"
-                label="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                margin="normal"
-                fullWidth
-            />
-            <Button variant="contained" color="primary" onClick={handleLogin}>
-                Login
-            </Button>
-        </Container>
+        <ThemeProvider theme={defaultTheme}>
+            <Container component="main" maxWidth="xs">
+                <CssBaseline />
+                <Box
+                    sx={{
+                        mt: 10,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Avatar sx={{ m: 1, bgcolor: '#FFFFFF' }}>
+                        <LockOutlinedIcon />
+                    </Avatar>
+                    <Typography component="h1" variant="h5" color='primary'>
+                        Sign in
+                    </Typography>
+                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                        <TextField
+                            margin="normal"
+                            focused
+                            required
+                            fullWidth
+                            id="email"
+                            name="email"
+                            label="Email Address"
+                            sx={{ input: { color: '#FFFFFF' } }}
+                        />
+                        <TextField
+                            margin="normal"
+                            focused
+                            required
+                            fullWidth
+                            id="password"
+                            name="password"
+                            label="Password"
+                            sx={{ input: { color: '#FFFFFF' } }}
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 2, mb: 2 }}
+                        >
+                            Sign In
+                        </Button>
+                        <Grid container>
+                            <Grid item xs>
+                                <Link href="#" variant="body2">
+                                    Forgot password?
+                                </Link>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </Box>
+            </Container>
+        </ThemeProvider>
     );
-};
-
-export default LoginPage;
+}
