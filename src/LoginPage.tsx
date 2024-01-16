@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
         const password = formJson.password;
         setError(false)
         dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
-            navigate("/success")
+            navigate("/home")
         }).catch(() => {
             setError(true)
         })

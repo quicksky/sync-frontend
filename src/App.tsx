@@ -6,6 +6,7 @@ import Link from "./Link";
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import SettingsPage from "./SettingsPage";
 
 
 const theme = createTheme({
@@ -27,8 +28,9 @@ function App() {
                 <Router>
                     <Routes>
                         <Route path="" element={<LoginPage/>}/>
-                        <Route path="/success" element={<PrivateRoute element={<SuccessPage/>}/>}/>
+                        <Route path="/home" element={<PrivateRoute element={<SuccessPage/>}/>}/>
                         <Route path="/link" element={<PrivateRoute element={<Link/>}/>}/>
+                        <Route path="/settings" element={<PrivateRoute element={<SettingsPage/>}/>}/>
                         <Route path="/welcome" element={<Onboarding/>}/>
                     </Routes>
                 </Router>
