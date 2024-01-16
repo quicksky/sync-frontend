@@ -37,6 +37,7 @@ const LoginPage: React.FC = () => {
                     mt: 10,
                     display: 'flex',
                     flexDirection: 'column',
+                    justifyContent: 'center'
                     alignItems: 'center',
                 }}
             >
