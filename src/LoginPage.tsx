@@ -1,96 +1,90 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React, {useState} from 'react';
+import {Button, TextField, Container, Typography} from '@mui/material';
+import {useNavigate} from 'react-router-dom';
+import {loginUser} from "./redux/userSlice";
+import {useAppDispatch} from "./redux/store";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
+const LoginPage: React.FC = () => {
+    const dispatch = useAppDispatch();
+    const [, setError] = useState<boolean>(false);
+    //error text
 
-// TODO remove, this demo shouldn't need to reset the theme.
-const defaultTheme = createTheme({
-    palette: {
-        background: {
-            default: "#20202e",
-        },
-        primary: {
-            main: "#FFFFFF",
-        },
-    }
-});
+    const navigate = useNavigate();
 
-export default function SignIn() {
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries((formData as any).entries());
+        const email = formJson.email;
+        const password = formJson.password;
+        setError(false)
+        dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
+            navigate("/success")
+        }).catch(() => {
+            setError(true)
+        })
     };
 
     return (
-        <ThemeProvider theme={defaultTheme}>
-            <Container component="main" maxWidth="xs">
-                <CssBaseline />
-                <Box
-                    sx={{
-                        mt: 10,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Avatar sx={{ m: 1, bgcolor: '#FFFFFF' }}>
-                        <LockOutlinedIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5" color='primary'>
-                        Sign in
-                    </Typography>
-                    <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                        <TextField
-                            margin="normal"
-                            focused
-                            required
-                            fullWidth
-                            id="email"
-                            name="email"
-                            label="Email Address"
-                            sx={{ input: { color: '#FFFFFF' } }}
-                        />
-                        <TextField
-                            margin="normal"
-                            focused
-                            required
-                            fullWidth
-                            id="password"
-                            name="password"
-                            label="Password"
-                            sx={{ input: { color: '#FFFFFF' } }}
-                        />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 2, mb: 2 }}
-                        >
-                            Sign In
-                        </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    </Box>
+        <Container component="main" maxWidth="xs">
+            <CssBaseline/>
+            <Box
+                sx={{
+                    mt: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <Avatar sx={{m: 1, bgcolor: '#FFFFFF'}}>
+                    <LockOutlinedIcon/>
+                </Avatar>
+                <Typography component="h1" variant="h5" color='primary'>
+                    Sign in
+                </Typography>
+                <Box component="form" onSubmit={handleLogin} noValidate sx={{mt: 1}}>
+                    <TextField
+                        margin="normal"
+                        focused
+                        fullWidth
+                        id="email"
+                        name="email"
+                        label="Email"
+                        sx={{input: {color: '#FFFFFF'}}}
+                    />
+                    <TextField
+                        margin="normal"
+                        focused
+                        fullWidth
+                        id="password"
+                        type="password"
+                        name="password"
+                        label="Password"
+                        sx={{input: {color: '#FFFFFF'}}}
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{mt: 2, mb: 2}}
+                    >
+                        Sign In
+                    </Button>
+                    {/*<Grid container>*/}
+                    {/*    <Grid item xs>*/}
+                    {/*        <Link href="#" variant="body2">*/}
+                    {/*            Forgot password?*/}
+                    {/*        </Link>*/}
+                    {/*    </Grid>*/}
+                    {/*</Grid>*/}
                 </Box>
-            </Container>
-        </ThemeProvider>
-    );
+            </Box>
+        </Container>
+    )
 }
+export default LoginPage

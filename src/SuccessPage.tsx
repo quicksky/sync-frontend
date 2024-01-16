@@ -1,25 +1,35 @@
 import React, {useEffect, useState} from 'react';
-import {Container, Typography} from '@mui/material';
-import {RootState, useAppDispatch} from "./redux/store";
-import {useDispatch, useSelector} from "react-redux";
-import {fetchUser, selectUser} from "./redux/userSlice";
+import {
+    Box,
+    CircularProgress,
+} from '@mui/material';
 
+import {getUserTransactions, Transaction} from "./Backend";
+import TransactionList from "./TransactionList";
+import MainAppBar from "./MainAppBar";
 
 const SuccessPage: React.FC = () => {
-    const dispatch = useAppDispatch();
-
-    const user = useSelector(selectUser)
-
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [, setError] = useState<boolean>(false)
 
     useEffect(() => {
-        dispatch(fetchUser())
-    }, [])
+        setIsLoading(true)
+        getUserTransactions().then(r => setTransactions(r)).catch(() => setError(true)).finally(() => setIsLoading(false))
+    }, []);
+
 
     return (
-        <Container>
-            <Typography variant="h4">Login Successful!</Typography>
-            <Typography variant="body1">Welcome back, {user ? user.first_name : "not found"}</Typography>
-        </Container>
+        <Box sx={{flexGrow: 1}}>
+            <MainAppBar/>
+
+            {isLoading ? (
+                <CircularProgress/>
+            ) : (
+                <TransactionList transactions={transactions}/>
+            )}
+
+        </Box>
     );
 };
 
