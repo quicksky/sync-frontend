@@ -181,6 +181,11 @@ function MainAppBar() {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
+                            <MenuItem key="Settings" onClick={() => {
+                                navigate("/settings")
+                            }}>
+                                <Typography textAlign="center">Settings</Typography>
+                            </MenuItem>
 
                             <MenuItem key="Logout" onClick={() => {
                                 logoutUserApi().then(() => {
