@@ -3,7 +3,7 @@ import {parseContentDispositionFilename} from "./helpers/parseContentDisposition
 import {Account} from "./redux/accountSlice";
 
 
-const API_BASE_URL = 'http://localhost:9000';
+const API_BASE_URL = 'https://service.quicksky.io';
 
 const apiAxios = axios.create({
     withCredentials: true,
