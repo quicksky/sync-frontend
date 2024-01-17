@@ -1,8 +1,10 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import {Button} from "@mui/material";
+import {useAppDispatch, useAppSelector} from "./redux/store";
+import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
+import Link from "./Link";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -30,36 +32,51 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 
-export default function SettingsPage() {
+const SettingsPage: React.FC = () => {
     const [value, setValue] = React.useState(0);
+    const dispatch = useAppDispatch()
+    const accounts = useAppSelector(selectAccounts)
+
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 
+    useEffect(() => {
+        dispatch(fetchUserAccounts())
+    }, [dispatch])
+
     return (
-        <Box sx={{display: 'flex'}}>
+        <Box sx={{display: 'flex', height: "100vh"}}>
             <Tabs
                 orientation="vertical"
                 variant="scrollable"
                 value={value}
                 onChange={handleChange}
-                sx={{borderRight: 1, borderColor: 'divider'}}
+                sx={{
+                    borderRight: 1,
+                    borderColor: 'divider',
+                    backgroundColor: '#f5f5f5',
+                    width: '200px',
+                }}
             >
                 <Tab label="Accounts"/>
                 <Tab label="Users"/>
                 <Tab label="Plaid Link"/>
             </Tabs>
             <TabPanel value={value} index={0}>
-                Accounts
+                {accounts.map(a => a.name)}
             </TabPanel>
             <TabPanel value={value} index={1}>
                 Users
             </TabPanel>
             <TabPanel value={value} index={2}>
-                Plaid Link
+                <Link repair={false}/>
+                <Link repair={true}/>
+
             </TabPanel>
-            {/* Add more panels as needed */}
         </Box>
     );
 }
+
+export default SettingsPage
