@@ -2,7 +2,6 @@ import React from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import LoginPage from './LoginPage';
 import SuccessPage from './SuccessPage';
-import Link from "./Link";
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";

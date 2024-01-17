@@ -1,6 +1,6 @@
 // userSlice.ts
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {exchangeToken, generateLinkToken, generateRepairModeToken} from '../Backend';
+import {generateRepairModeToken} from '../Backend';
 import {RootState} from "./store";
 
 interface RepairToken {

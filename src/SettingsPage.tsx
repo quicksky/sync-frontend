@@ -1,12 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import {Button, Typography} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "./redux/store";
-import {Account, fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
-import {Route} from "react-router-dom";
-import PrivateRoute from "./PrivateRoute";
+import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
 import Link from "./Link";
 
 interface TabPanelProps {
@@ -78,7 +75,6 @@ const SettingsPage: React.FC = () => {
                 <Link repair={true}/>
 
             </TabPanel>
-            {/* Add more panels as needed */}
         </Box>
     );
 }
