@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {parseContentDispositionFilename} from "./helpers/parseContentDisposition";
+import {Account} from "./redux/accountSlice";
 
 
 const API_BASE_URL = 'http://localhost:9000';
@@ -44,6 +45,12 @@ export const generateLinkToken = async () => {
     const response = await apiAxios.get(endpoint)
     return response.data
 }
+export const generateRepairModeToken = async () => {
+    const endpoint = `${API_BASE_URL}/plaid/generateRepairModeToken`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
 
 export const getUserTransactions = async () => {
     const endpoint = `${API_BASE_URL}/transactions/getUserTransactions`
@@ -75,4 +82,10 @@ export const generateExport = async (dateRange: { start_date: string, end_date: 
             data: res.data,
         }
     })
+}
+
+export const getUserAccounts = async (): Promise<Account[]> => {
+    const endpoint = `${API_BASE_URL}/client/getAccounts`
+    const response = await apiAxios.get(endpoint)
+    return response.data
 }

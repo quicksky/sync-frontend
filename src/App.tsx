@@ -29,7 +29,6 @@ function App() {
                     <Routes>
                         <Route path="" element={<LoginPage/>}/>
                         <Route path="/home" element={<PrivateRoute element={<SuccessPage/>}/>}/>
-                        <Route path="/link" element={<PrivateRoute element={<Link/>}/>}/>
                         <Route path="/settings" element={<PrivateRoute element={<SettingsPage/>}/>}/>
                         <Route path="/welcome" element={<Onboarding/>}/>
                     </Routes>
