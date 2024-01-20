@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {parseContentDispositionFilename} from "./helpers/parseContentDisposition";
 import {Account} from "./redux/accountSlice";
+import {GetClientUserListResponse} from "./redux/clientSlice";
 
 
 const API_BASE_URL = 'https://service.quicksky.io';
@@ -87,5 +88,22 @@ export const generateExport = async (dateRange: { start_date: string, end_date: 
 export const getUserAccounts = async (): Promise<Account[]> => {
     const endpoint = `${API_BASE_URL}/client/getAccounts`
     const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const getClientUserList = async (): Promise<GetClientUserListResponse> => {
+    const endpoint = `${API_BASE_URL}/client/getUsers`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const inviteUser = async (user_id: number) => {
+    const endpoint = `${API_BASE_URL}/client/inviteUser/${user_id}`
+    await apiAxios.get(endpoint)
+}
+
+export const createUser = async (request: { role: number, first_name: string, last_name: string, card_number: number | null }) => {
+    const endpoint = `${API_BASE_URL}/user/createUser`
+    const response = await apiAxios.post(endpoint, request)
     return response.data
 }

@@ -4,6 +4,7 @@ import userReducer from './userSlice';
 import linkTokenReducer from './linkTokenSlice'
 import accountReducer from './accountSlice'
 import repairTokenReducer from './repairTokenSlice'
+import clientReducer from './clientSlice'
 import {ThunkAction} from 'redux-thunk';
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 
@@ -12,7 +13,8 @@ const store = configureStore({
         user: userReducer,
         linkToken: linkTokenReducer,
         repairToken: repairTokenReducer,
-        accounts: accountReducer
+        accounts: accountReducer,
+        client: clientReducer
     },
 });
 
