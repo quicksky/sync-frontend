@@ -20,7 +20,12 @@ const SuccessPage: React.FC = () => {
 
 
     return (
-        <Box sx={{flexGrow: 1}}>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+        }}>
             <MainAppBar/>
 
             {isLoading ? (
