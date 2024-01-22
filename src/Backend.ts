@@ -85,9 +85,21 @@ export const generateExport = async (dateRange: { start_date: string, end_date: 
     })
 }
 
-export const getUserAccounts = async (): Promise<Account[]> => {
+export const getClientAccounts = async (): Promise<Account[]> => {
     const endpoint = `${API_BASE_URL}/client/getAccounts`
     const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const addClientAccounts = async (data: string) => {
+    const endpoint = `${API_BASE_URL}/client/addBulkAccounts`
+    const response = await apiAxios.post(endpoint, {data: data})
+    return response.data
+}
+
+export const deleteClientAccount = async (id: number) => {
+    const endpoint = `${API_BASE_URL}/client/deleteAccount`
+    const response = await apiAxios.post(endpoint, {id: id})
     return response.data
 }
 

@@ -1,21 +1,22 @@
 import React, {useState} from 'react';
 import {
+    Box,
+    Button,
+    Collapse,
+    FormControl,
+    InputLabel,
+    MenuItem,
     Paper,
+    Select,
     Table,
     TableBody,
     TableCell,
+    TableContainer,
     TableHead,
     TableRow,
-    Typography,
-    Box,
-    Collapse,
+    TablePagination,
     TextField,
-    Button,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    TablePagination
+    Typography
 } from '@mui/material';
 import {Transaction} from "./Backend";
 
@@ -42,63 +43,65 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions}) => {
     };
 
     return (
-        <Paper style={{padding: '20px', marginTop: '20px', maxWidth: "75%"}}>
+        <Paper style={{padding: '20px', marginTop: '20px', overflowX: 'auto'}}>
             <Typography variant="h6" style={{marginBottom: '20px'}}>
                 Transaction History
             </Typography>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
-                        <>
-                            <TableRow key={transaction.transaction_id}
-                                      onClick={() => handleRowClick(transaction.transaction_id)}
-                                      style={{cursor: 'pointer'}}>
-                                <TableCell>{transaction.date}</TableCell>
-                                <TableCell>{transaction.name}</TableCell>
-                                <TableCell align="right">{transaction.amount}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
-                                    <Collapse in={openTransactionId === transaction.transaction_id} timeout="auto"
-                                              unmountOnExit>
-                                        <Box margin={1}>
-                                            <Typography variant="h6" gutterBottom component="div">
-                                                Edit Transaction
-                                            </Typography>
-                                            <FormControl fullWidth margin="normal">
-                                                <InputLabel>Account</InputLabel>
-                                                <Select defaultValue="">
-
-                                                    <MenuItem>Test</MenuItem>
-
-                                                </Select>
-                                            </FormControl>
-                                            <TextField label="Memo" fullWidth margin="normal"/>
-                                            <Button variant="contained" component="label">
-                                                Upload Picture
-                                                <input type="file" hidden/>
-                                            </Button>
-                                            <Box mt={2}>
-                                                <Button variant="contained" color="primary"
-                                                        onClick={() => handleSave(transaction)}>
-                                                    Save
+            <TableContainer component={Paper}>
+                <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Date</TableCell>
+                            <TableCell>Description</TableCell>
+                            <TableCell align="right">Amount</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
+                            <>
+                                <TableRow key={transaction.transaction_id}
+                                          onClick={() => handleRowClick(transaction.transaction_id)}
+                                          style={{cursor: 'pointer'}}>
+                                    <TableCell>{transaction.date}</TableCell>
+                                    <TableCell>{transaction.name}</TableCell>
+                                    <TableCell align="right">{transaction.amount}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
+                                        <Collapse in={openTransactionId === transaction.transaction_id} timeout="auto"
+                                                  unmountOnExit>
+                                            <Box margin={1}>
+                                                <Typography variant="h6" gutterBottom component="div">
+                                                    Edit Transaction
+                                                </Typography>
+                                                <FormControl fullWidth margin="normal">
+                                                    <InputLabel>Account</InputLabel>
+                                                    <Select defaultValue="">
+                                                        {/*{accounts.map(account => (*/}
+                                                        {/*    <MenuItem key={account.id} value={account.id}>{account.name}</MenuItem>*/}
+                                                        {/*))}*/}
+                                                    </Select>
+                                                </FormControl>
+                                                <TextField label="Memo" fullWidth margin="normal"/>
+                                                <Button variant="contained" component="label">
+                                                    Upload Picture
+                                                    <input type="file" hidden/>
                                                 </Button>
+                                                <Box mt={2}>
+                                                    <Button variant="contained" color="primary"
+                                                            onClick={() => handleSave(transaction)}>
+                                                        Save
+                                                    </Button>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    </Collapse>
-                                </TableCell>
-                            </TableRow>
-                        </>
-                    ))}
-                </TableBody>
-            </Table>
+                                        </Collapse>
+                                    </TableCell>
+                                </TableRow>
+                            </>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
             <TablePagination
                 rowsPerPageOptions={[50]}
                 component="div"

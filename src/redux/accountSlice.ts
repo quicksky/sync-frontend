@@ -1,6 +1,6 @@
 // userSlice.ts
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {getUserAccounts} from '../Backend';
+import {getClientAccounts} from '../Backend';
 import {RootState} from "./store";
 
 
@@ -23,7 +23,7 @@ const initialState: AccountState = {
 
 
 export const fetchUserAccounts = createAsyncThunk('client/fetchAccount', async () => {
-    return await getUserAccounts();
+    return await getClientAccounts();
 });
 
 const accountSlice = createSlice({
