@@ -3,12 +3,13 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {getUserApi, loginUserApi} from '../Backend';
 import {RootState} from "./store";
 
-interface User {
+export interface User {
     id: number;
     email: string;
     first_name: string;
     last_name: string;
     role: number;
+    card_number: number | null;
 }
 
 interface UserState {

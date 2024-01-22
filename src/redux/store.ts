@@ -1,14 +1,20 @@
 // store.ts
 import {configureStore, Action} from '@reduxjs/toolkit';
 import userReducer from './userSlice';
-import sessionReducer from './session_slice'
+import linkTokenReducer from './linkTokenSlice'
+import accountReducer from './accountSlice'
+import repairTokenReducer from './repairTokenSlice'
+import clientReducer from './clientSlice'
 import {ThunkAction} from 'redux-thunk';
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 
 const store = configureStore({
     reducer: {
         user: userReducer,
-        session: sessionReducer
+        linkToken: linkTokenReducer,
+        repairToken: repairTokenReducer,
+        accounts: accountReducer,
+        client: clientReducer
     },
 });
 

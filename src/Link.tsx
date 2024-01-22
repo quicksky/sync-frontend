@@ -2,118 +2,44 @@ import React, {useEffect} from "react";
 import {Button} from "@mui/material";
 import {usePlaidLink} from "react-plaid-link";
 import {useAppDispatch} from "./redux/store";
-import {exchangeAndStoreLinkToken, fetchLinkToken, selectSession} from "./redux/session_slice";
+import {exchangeAndStoreLinkToken, fetchLinkToken, fetchRepairModeToken, selectLinkToken} from "./redux/linkTokenSlice";
 import {useSelector} from "react-redux";
+import {selectRepairToken} from "./redux/repairTokenSlice";
 
-const Link: React.FC = () => {
-    //
-    // const onSuccess = React.useCallback(
-    //     (public_token: string) => {
-    //         // If the access_token is needed, send public_token to server
-    //         const exchangePublicTokenForAccessToken = async () => {
-    //             const response = await fetch("/api/set_access_token", {
-    //                 method: "POST",
-    //                 headers: {
-    //                     "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-    //                 },
-    //                 body: `public_token=${public_token}`,
-    //             });
-    //             if (!response.ok) {
-    //                 dispatch({
-    //                     type: "SET_STATE",
-    //                     state: {
-    //                         itemId: `no item_id retrieved`,
-    //                         accessToken: `no access_token retrieved`,
-    //                         isItemAccess: false,
-    //                     },
-    //                 });
-    //                 return;
-    //             }
-    //             const data = await response.json();
-    //             dispatch({
-    //                 type: "SET_STATE",
-    //                 state: {
-    //                     itemId: data.item_id,
-    //                     accessToken: data.access_token,
-    //                     isItemAccess: true,
-    //                 },
-    //             });
-    //         };
-    //     })
+export interface LinkProps {
+    repair: boolean
+}
 
-    // const onSuccess = React.useCallback(
-    //     (public_token: string) => {
-    //         // If the access_token is needed, send public_token to server
-    //         const exchangePublicTokenForAccessToken = async () => {
-    //             const response = await fetch("/api/set_access_token", {
-    //                 method: "POST",
-    //                 headers: {
-    //                     "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-    //                 },
-    //                 body: `public_token=${public_token}`,
-    //             });
-    //             if (!response.ok) {
-    //                 dispatch({
-    //                     type: "SET_STATE",
-    //                     state: {
-    //                         itemId: `no item_id retrieved`,
-    //                         accessToken: `no access_token retrieved`,
-    //                         isItemAccess: false,
-    //                     },
-    //                 });
-    //                 return;
-    //             }
-    //             const data = await response.json();
-    //             dispatch({
-    //                 type: "SET_STATE",
-    //                 state: {
-    //                     itemId: data.item_id,
-    //                     accessToken: data.access_token,
-    //                     isItemAccess: true,
-    //                 },
-    //             });
-    //         };
-    //
-    //         // 'payment_initiation' products do not require the public_token to be exchanged for an access_token.
-    //         if (isPaymentInitiation){
-    //             dispatch({ type: "SET_STATE", state: { isItemAccess: false } });
-    //         } else {
-    //             exchangePublicTokenForAccessToken();
-    //         }
-    //
-    //         dispatch({ type: "SET_STATE", state: { linkSuccess: true } });
-    //         window.history.pushState("", "", "/");
-    //     },
-    //     [dispatch]
-    // );
-
+const Link: React.FC<LinkProps> = (props: LinkProps) => {
     const dispatch = useAppDispatch();
-    const session = useSelector(selectSession);
+    const link_token = useSelector(selectLinkToken);
+    const repair_token = useSelector(selectRepairToken)
     useEffect(() => {
-        dispatch(fetchLinkToken())
+        if (!props.repair) {
+            dispatch(fetchLinkToken())
+        } else {
+            dispatch(fetchRepairModeToken())
+        }
     }, [dispatch])
-
-
     const onSuccess = React.useCallback(
         (public_token: string) => {
-            dispatch(exchangeAndStoreLinkToken(public_token))
+            if (!props.repair) {
+                dispatch(exchangeAndStoreLinkToken(public_token))
+            }
         },
         [dispatch]
     );
-
-
-    const config: Parameters<typeof usePlaidLink>[0] = {
-        token: session.session ? session.session.link_token : null,
+    const config: Parameters<typeof usePlaidLink>[0] = !props.repair ? {
+        token: link_token ? link_token.link_token : null,
         onSuccess,
-    };
-
-
+    } : {
+        token: repair_token ? repair_token.link_token : null,
+        onSuccess,
+    }
     const {open, ready} = usePlaidLink(config);
-
-
     return (
         <Button onClick={() => open()} disabled={!ready}>
-            Launch Link
+            {!props.repair ? "Connect" : "Reauthorize"}
         </Button>
     )
 }

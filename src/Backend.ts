@@ -1,8 +1,10 @@
 import axios from 'axios';
 import {parseContentDispositionFilename} from "./helpers/parseContentDisposition";
+import {Account} from "./redux/accountSlice";
+import {GetClientUserListResponse} from "./redux/clientSlice";
 
 
-const API_BASE_URL = 'http://localhost:9000';
+const API_BASE_URL = 'https://service.quicksky.io';
 
 const apiAxios = axios.create({
     withCredentials: true,
@@ -44,6 +46,12 @@ export const generateLinkToken = async () => {
     const response = await apiAxios.get(endpoint)
     return response.data
 }
+export const generateRepairModeToken = async () => {
+    const endpoint = `${API_BASE_URL}/plaid/generateRepairModeToken`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
 
 export const getUserTransactions = async () => {
     const endpoint = `${API_BASE_URL}/transactions/getUserTransactions`
@@ -75,4 +83,39 @@ export const generateExport = async (dateRange: { start_date: string, end_date: 
             data: res.data,
         }
     })
+}
+
+export const getClientAccounts = async (): Promise<Account[]> => {
+    const endpoint = `${API_BASE_URL}/client/getAccounts`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const addClientAccounts = async (data: string) => {
+    const endpoint = `${API_BASE_URL}/client/addBulkAccounts`
+    const response = await apiAxios.post(endpoint, {data: data})
+    return response.data
+}
+
+export const deleteClientAccount = async (id: number) => {
+    const endpoint = `${API_BASE_URL}/client/deleteAccount`
+    const response = await apiAxios.post(endpoint, {id: id})
+    return response.data
+}
+
+export const getClientUserList = async (): Promise<GetClientUserListResponse> => {
+    const endpoint = `${API_BASE_URL}/client/getUsers`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const inviteUser = async (user_id: number) => {
+    const endpoint = `${API_BASE_URL}/client/inviteUser/${user_id}`
+    await apiAxios.get(endpoint)
+}
+
+export const createUser = async (request: { role: number, first_name: string, last_name: string, card_number: number | null }) => {
+    const endpoint = `${API_BASE_URL}/user/createUser`
+    const response = await apiAxios.post(endpoint, request)
+    return response.data
 }
