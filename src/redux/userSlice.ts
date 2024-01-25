@@ -70,5 +70,6 @@ const userSlice = createSlice({
 
 export default userSlice.reducer;
 export const selectUser = (state: RootState): User | null => state.user.user;
+export const selectIsAdmin = (state: RootState): boolean => state.user.user ? state.user.user.role > 1 : false
 export const selectUserState = (state: RootState) => state.user
 

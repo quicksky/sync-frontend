@@ -4,22 +4,11 @@ import {Account} from "./redux/accountSlice";
 import {GetClientUserListResponse} from "./redux/clientSlice";
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,
 });
-
-export interface Transaction {
-    transaction_id: string;
-    client_id: number,
-    account_id: string,
-    account_owner: string,
-    date: string;
-    name: string;
-    pending: boolean,
-    amount: number
-}
 
 
 // Login endpoint
@@ -55,6 +44,12 @@ export const generateRepairModeToken = async () => {
 
 export const getUserTransactions = async () => {
     const endpoint = `${API_BASE_URL}/transactions/getUserTransactions`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const getAdminTransactions = async () => {
+    const endpoint = `${API_BASE_URL}/transactions/getAdminTransactions`
     const response = await apiAxios.get(endpoint)
     return response.data
 }
@@ -117,5 +112,29 @@ export const inviteUser = async (user_id: number) => {
 export const createUser = async (request: { role: number, first_name: string, last_name: string, card_number: number | null }) => {
     const endpoint = `${API_BASE_URL}/user/createUser`
     const response = await apiAxios.post(endpoint, request)
+    return response.data
+}
+
+export const setTransactionInfo = async (request: { id: string, account_id: number | null, memo: string | null }) => {
+    const endpoint = `${API_BASE_URL}/transactions/setInfo`
+    const response = await apiAxios.post(endpoint, request)
+    return response.data
+}
+
+export const uploadTransactionFile = async (request: { id: string, file: File }) => {
+    const endpoint = `${API_BASE_URL}/upload/${request.id}`
+    const response = await apiAxios.post(endpoint, request.file, {headers: {"Content-Type": request.file.type}})
+    return response.data
+}
+
+export const getTransactionImage = async (id: string) => {
+    const endpoint = `${API_BASE_URL}/transactions/getTransactionImage/${id}`
+    const response = await apiAxios.get(endpoint)
+    return response.data['url']
+}
+
+export const syncTransactions = async () => {
+    const endpoint = `${API_BASE_URL}/plaid/syncTransactions`
+    const response = await apiAxios.get(endpoint)
     return response.data
 }

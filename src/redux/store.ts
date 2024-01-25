@@ -3,6 +3,7 @@ import {configureStore, Action} from '@reduxjs/toolkit';
 import userReducer from './userSlice';
 import linkTokenReducer from './linkTokenSlice'
 import accountReducer from './accountSlice'
+import transactionReducer from './transactionSlice'
 import repairTokenReducer from './repairTokenSlice'
 import clientReducer from './clientSlice'
 import {ThunkAction} from 'redux-thunk';
@@ -14,7 +15,8 @@ const store = configureStore({
         linkToken: linkTokenReducer,
         repairToken: repairTokenReducer,
         accounts: accountReducer,
-        client: clientReducer
+        client: clientReducer,
+        transaction: transactionReducer
     },
 });
 

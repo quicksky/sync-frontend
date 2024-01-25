@@ -4,20 +4,28 @@ import {
     CircularProgress,
 } from '@mui/material';
 
-import {getUserTransactions, Transaction} from "./Backend";
 import TransactionList from "./TransactionList";
 import MainAppBar from "./MainAppBar";
+import {useAppDispatch, useAppSelector} from "./redux/store";
+import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
+import {fetchTransactions, selectTransactions, Transaction} from "./redux/transactionSlice";
+import {selectIsAdmin} from "./redux/userSlice";
 
 const SuccessPage: React.FC = () => {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const dispatch = useAppDispatch()
+    const transactions = useAppSelector(selectTransactions)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [, setError] = useState<boolean>(false)
+    const accounts = useAppSelector(selectAccounts)
+    const isAdmin = useAppSelector(selectIsAdmin);
 
     useEffect(() => {
         setIsLoading(true)
-        getUserTransactions().then(r => setTransactions(r)).catch(() => setError(true)).finally(() => setIsLoading(false))
-    }, []);
-
+        dispatch(fetchTransactions(isAdmin)).finally(() => {
+            setIsLoading(false)
+        })
+        dispatch(fetchUserAccounts())
+    }, [dispatch]);
 
     return (
         <Box sx={{
@@ -31,7 +39,7 @@ const SuccessPage: React.FC = () => {
             {isLoading ? (
                 <CircularProgress/>
             ) : (
-                <TransactionList transactions={transactions}/>
+                <TransactionList transactions={transactions} accounts={accounts} isAdmin={isAdmin}/>
             )}
 
         </Box>
