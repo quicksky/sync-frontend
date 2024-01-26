@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
 import {
     Box,
     Button,
@@ -16,14 +16,16 @@ import {
     TableRow,
     TablePagination,
     TextField,
-    Typography
+    Typography, IconButton, Tooltip
 } from '@mui/material';
-import {getTransactionImage, setTransactionInfo, uploadTransactionFile} from "./Backend";
+import {deleteReceipt, getTransactionImage, setTransactionInfo, uploadTransactionFile} from "./Backend";
 import {Account} from "./redux/accountSlice";
 import ImageViewer from 'react-simple-image-viewer';
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {selectIsAdmin, selectUser} from "./redux/userSlice";
 import {fetchTransactions, Transaction} from "./redux/transactionSlice";
+import {Trash} from "plaid-threads";
+import {Delete, Receipt, Upload} from "@mui/icons-material";
 
 interface TransactionListProps {
     transactions: Transaction[];
@@ -40,7 +42,26 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const rowsPerPage = 50;
     const [isViewerOpen, setViewerOpen] = useState<boolean>(false)
     const [images, setImages] = useState<string[]>([])
+    const uploadReceiptInput = useRef<HTMLInputElement>(null);
+    const handleRecieptInputClick = () => {
+        uploadReceiptInput.current?.click()
+    };
     const dispatch = useAppDispatch()
+
+    //filters
+
+    const [includePayments, setIncludePayments] = useState<boolean>(false);
+    const [search, setSearch] = useState<string>("")
+    //date filter
+
+    const transactionFilter = (transaction: Transaction) => {
+        const includePaymentsFilter = !includePayments ? transaction.amount > 0 : true
+        const searchFilter = transaction.name.toLowerCase().includes(search)
+
+        return includePaymentsFilter && searchFilter
+    }
+
+    const filteredTransactions = transactions.filter(transactionFilter)
 
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -90,7 +111,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         }).then(() => {
             setFile(null);
         }) : Promise.resolve();
-        
+
         Promise.all([transactionInfoPromise, uploadFilePromise])
             .then(() => {
                 dispatch(fetchTransactions(isAdmin));
@@ -101,6 +122,14 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                 //error
             });
     };
+
+    const handleDelete = (transactionId: string) => {
+        deleteReceipt(transactionId).then(() => {
+            dispatch(fetchTransactions(isAdmin))
+            setImages([]);
+            setOpenTransactionId(null);
+        })
+    }
 
     return (
 
@@ -126,7 +155,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
+                            {filteredTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
                                 <>
                                     <TableRow key={transaction.transaction_id}
                                               onClick={() => handleRowClick(transaction)}
@@ -160,10 +189,32 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                         Upload Picture
                                                         <input type="file" hidden onChange={handleFileChange}/>
                                                     </Button>
-                                                    {images.length ? (<Button variant="contained" color="primary"
-                                                                              onClick={() => setViewerOpen(!isViewerOpen)}>
-                                                        View File
-                                                    </Button>) : undefined}
+                                                    <Tooltip title={"Upload Receipt"}>
+                                                        <IconButton sx={{ml: 2}} onClick={handleRecieptInputClick}>
+                                                            <Upload></Upload>
+                                                        </IconButton></Tooltip>
+                                                    <input
+                                                        type="file"
+                                                        ref={uploadReceiptInput}
+                                                        onChange={handleFileChange}
+                                                        hidden
+                                                    />
+                                                    {images.length ? (
+                                                        <><Button sx={{ml: 2}} variant="contained" color="primary"
+                                                                  onClick={() => setViewerOpen(!isViewerOpen)}>
+                                                            View File
+                                                        </Button>
+
+                                                            <Tooltip title={"View Receipt"}>
+                                                                <IconButton sx={{ml: 2}}
+                                                                            onClick={() => setViewerOpen(!isViewerOpen)}>
+                                                                    <Receipt></Receipt>
+                                                                </IconButton></Tooltip>
+                                                            <Tooltip title={"Delete Receipt"}>
+                                                                <IconButton sx={{ml: 2}}
+                                                                            onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                    <Delete></Delete>
+                                                                </IconButton></Tooltip></>) : undefined}
 
                                                     {file ? (
                                                         <Typography>
@@ -189,7 +240,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                 </TableContainer><TablePagination
                     rowsPerPageOptions={[50]}
                     component="div"
-                    count={transactions.length}
+                    count={filteredTransactions.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}/></>

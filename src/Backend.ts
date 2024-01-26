@@ -138,3 +138,9 @@ export const syncTransactions = async () => {
     const response = await apiAxios.get(endpoint)
     return response.data
 }
+
+export const deleteReceipt = async (id: string) => {
+    const endpoint = `${API_BASE_URL}/upload/delete/${id}`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
