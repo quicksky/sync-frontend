@@ -9,7 +9,7 @@ import MainAppBar from "./MainAppBar";
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
 import {fetchTransactions, selectTransactions, Transaction} from "./redux/transactionSlice";
-import {selectIsAdmin} from "./redux/userSlice";
+import {selectIsAdmin, selectUser} from "./redux/userSlice";
 
 const SuccessPage: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -17,15 +17,16 @@ const SuccessPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [, setError] = useState<boolean>(false)
     const accounts = useAppSelector(selectAccounts)
+    const user = useAppSelector(selectUser)
     const isAdmin = useAppSelector(selectIsAdmin);
 
     useEffect(() => {
         setIsLoading(true)
-        dispatch(fetchTransactions(isAdmin)).finally(() => {
+        user && dispatch(fetchTransactions(isAdmin)).finally(() => {
             setIsLoading(false)
         })
         dispatch(fetchUserAccounts())
-    }, [dispatch]);
+    }, [dispatch, user]);
 
     return (
         <Box sx={{
