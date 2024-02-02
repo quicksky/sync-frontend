@@ -11,20 +11,45 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import {Sync} from "@mui/icons-material";
-import {generateExport, logoutUserApi} from "./Backend";
+import {generateExport, logoutUserApi, syncTransactions} from "./Backend";
 import triggerDownload from "./triggerDownload";
-import {Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField} from "@mui/material";
-import {useAppSelector} from "./redux/store";
-import {selectUser} from "./redux/userSlice";
+import {
+    Alert,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    TextField
+} from "@mui/material";
+import {useAppDispatch, useAppSelector} from "./redux/store";
+import {selectIsAdmin, selectUser} from "./redux/userSlice";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {fetchTransactions} from "./redux/transactionSlice";
+import {LoadingSpinner} from "plaid-threads";
+import DateInput from "plaid-threads/DateInput";
+import {DatePicker} from "@mui/x-date-pickers";
+
+/*import {DatePicker} from '@mui/x-date-pickers/DatePicker';*/
 
 
 function MainAppBar() {
     const user = useAppSelector(selectUser)
+    const isAdmin = useAppSelector(selectIsAdmin)
+    const dispatch = useAppDispatch()
+
     const navigate = useNavigate();
     const userIsAdmin = user && user.role > 1
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+
+    const [syncTransactionsLoading, setSyncTransactionsLoading] = useState<boolean>(false)
+    const [syncErrorAlertOpen, setSyncErrorAlertOpen] = useState<boolean>(false);
+    const syncErrorMessage = userIsAdmin ?
+        "Please reconnect your credit card account in the settings page. If that does not resolve the issue, reach out to " :
+        "Please contact your administrator to resolve this issue"
 
     const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElUser(event.currentTarget);
@@ -46,10 +71,18 @@ function MainAppBar() {
         setExportError(false)
     };
 
+    const handleSyncErrorOpen = () => {
+        setSyncErrorAlertOpen(true)
+    }
+    const handleSyncErrorClose = () => {
+        setSyncErrorAlertOpen(false)
+    }
+
     const onExportSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
+        console.log(formJson)
         const startDate = formJson.start_date;
         const endDate = formJson.end_date;
         generateExport({start_date: startDate, end_date: endDate}).then(r => {
@@ -102,7 +135,7 @@ function MainAppBar() {
                             fontFamily: 'monospace',
                             fontWeight: 700,
                             letterSpacing: '.3rem',
-                            color: '#050A30',
+                            color: '#ffffff',
                             textDecoration: 'none',
                         }}
                     >
@@ -116,6 +149,39 @@ function MainAppBar() {
                             >
                                 Export
                             </Button> : undefined}
+                        {!syncTransactionsLoading ? (<Button onClick={() => {
+                            setSyncTransactionsLoading(true)
+                            syncTransactions().then(() => {
+                                dispatch(fetchTransactions(isAdmin))
+                            }).catch(() => {
+                                handleSyncErrorOpen()
+                            }).finally(() => {
+                                setSyncTransactionsLoading(false)
+                            })
+                        }}>
+                            REFRESH BUTTON (MIGHT FAIL)
+                        </Button>) : <CircularProgress/>}
+                        <Dialog
+                            open={syncErrorAlertOpen}
+                            onClose={handleSyncErrorClose}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="alert-dialog-title">
+                                {"Error Syncing Transactions"}
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    {syncErrorMessage} {userIsAdmin ? <a
+                                    href={"mailto:support@quicksky.net&subject=Sync%20Transactions%20Error"}
+                                    target="_blank">support@quicksky.net</a> : undefined}
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleSyncErrorClose}>Ok</Button>
+                            </DialogActions>
+                        </Dialog>
+
                         <Dialog
                             open={open}
                             onClose={handleClose}
@@ -129,25 +195,26 @@ function MainAppBar() {
                                 <DialogContentText>
                                     Enter date range
                                 </DialogContentText>
-                                <TextField
-                                    autoFocus
-                                    required
-                                    margin="dense"
+                                {/*<TextField*/}
+                                {/*    autoFocus*/}
+                                {/*    required*/}
+                                {/*    margin="dense"*/}
+                                {/*    label="Start Date"*/}
+                                {/*    name="start_date"*/}
+                                {/*    id="start_date"*/}
+                                {/*    fullWidth*/}
+                                {/*    variant="standard"*/}
+                                {/*/>*/}
+                                <DatePicker
                                     label="Start Date"
                                     name="start_date"
-                                    id="start_date"
-                                    fullWidth
-                                    variant="standard"
-                                />
-                                <TextField
-                                    required
-                                    margin="dense"
+                                    format={"YYYY-MM-DD"}
+                                ></DatePicker>
+
+                                <DatePicker
                                     label="End Date"
                                     name="end_date"
-                                    id="end_date"
-                                    fullWidth
-                                    variant="standard"
-                                />
+                                    format={"YYYY-MM-DD"}></DatePicker>
 
                             </DialogContent>
                             {exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}
@@ -162,7 +229,7 @@ function MainAppBar() {
                     <Box sx={{flexGrow: 0}}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
-                                <Avatar alt="wemy Sharp" src="/static/images/avatar/2.jpg"/>
+                                <Avatar alt={user?.first_name} src="/static/images/avatar/2.jpg"/>
                             </IconButton>
                         </Tooltip>
                         <Menu
@@ -181,11 +248,12 @@ function MainAppBar() {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            <MenuItem key="Settings" onClick={() => {
+                            {isAdmin ? (<MenuItem key="Settings" onClick={() => {
                                 navigate("/settings")
                             }}>
                                 <Typography textAlign="center">Settings</Typography>
-                            </MenuItem>
+                            </MenuItem>) : undefined}
+
 
                             <MenuItem key="Logout" onClick={() => {
                                 logoutUserApi().then(() => {
