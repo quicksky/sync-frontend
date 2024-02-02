@@ -39,10 +39,9 @@ const LoginPage: React.FC = () => {
             <CssBaseline/>
             <Box
                 sx={{
-                    mt: 10,
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'center',
+                    justifyContent: 'flex-end',
                     alignItems: 'center',
                 }}
             >
