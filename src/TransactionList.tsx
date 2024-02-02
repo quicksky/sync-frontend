@@ -149,9 +149,9 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Date</TableCell>
-                                <TableCell>Description</TableCell>
-                                <TableCell align="right">Amount</TableCell>
+                                <TableCell sx={{ color: "primary.main" }}>Date</TableCell>
+                                <TableCell sx={{ color: "primary.main" }}>Description</TableCell>
+                                <TableCell sx={{ color: "primary.main" }} align="right">Amount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -173,9 +173,9 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                     <Typography variant="h6" gutterBottom component="div">
                                                         Edit Transaction
                                                     </Typography>
-                                                    <FormControl fullWidth margin="normal">
-                                                        <InputLabel>Account</InputLabel>
-                                                        <Select defaultValue={accountId ? +accountId : ""}
+                                                    <FormControl focused color="secondary" variant="outlined" fullWidth margin="normal">
+                                                        <InputLabel color="secondary" sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
+                                                        <Select labelId="label-for-account" label="Account" defaultValue={accountId ? +accountId : ""}
                                                                 onChange={(e) => setAccountId(+e.target.value)}>
                                                             {accounts.map(account => (
                                                                 <MenuItem key={account.id}
@@ -183,8 +183,14 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                             ))}
                                                         </Select>
                                                     </FormControl>
-                                                    <TextField value={memo} label="Memo" fullWidth margin="normal"
-                                                               onChange={(e) => setMemo(e.target.value)}/>
+                                                    <TextField
+                                                        focused
+                                                        color="secondary"
+                                                        sx={{input: {color: 'secondary.main'}}}
+                                                        value={memo}
+                                                        label="Memo"
+                                                        fullWidth margin="normal"
+                                                        onChange={(e) => setMemo(e.target.value)}/>
                                                     <Button variant="contained" component="label">
                                                         Upload Picture
                                                         <input type="file" hidden onChange={handleFileChange}/>
