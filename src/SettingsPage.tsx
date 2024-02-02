@@ -80,6 +80,7 @@ const SettingsPage: React.FC = () => {
     const handleAddAccounts = () =>{
         addClientAccounts(addAccountText).then(() => {
             dispatch(fetchUserAccounts())
+            handleClose()
         })
 
     }
@@ -184,12 +185,12 @@ const SettingsPage: React.FC = () => {
                                                 component: 'form',
                                             }}
                                         >
-                                            <DialogTitle>Add Accounts</DialogTitle>
+                                            <DialogTitle color="secondary">Add Accounts</DialogTitle>
                                             <DialogContent>
                                                 <TextField
                                                     onChange={(e) => setAddAccountText(e.target.value)}
-                                                    sx={{input: {color: 'black'}}}
-                                                    autoFocus
+                                                    color="secondary"
+                                                    focused
                                                     required
                                                     margin="dense"
                                                     label="Enter account names"
@@ -198,8 +199,8 @@ const SettingsPage: React.FC = () => {
                                                 />
                                             </DialogContent>
                                             <DialogActions>
-                                                <Button onClick={handleClose}>Cancel</Button>
-                                                <Button onClick={handleAddAccounts} type="submit">Export</Button>
+                                                <Button onClick={handleClose} color="secondary">Cancel</Button>
+                                                <Button onClick={handleAddAccounts} variant="contained" color="secondary">Add</Button>
                                             </DialogActions>
                                         </Dialog>
                                     </TableCell>
@@ -247,10 +248,11 @@ const SettingsPage: React.FC = () => {
                                 onSubmit: onUserInviteSubmit,
                             }}
                         >
-                            <DialogTitle>Enter User Information</DialogTitle>
+                            <DialogTitle color="secondary">Enter User Information</DialogTitle>
                             <DialogContent>
                                 <TextField
-                                    autoFocus
+                                    focused
+                                    color="secondary"
                                     required
                                     margin="dense"
                                     label="First Name"
@@ -261,6 +263,8 @@ const SettingsPage: React.FC = () => {
                                 />
                                 <TextField
                                     required
+                                    focused
+                                    color="secondary"
                                     margin="dense"
                                     label="Last Name"
                                     name="last_name"
@@ -269,7 +273,8 @@ const SettingsPage: React.FC = () => {
                                     variant="standard"
                                 />
                                 <TextField
-                                    autoFocus
+                                    focused
+                                    color="secondary"
                                     required
                                     margin="dense"
                                     label="Email"
@@ -279,7 +284,8 @@ const SettingsPage: React.FC = () => {
                                     variant="standard"
                                 />
                                 <TextField
-                                    autoFocus
+                                    focused
+                                    color="secondary"
                                     required
                                     margin="dense"
                                     label="Card Number"
@@ -289,8 +295,11 @@ const SettingsPage: React.FC = () => {
                                     variant="standard"
                                 />
                                 <FormControlLabel
-                                    autoFocus
-                                    control={<Checkbox checked = {inviteUserAdmin} onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
+                                    control={<Checkbox sx={{
+                                        "&, & + .MuiFormControlLabel-label": {
+                                            color: "secondary.main"
+                                        }
+                                    }} color="secondary" checked = {inviteUserAdmin} onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
                                     label="Admin"
                                     name="is_admin"
                                     id="is_admin"
@@ -298,8 +307,8 @@ const SettingsPage: React.FC = () => {
                             </DialogContent>
                             {/*{exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}*/}
                             <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button type="submit">Export</Button>
+                                <Button onClick={handleClose} color="secondary">Cancel</Button>
+                                <Button type="submit" variant="contained" color="secondary">Invite User</Button>
                             </DialogActions>
                         </Dialog>
                     </Box>

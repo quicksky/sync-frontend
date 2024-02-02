@@ -159,7 +159,7 @@ function MainAppBar() {
                                 setSyncTransactionsLoading(false)
                             })
                         }}>
-                            REFRESH BUTTON (MIGHT FAIL)
+                            REFRESH
                         </Button>) : <CircularProgress/>}
                         <Dialog
                             open={syncErrorAlertOpen}
@@ -178,7 +178,7 @@ function MainAppBar() {
                                 </DialogContentText>
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={handleSyncErrorClose}>Ok</Button>
+                                <Button onClick={handleSyncErrorClose} variant="contained" color="secondary">Ok</Button>
                             </DialogActions>
                         </Dialog>
 
@@ -219,8 +219,8 @@ function MainAppBar() {
                             </DialogContent>
                             {exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}
                             <DialogActions>
-                                <Button onClick={handleClose}>Cancel</Button>
-                                <Button type="submit">Export</Button>
+                                <Button onClick={handleClose} color="secondary">Cancel</Button>
+                                <Button type="submit" variant="contained" color="secondary">Export</Button>
                             </DialogActions>
                         </Dialog>
 

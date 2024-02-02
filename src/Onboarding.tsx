@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import {resetUserPassword} from "./Backend";
 import {Button, Container, TextField, Typography} from "@mui/material";
+import Box from "@mui/material/Box";
+import {useNavigate} from "react-router-dom";
 
 const Onboarding: React.FC = () => {
     const params = new URLSearchParams(document.location.search);
@@ -11,7 +13,7 @@ const Onboarding: React.FC = () => {
 
 
     const token = params.get("token") || "";
-    console.log(token)
+    const navigate = useNavigate();
 
     const handleSubmit = () => {
         if (token === "") {
@@ -25,7 +27,7 @@ const Onboarding: React.FC = () => {
             return
         }
         resetUserPassword(password, token).then(() => {
-            console.log("success")
+            navigate('/')
         }).catch((data) => {
             console.log(data)
         })
@@ -33,28 +35,44 @@ const Onboarding: React.FC = () => {
 
 
     return (
-        <Container>
-            <Typography variant="h4">Create Password</Typography>
-            <TextField
-                type="password"
-                label="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                margin="normal"
-                fullWidth
-            />
-            <TextField
-                type="password"
-                label="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                margin="normal"
-                fullWidth
-            />
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-                Submit
-            </Button>
-            {error ? <Typography>{errorText}</Typography> : undefined}
+        <Container component="main" maxWidth="xs" sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            height: '80vh'
+        }}>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+            }}>
+                <Typography variant="h4" color="primary">Create Password</Typography>
+                <TextField
+                    focused
+                    type="password"
+                    label="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    margin="normal"
+                    fullWidth
+                    sx={{input: {color: '#FFFFFF'}}}
+                />
+                <TextField
+                    focused
+                    type="password"
+                    label="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    margin="normal"
+                    fullWidth
+                    sx={{input: {color: '#FFFFFF'}}}
+                />
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    Submit
+                </Button>
+                {error ? <Typography>{errorText}</Typography> : undefined}
+            </Box>
         </Container>
     )
 
