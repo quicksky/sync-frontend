@@ -1,10 +1,36 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
 import Link from "./Link";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import IconButton from '@mui/material/IconButton';
+import {fetchUserList, selectActiveUsers, selectPendingUsers} from "./redux/clientSlice";
+import {addClientAccounts, createUser, deleteClientAccount} from "./Backend";
+import {
+    Alert,
+    Button, Checkbox, CssBaseline,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle, Divider, Drawer, FormControlLabel,
+    TextField
+} from "@mui/material";
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+
+const drawerWidth = 240
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -36,45 +62,284 @@ const SettingsPage: React.FC = () => {
     const [value, setValue] = React.useState(0);
     const dispatch = useAppDispatch()
     const accounts = useAppSelector(selectAccounts)
+    const activeUsers = useAppSelector(selectActiveUsers)
+    const [addAccountText, setAddAccountText] = useState("")
+    const [inviteUserAdmin, setInviteUserAdmin] = useState<boolean>(false)
 
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
 
+    const handleDelete = (id:number) => {
+        deleteClientAccount(id).then(() => {
+            dispatch(fetchUserAccounts())
+        })
+    }
+
+    const handleAddAccounts = () =>{
+        addClientAccounts(addAccountText).then(() => {
+            dispatch(fetchUserAccounts())
+        })
+
+    }
+
+    const [open, setOpen] = React.useState(false);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
     useEffect(() => {
         dispatch(fetchUserAccounts())
+        dispatch(fetchUserList())
     }, [dispatch])
 
-    return (
-        <Box sx={{display: 'flex', height: "100vh"}}>
-            <Tabs
-                orientation="vertical"
-                variant="scrollable"
-                value={value}
-                onChange={handleChange}
-                sx={{
-                    borderRight: 1,
-                    borderColor: 'divider',
-                    backgroundColor: '#f5f5f5',
-                    width: '200px',
-                }}
-            >
-                <Tab label="Accounts"/>
-                <Tab label="Users"/>
-                <Tab label="Plaid Link"/>
-            </Tabs>
-            <TabPanel value={value} index={0}>
-                {accounts.map(a => a.name)}
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-                Users
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-                <Link repair={false}/>
-                <Link repair={true}/>
+    const onUserInviteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+        const formJson = Object.fromEntries((formData as any).entries())
+        const firstName = formJson.first_name
+        const lastName = formJson.last_name
+        const email = formJson.email
+        const cardNumber = formJson.card_number
+        createUser({role: inviteUserAdmin ? 2 : 1, first_name: firstName, last_name: lastName, email: email, card_number: cardNumber}).then(r => {
 
-            </TabPanel>
+            handleClose();
+        }).catch(e => {
+            // if (e.code == "ERR_BAD_REQUEST") {
+            //     setExportError(true)
+            //     setExportErrorTest("Dates are not in the correct format")
+            // } else {
+            //     setExportError(true)
+            //     setExportErrorTest("Server error")
+            // }
+        })
+    }
+
+    return (
+        <Box sx={{ display: 'flex' }}>
+            <CssBaseline />
+            <AppBar
+                position="fixed"
+                sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+            >
+            </AppBar>
+            <Drawer
+                sx={{
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: drawerWidth,
+                        boxSizing: 'border-box',
+                    },
+                }}
+                variant="permanent"
+                anchor="left"
+            >
+                {/*<Toolbar />*/}
+                {/*<Divider />*/}
+
+                <Tabs
+                    textColor="primary"
+                    indicatorColor="primary"
+                    orientation="vertical"
+                    value={value}
+                    onChange={handleChange}
+                    sx={{
+                        width: drawerWidth,
+                        "& button.Mui-selected": { backgroundColor: "secondary.main" },
+                    }}
+                >
+                    <Tab label="Accounts"/>
+                    <Tab label="Users"/>
+                    <Tab label="Plaid Link"/>
+                </Tabs>
+
+            </Drawer>
+            <Box
+                component="main"
+                sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+            >
+
+                {/*ACCOUNT PANEL*/}
+                <TabPanel value={value} index={0}>
+                    <TableContainer component={Paper} sx={{ width: "50%", justifyContent: 'center', mx: 'auto', height: '85vh'}}>
+                        <Table sx={{ width: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', mx: 'auto'}} aria-label="simple table">
+                            <TableHead>
+                                <TableRow sx={{ borderBottom: '2px solid' }}>
+                                    <TableCell align="left" width="90%" sx={{fontWeight: 'bold'}}>Available Accounts</TableCell>
+                                    <TableCell align="right" width="10%">
+                                        <IconButton aria-label="add" size="large" color="success" onClick={handleClickOpen}>
+                                            <AddIcon fontSize="inherit" />
+                                        </IconButton>
+                                        <Dialog
+                                            open={open}
+                                            onClose={handleClose}
+                                            PaperProps={{
+                                                component: 'form',
+                                            }}
+                                        >
+                                            <DialogTitle>Add Accounts</DialogTitle>
+                                            <DialogContent>
+                                                <TextField
+                                                    onChange={(e) => setAddAccountText(e.target.value)}
+                                                    sx={{input: {color: 'black'}}}
+                                                    autoFocus
+                                                    required
+                                                    margin="dense"
+                                                    label="Enter account names"
+                                                    multiline
+                                                    rows={4}
+                                                />
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={handleClose}>Cancel</Button>
+                                                <Button onClick={handleAddAccounts} type="submit">Export</Button>
+                                            </DialogActions>
+                                        </Dialog>
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {accounts.map((account) => (
+                                    <TableRow
+                                        key={account.id}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell align="left" width="90%">
+                                            {account.name}
+                                        </TableCell>
+                                        <TableCell align="right" width="10%">
+                                            <IconButton onClick={() => handleDelete(account.id)} aria-label="delete" size="large" color="error">
+                                                <RemoveIcon fontSize="inherit" />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </TabPanel>
+
+
+                {/*USERS PANEL*/}
+                <TabPanel value={value} index={1}>
+                    {/*{activeUsers.map((user) => (*/}
+                    {/*    <Typography>*/}
+                    {/*        {user.first_name}*/}
+                    {/*    </Typography>*/}
+                    {/*))}*/}
+                    <Box display="flex" justifyContent="flex-end">
+                        <Button variant="contained" sx={{mb: 1}} onClick={handleClickOpen}
+                        >
+                            Invite User
+                        </Button>
+                        <Dialog
+                            open={open}
+                            onClose={handleClose}
+                            PaperProps={{
+                                component: 'form',
+                                onSubmit: onUserInviteSubmit,
+                            }}
+                        >
+                            <DialogTitle>Enter User Information</DialogTitle>
+                            <DialogContent>
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    label="First Name"
+                                    name="first_name"
+                                    id="first_name"
+                                    fullWidth
+                                    variant="standard"
+                                />
+                                <TextField
+                                    required
+                                    margin="dense"
+                                    label="Last Name"
+                                    name="last_name"
+                                    id="last_name"
+                                    fullWidth
+                                    variant="standard"
+                                />
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    label="Email"
+                                    name="email"
+                                    id="email"
+                                    fullWidth
+                                    variant="standard"
+                                />
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    label="Card Number"
+                                    name="card_number"
+                                    id="card_number"
+                                    fullWidth
+                                    variant="standard"
+                                />
+                                <FormControlLabel
+                                    autoFocus
+                                    control={<Checkbox checked = {inviteUserAdmin} onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
+                                    label="Admin"
+                                    name="is_admin"
+                                    id="is_admin"
+                                />
+                            </DialogContent>
+                            {/*{exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}*/}
+                            <DialogActions>
+                                <Button onClick={handleClose}>Cancel</Button>
+                                <Button type="submit">Export</Button>
+                            </DialogActions>
+                        </Dialog>
+                    </Box>
+                    <TableContainer component={Paper}>
+                        <Table sx={{ minWidth: 250 }} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="left">First Name</TableCell>
+                                    <TableCell align="right">Last Name</TableCell>
+                                    <TableCell align="right">Email</TableCell>
+                                    <TableCell align="right">Card Number</TableCell>
+                                    <TableCell align="right">Role</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {activeUsers.map((user) => (
+                                    <TableRow
+                                        key={user.id}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell component="th" scope="row">
+                                            {user.first_name}
+                                        </TableCell>
+                                        <TableCell align="right">{user.last_name}</TableCell>
+                                        <TableCell align="right">{user.email}</TableCell>
+                                        <TableCell align="right">{user.card_number}</TableCell>
+                                        <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </TabPanel>
+
+                {/*PLAID PANEL*/}
+                <TabPanel value={value} index={2}>
+                    <Link repair={false}/>
+                    <Link repair={true}/>
+                </TabPanel>
+            </Box>
         </Box>
     );
 }

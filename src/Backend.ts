@@ -114,7 +114,7 @@ export const inviteUser = async (user_id: number) => {
     await apiAxios.get(endpoint)
 }
 
-export const createUser = async (request: { role: number, first_name: string, last_name: string, card_number: number | null }) => {
+export const createUser = async (request: { role: number, first_name: string, last_name: string, email: string, card_number: number | null }) => {
     const endpoint = `${API_BASE_URL}/user/createUser`
     const response = await apiAxios.post(endpoint, request)
     return response.data
