@@ -27,6 +27,8 @@ import {fetchTransactions, Transaction} from "./redux/transactionSlice";
 import {Trash} from "plaid-threads";
 import {Delete, Receipt, Upload} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
+import Compress from 'compress.js'
+
 
 interface TransactionListProps {
     transactions: Transaction[];
@@ -49,6 +51,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         uploadReceiptInput.current?.click()
     };
     const dispatch = useAppDispatch()
+
+    const compress = new Compress()
 
     //filters
 
@@ -107,12 +111,30 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             setAccountId(null);
         });
 
-        const uploadFilePromise = file ? uploadTransactionFile({
-            id: transaction.transaction_id,
-            file: file
-        }).then(() => {
-            setFile(null);
-        }) : Promise.resolve();
+
+        const uploadFilePromise = file ? compress.compress([file], {
+            size: 1,
+            quality: 0.75,
+            resize: false
+        }).then((data) => {
+            const img = data[0];
+            const base64str = img.data;
+            const imgExt = img.ext;
+            const file = Compress.convertBase64ToFile(base64str, imgExt);
+            uploadTransactionFile({
+                id: transaction.transaction_id,
+                file: file
+            }).then(() => {
+                setFile(null);
+            })
+        }) : Promise.resolve()
+
+        // const uploadFilePromise = file ? uploadTransactionFile({
+        //     id: transaction.transaction_id,
+        //     file: file
+        // }).then(() => {
+        //     setFile(null);
+        // }) : Promise.resolve();
 
         Promise.all([transactionInfoPromise, uploadFilePromise])
             .then(() => {
