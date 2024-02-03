@@ -26,6 +26,7 @@ const SuccessPage: React.FC = () => {
             setIsLoading(false)
         })
         dispatch(fetchUserAccounts())
+
     }, [dispatch, user]);
 
     return (

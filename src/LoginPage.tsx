@@ -10,7 +10,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
-    const [, setError] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
+    const [errorText, setErrorText] = useState<string>("");
     //error text
 
     const navigate = useNavigate();
@@ -24,8 +25,9 @@ const LoginPage: React.FC = () => {
         setError(false)
         dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
             navigate("/home")
-        }).catch(() => {
+        }).catch(e => {
             setError(true)
+            setErrorText(e.code === "ERR_BAD_REQUEST" ? "Invalid Email or Password" : "There was an error communicating with the server");
         })
     };
 
@@ -86,6 +88,8 @@ const LoginPage: React.FC = () => {
                     {/*        </Link>*/}
                     {/*    </Grid>*/}
                     {/*</Grid>*/}
+                    {error ? (<Typography>{errorText}</Typography>) : undefined}
+
                 </Box>
             </Box>
         </Container>

@@ -26,12 +26,14 @@ import {selectIsAdmin, selectUser} from "./redux/userSlice";
 import {fetchTransactions, Transaction} from "./redux/transactionSlice";
 import {Trash} from "plaid-threads";
 import {Delete, Receipt, Upload} from "@mui/icons-material";
+import {formatUSD} from "./helpers/formatUSD";
 
 interface TransactionListProps {
     transactions: Transaction[];
     accounts: Account[];
     isAdmin: boolean
 }
+
 
 const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts, isAdmin}) => {
     const [openTransactionId, setOpenTransactionId] = useState<string | null>(null);
@@ -149,9 +151,9 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ color: "primary.main" }}>Date</TableCell>
-                                <TableCell sx={{ color: "primary.main" }}>Description</TableCell>
-                                <TableCell sx={{ color: "primary.main" }} align="right">Amount</TableCell>
+                                <TableCell sx={{color: "primary.main"}}>Date</TableCell>
+                                <TableCell sx={{color: "primary.main"}}>Description</TableCell>
+                                <TableCell sx={{color: "primary.main"}} align="right">Amount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -162,7 +164,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                               style={{cursor: 'pointer'}}>
                                         <TableCell>{transaction.date}</TableCell>
                                         <TableCell>{transaction.name}</TableCell>
-                                        <TableCell align="right">{transaction.amount}</TableCell>
+                                        <TableCell align="right">{formatUSD(transaction.amount)}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
@@ -173,9 +175,12 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                     <Typography variant="h6" gutterBottom component="div">
                                                         Edit Transaction
                                                     </Typography>
-                                                    <FormControl focused color="secondary" variant="outlined" fullWidth margin="normal">
-                                                        <InputLabel color="secondary" sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
-                                                        <Select labelId="label-for-account" label="Account" defaultValue={accountId ? +accountId : ""}
+                                                    <FormControl focused color="secondary" variant="outlined" fullWidth
+                                                                 margin="normal">
+                                                        <InputLabel color="secondary"
+                                                                    sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
+                                                        <Select labelId="label-for-account" label="Account"
+                                                                defaultValue={accountId ? +accountId : ""}
                                                                 onChange={(e) => setAccountId(+e.target.value)}>
                                                             {accounts.map(account => (
                                                                 <MenuItem key={account.id}
