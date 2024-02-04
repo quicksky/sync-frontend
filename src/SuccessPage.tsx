@@ -8,7 +8,13 @@ import TransactionList from "./TransactionList";
 import MainAppBar from "./MainAppBar";
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
-import {fetchTransactions, selectTransactions, Transaction} from "./redux/transactionSlice";
+import {
+    fetchAndClearTransactions,
+    fetchTransactions,
+    selectCount,
+    selectTransactions,
+    Transaction
+} from "./redux/transactionSlice";
 import {selectIsAdmin, selectUser} from "./redux/userSlice";
 
 const SuccessPage: React.FC = () => {
@@ -18,11 +24,12 @@ const SuccessPage: React.FC = () => {
     const [, setError] = useState<boolean>(false)
     const accounts = useAppSelector(selectAccounts)
     const user = useAppSelector(selectUser)
-    const isAdmin = useAppSelector(selectIsAdmin);
+    const count = useAppSelector(selectCount);
 
     useEffect(() => {
         setIsLoading(true)
-        user && dispatch(fetchTransactions(isAdmin)).finally(() => {
+        user && dispatch(fetchAndClearTransactions({limit: 50, offset: 0})).finally(() => {
+            console.log("was called")
             setIsLoading(false)
         })
         dispatch(fetchUserAccounts())
@@ -41,7 +48,7 @@ const SuccessPage: React.FC = () => {
             {isLoading ? (
                 <CircularProgress/>
             ) : (
-                <TransactionList transactions={transactions} accounts={accounts} isAdmin={isAdmin}/>
+                <TransactionList transactions={transactions} accounts={accounts} count={count}/>
             )}
 
         </Box>

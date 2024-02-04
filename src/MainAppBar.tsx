@@ -27,7 +27,7 @@ import {useAppDispatch, useAppSelector} from "./redux/store";
 import {selectIsAdmin, selectUser} from "./redux/userSlice";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {fetchTransactions} from "./redux/transactionSlice";
+import {fetchAndClearTransactions, fetchTransactions} from "./redux/transactionSlice";
 import {LoadingSpinner} from "plaid-threads";
 import DateInput from "plaid-threads/DateInput";
 import {DatePicker} from "@mui/x-date-pickers";
@@ -152,7 +152,7 @@ function MainAppBar() {
                         {!syncTransactionsLoading ? (<Button onClick={() => {
                             setSyncTransactionsLoading(true)
                             syncTransactions().then(() => {
-                                dispatch(fetchTransactions(isAdmin))
+                                dispatch(fetchAndClearTransactions({limit: 50, offset: 0}))
                             }).catch(() => {
                                 handleSyncErrorOpen()
                             }).finally(() => {

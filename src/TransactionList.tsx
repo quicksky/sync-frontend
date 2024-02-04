@@ -18,12 +18,18 @@ import {
     TextField,
     Typography, IconButton, Tooltip
 } from '@mui/material';
-import {deleteReceipt, getTransactionImage, setTransactionInfo, uploadTransactionFile} from "./Backend";
+import {
+    deleteReceipt,
+    getTransactionImage,
+    GetTransactionRequest,
+    setTransactionInfo,
+    uploadTransactionFile
+} from "./Backend";
 import {Account} from "./redux/accountSlice";
 import ImageViewer from 'react-simple-image-viewer';
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {selectIsAdmin, selectUser} from "./redux/userSlice";
-import {fetchTransactions, Transaction} from "./redux/transactionSlice";
+import {fetchAndClearTransactions, fetchTransactions, selectTransactions, Transaction} from "./redux/transactionSlice";
 import {Trash} from "plaid-threads";
 import {Delete, Receipt, Upload} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
@@ -33,11 +39,12 @@ import Compress from 'compress.js'
 interface TransactionListProps {
     transactions: Transaction[];
     accounts: Account[];
-    isAdmin: boolean
+    count: number
+
 }
 
 
-const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts, isAdmin}) => {
+const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts, count}) => {
     const [openTransactionId, setOpenTransactionId] = useState<string | null>(null);
     const [page, setPage] = useState(0);
     const [file, setFile] = useState<File | null>(null)
@@ -51,27 +58,23 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         uploadReceiptInput.current?.click()
     };
     const dispatch = useAppDispatch()
+    const test = useAppSelector(selectTransactions)
 
     const compress = new Compress()
 
-    //filters
-
-    const [includePayments, setIncludePayments] = useState<boolean>(false);
-    const [search, setSearch] = useState<string>("")
-    //date filter
-
-    const transactionFilter = (transaction: Transaction) => {
-        const includePaymentsFilter = !includePayments ? transaction.amount > 0 : true
-        const searchFilter = transaction.name.toLowerCase().includes(search)
-
-        return includePaymentsFilter && searchFilter
-    }
-
-    const filteredTransactions = transactions.filter(transactionFilter)
+    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
 
 
     const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
+        console.log(newPage)
+        setTransactionRequest({offset: 0, limit: (newPage + 1) * 50})
+        if (((newPage + 1) * 50) > test.length) {
+            dispatch(fetchTransactions({offset: newPage * 50, limit: 50})).then(() => (
+                setPage(newPage)
+            ))
+        } else {
+            setPage(newPage)
+        }
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +141,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
         Promise.all([transactionInfoPromise, uploadFilePromise])
             .then(() => {
-                dispatch(fetchTransactions(isAdmin));
+                dispatch(fetchAndClearTransactions(transactionRequest));
                 setImages([]);
                 setOpenTransactionId(null);
             })
@@ -149,7 +152,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
     const handleDelete = (transactionId: string) => {
         deleteReceipt(transactionId).then(() => {
-            dispatch(fetchTransactions(isAdmin))
+            dispatch(fetchAndClearTransactions(transactionRequest))
             setImages([]);
             setOpenTransactionId(null);
         })
@@ -179,7 +182,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
+                            {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
                                 <>
                                     <TableRow key={transaction.transaction_id}
                                               onClick={() => handleRowClick(transaction)}
@@ -273,7 +276,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                 </TableContainer><TablePagination
                     rowsPerPageOptions={[50]}
                     component="div"
-                    count={filteredTransactions.length}
+                    count={count}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}/></>

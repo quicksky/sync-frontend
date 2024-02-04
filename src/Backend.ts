@@ -2,13 +2,33 @@ import axios from 'axios';
 import {parseContentDispositionFilename} from "./helpers/parseContentDisposition";
 import {Account} from "./redux/accountSlice";
 import {GetClientUserListResponse} from "./redux/clientSlice";
+import {Transaction} from "./redux/transactionSlice";
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,
 });
+
+export interface TransactionFilters {
+    dates?: {
+        start_date: string,
+        end_date: string
+    }
+    include_payments?: boolean
+}
+
+export interface GetTransactionRequest {
+    limit: number;
+    offset: number;
+    filters?: TransactionFilters
+}
+
+export interface GetTransactionResponse {
+    count: number,
+    transactions: Transaction[]
+}
 
 
 // Login endpoint
@@ -51,6 +71,12 @@ export const getUserTransactions = async () => {
 export const getAdminTransactions = async () => {
     const endpoint = `${API_BASE_URL}/transactions/getAdminTransactions`
     const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const getTransactions = async (request: GetTransactionRequest): Promise<GetTransactionResponse> => {
+    const endpoint = `${API_BASE_URL}/transactions/getTransactions`
+    const response = await apiAxios.post(endpoint, request)
     return response.data
 }
 
