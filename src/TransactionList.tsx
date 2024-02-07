@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
+import React, {ChangeEvent, useRef, useState} from 'react';
 import {
     Box,
     Button,
@@ -16,7 +16,7 @@ import {
     TableRow,
     TablePagination,
     TextField,
-    Typography, IconButton, Tooltip
+    Typography, IconButton, Tooltip, CircularProgress
 } from '@mui/material';
 import {
     deleteReceipt,
@@ -27,10 +27,8 @@ import {
 } from "./Backend";
 import {Account} from "./redux/accountSlice";
 import ImageViewer from 'react-simple-image-viewer';
-import {useAppDispatch, useAppSelector} from "./redux/store";
-import {selectIsAdmin, selectUser} from "./redux/userSlice";
-import {fetchAndClearTransactions, fetchTransactions, selectTransactions, Transaction} from "./redux/transactionSlice";
-import {Trash} from "plaid-threads";
+import {useAppDispatch} from "./redux/store";
+import {fetchAndClearTransactions, fetchTransactions, Transaction} from "./redux/transactionSlice";
 import {Delete, Receipt, Upload} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
 import Compress from 'compress.js'
@@ -58,7 +56,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         uploadReceiptInput.current?.click()
     };
     const dispatch = useAppDispatch()
-    const test = useAppSelector(selectTransactions)
+    const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
 
     const compress = new Compress()
 
@@ -66,15 +64,16 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
 
     const handleChangePage = (event: unknown, newPage: number) => {
-        console.log(newPage)
+        setPaginationLoading(true)
         setTransactionRequest({offset: 0, limit: (newPage + 1) * 50})
-        if (((newPage + 1) * 50) > test.length) {
+        if (((newPage + 1) * 50) > transactions.length) {
             dispatch(fetchTransactions({offset: newPage * 50, limit: 50})).then(() => (
                 setPage(newPage)
             ))
         } else {
             setPage(newPage)
         }
+        setPaginationLoading(false)
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -132,12 +131,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             })
         }) : Promise.resolve()
 
-        // const uploadFilePromise = file ? uploadTransactionFile({
-        //     id: transaction.transaction_id,
-        //     file: file
-        // }).then(() => {
-        //     setFile(null);
-        // }) : Promise.resolve();
 
         Promise.all([transactionInfoPromise, uploadFilePromise])
             .then(() => {
@@ -273,13 +266,17 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             ))}
                         </TableBody>
                     </Table>
-                </TableContainer><TablePagination
-                    rowsPerPageOptions={[50]}
-                    component="div"
-                    count={count}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}/></>
+                </TableContainer>
+                    {paginationLoading ?
+                        (<CircularProgress/>) :
+                        (<TablePagination
+                            rowsPerPageOptions={[50]}
+                            component="div"
+                            count={count}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}/>)}
+                </>
             )}
         </Paper>
     );

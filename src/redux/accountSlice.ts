@@ -1,6 +1,6 @@
 // userSlice.ts
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {getClientAccounts} from '../Backend';
+import {getClientAccounts, getOwnAccounts, getUserAccounts} from '../Backend';
 import {RootState} from "./store";
 
 
@@ -10,19 +10,24 @@ export interface Account {
 }
 
 interface AccountState {
-    accounts: Account[]
+    ownAccounts: Account[]
+    clientAccounts: Account[]
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
 }
 
 const initialState: AccountState = {
-    accounts: [],
+    ownAccounts: [],
+    clientAccounts: [],
     status: 'idle',
     error: null,
 };
 
 
-export const fetchUserAccounts = createAsyncThunk('client/fetchAccount', async () => {
+export const fetchOwnAccounts = createAsyncThunk('client/fetchOwnAccounts', async () => {
+    return await getOwnAccounts();
+});
+export const fetchClientAccounts = createAsyncThunk('client/fetchUserAccounts', async (user_id: number) => {
     return await getClientAccounts();
 });
 
@@ -32,23 +37,37 @@ const accountSlice = createSlice({
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(fetchUserAccounts.pending, (state) => {
+            .addCase(fetchClientAccounts.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchUserAccounts.fulfilled, (state, action) => {
+            .addCase(fetchClientAccounts.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.accounts = action.payload;
+                state.clientAccounts = action.payload;
                 state.error = null;
             })
-            .addCase(fetchUserAccounts.rejected, (state, action) => {
+            .addCase(fetchClientAccounts.rejected, (state, action) => {
                 state.status = 'failed';
-                state.accounts = [];
+                state.clientAccounts = [];
+                state.error = action.error.message || null;
+            })
+            .addCase(fetchOwnAccounts.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(fetchOwnAccounts.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.ownAccounts = action.payload;
+                state.error = null;
+            })
+            .addCase(fetchOwnAccounts.rejected, (state, action) => {
+                state.status = 'failed';
+                state.ownAccounts = [];
                 state.error = action.error.message || null;
             });
     }
 });
 
 export default accountSlice.reducer;
-export const selectAccounts = (state: RootState): Account[] => state.accounts.accounts;
+export const selectOwnAccounts = (state: RootState): Account[] => state.accounts.ownAccounts;
+export const selectClientAccounts = (state: RootState): Account[] => state.accounts.clientAccounts
 export const selectAccountState = (state: RootState): AccountState => state.accounts;
 

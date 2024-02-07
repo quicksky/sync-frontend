@@ -20,7 +20,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle,
+    DialogTitle, Drawer, FormControlLabel, Switch,
     TextField
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "./redux/store";
@@ -104,44 +104,29 @@ function MainAppBar() {
 
 
     return (
-        <AppBar position="static" sx={{backgroundColor: '#050A30'}}>
-            <Container maxWidth="xl">
-                <Toolbar disableGutters>
-                    <Sync></Sync>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        sx={{
-                            mr: 2,
-                            display: {xs: 'none', md: 'flex'},
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        SYNC
-                    </Typography>
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="a"
-                        sx={{
-                            mr: 2,
-                            display: {xs: 'flex', md: 'none'},
-                            flexGrow: 1,
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: '#ffffff',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        SYNC
-                    </Typography>
-                    <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}}}>
+        <Box sx={{display: 'flex', flexDirection: 'column'}}>
+            <Drawer
+                variant="permanent"
+                sx={{
+                    width: '100%',
+                    flexShrink: 0,
+                    '& .MuiDrawer-paper': {
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        backgroundColor: '#20202e', // Change the background color here
+                        color: '#fff', // This changes the text color inside the drawer
+                    },
+                }}
+                anchor="top"
+            >
+                <Container maxWidth="xl"
+                           sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 1}}>
+                    <Box sx={{display: 'flex', alignItems: 'center', maxHeight: 2}}>
+                        <Sync sx={{marginRight: 2}}/>
+                        <Typography variant="h6" noWrap component="div">
+                            SYNC
+                        </Typography>
+
                         {userIsAdmin ?
                             <Button
                                 onClick={handleClickOpen}
@@ -161,6 +146,8 @@ function MainAppBar() {
                         }}>
                             REFRESH
                         </Button>) : <CircularProgress/>}
+                        {/*{userIsAdmin ? (<FormControlLabel control={<Switch defaultChecked/>}*/}
+                        {/*                                  label="Admin View"/>) : undefined}*/}
                         <Dialog
                             open={syncErrorAlertOpen}
                             onClose={handleSyncErrorClose}
@@ -223,12 +210,10 @@ function MainAppBar() {
                                 <Button type="submit" variant="contained" color="secondary">Export</Button>
                             </DialogActions>
                         </Dialog>
-
                     </Box>
-
-                    <Box sx={{flexGrow: 0}}>
+                    <Box sx={{display: 'flex', alignItems: 'left'}}>
                         <Tooltip title="Open settings">
-                            <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
+                            <IconButton onClick={handleOpenUserMenu} sx={{p: 0, marginLeft: 2}}>
                                 <Avatar alt={user?.first_name} src="/static/images/avatar/2.jpg"/>
                             </IconButton>
                         </Tooltip>
@@ -248,29 +233,34 @@ function MainAppBar() {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                         >
-                            {isAdmin ? (<MenuItem key="Settings" onClick={() => {
-                                navigate("/settings")
-                            }}>
-                                <Typography textAlign="center">Settings</Typography>
-                            </MenuItem>) : undefined}
-
-
-                            <MenuItem key="Logout" onClick={() => {
-                                logoutUserApi().then(() => {
-                                    navigate("/")
-                                    //use dispatch to set logout state to get text on login screen
-                                }).catch(() => {
-                                    handleCloseUserMenu()
-                                })
-                            }}>
-                                <Typography textAlign="center">Logout</Typography>
-                            </MenuItem>
-
+                            {isAdmin && (
+                                <Button
+                                    onClick={() => navigate("/settings")}
+                                    sx={{color: 'black', display: 'block'}}
+                                >
+                                    Settings
+                                </Button>
+                            )}
+                            <Button
+                                onClick={() => {
+                                    logoutUserApi().then(() => {
+                                        navigate("/");
+                                    }).catch(() => {
+                                        handleCloseUserMenu();
+                                    });
+                                }}
+                                sx={{color: 'black', display: 'block'}}
+                            >
+                                Logout
+                            </Button>
                         </Menu>
                     </Box>
-                </Toolbar>
-            </Container>
-        </AppBar>
+                </Container>
+            </Drawer>
+            <Box component="main" sx={{flexGrow: 1, p: 3}}>
+
+            </Box>
+        </Box>
     );
 }
 

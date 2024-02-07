@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {useAppDispatch, useAppSelector} from "./redux/store";
-import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
+import {fetchOwnAccounts, selectOwnAccounts} from "./redux/accountSlice";
 import Link from "./Link";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -61,7 +61,7 @@ function TabPanel(props: TabPanelProps) {
 const SettingsPage: React.FC = () => {
     const [value, setValue] = React.useState(0);
     const dispatch = useAppDispatch()
-    const accounts = useAppSelector(selectAccounts)
+    const accounts = useAppSelector(selectOwnAccounts)
     const activeUsers = useAppSelector(selectActiveUsers)
     const [addAccountText, setAddAccountText] = useState("")
     const [inviteUserAdmin, setInviteUserAdmin] = useState<boolean>(false)
@@ -71,15 +71,15 @@ const SettingsPage: React.FC = () => {
         setValue(newValue);
     };
 
-    const handleDelete = (id:number) => {
+    const handleDelete = (id: number) => {
         deleteClientAccount(id).then(() => {
-            dispatch(fetchUserAccounts())
+            dispatch(fetchOwnAccounts())
         })
     }
 
-    const handleAddAccounts = () =>{
+    const handleAddAccounts = () => {
         addClientAccounts(addAccountText).then(() => {
-            dispatch(fetchUserAccounts())
+            dispatch(fetchOwnAccounts())
             handleClose()
         })
 
@@ -96,7 +96,7 @@ const SettingsPage: React.FC = () => {
     };
 
     useEffect(() => {
-        dispatch(fetchUserAccounts())
+        dispatch(fetchOwnAccounts())
         dispatch(fetchUserList())
     }, [dispatch])
 
@@ -108,7 +108,13 @@ const SettingsPage: React.FC = () => {
         const lastName = formJson.last_name
         const email = formJson.email
         const cardNumber = formJson.card_number
-        createUser({role: inviteUserAdmin ? 2 : 1, first_name: firstName, last_name: lastName, email: email, card_number: cardNumber}).then(r => {
+        createUser({
+            role: inviteUserAdmin ? 2 : 1,
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            card_number: cardNumber
+        }).then(r => {
 
             handleClose();
         }).catch(e => {
@@ -123,11 +129,11 @@ const SettingsPage: React.FC = () => {
     }
 
     return (
-        <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
+        <Box sx={{display: 'flex'}}>
+            <CssBaseline/>
             <AppBar
                 position="fixed"
-                sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+                sx={{width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`}}
             >
             </AppBar>
             <Drawer
@@ -153,7 +159,7 @@ const SettingsPage: React.FC = () => {
                     onChange={handleChange}
                     sx={{
                         width: drawerWidth,
-                        "& button.Mui-selected": { backgroundColor: "secondary.main" },
+                        "& button.Mui-selected": {backgroundColor: "secondary.main"},
                     }}
                 >
                     <Tab label="Accounts"/>
@@ -164,19 +170,28 @@ const SettingsPage: React.FC = () => {
             </Drawer>
             <Box
                 component="main"
-                sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+                sx={{flexGrow: 1, bgcolor: 'background.default', p: 3}}
             >
 
                 {/*ACCOUNT PANEL*/}
                 <TabPanel value={value} index={0}>
-                    <TableContainer component={Paper} sx={{ width: "50%", justifyContent: 'center', mx: 'auto', height: '85vh'}}>
-                        <Table sx={{ width: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', mx: 'auto'}} aria-label="simple table">
+                    <TableContainer component={Paper}
+                                    sx={{width: "50%", justifyContent: 'center', mx: 'auto', height: '85vh'}}>
+                        <Table sx={{
+                            width: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            mx: 'auto'
+                        }} aria-label="simple table">
                             <TableHead>
-                                <TableRow sx={{ borderBottom: '2px solid' }}>
-                                    <TableCell align="left" width="90%" sx={{fontWeight: 'bold'}}>Available Accounts</TableCell>
+                                <TableRow sx={{borderBottom: '2px solid'}}>
+                                    <TableCell align="left" width="90%" sx={{fontWeight: 'bold'}}>Available
+                                        Accounts</TableCell>
                                     <TableCell align="right" width="10%">
-                                        <IconButton aria-label="add" size="large" color="success" onClick={handleClickOpen}>
-                                            <AddIcon fontSize="inherit" />
+                                        <IconButton aria-label="add" size="large" color="success"
+                                                    onClick={handleClickOpen}>
+                                            <AddIcon fontSize="inherit"/>
                                         </IconButton>
                                         <Dialog
                                             open={open}
@@ -200,7 +215,8 @@ const SettingsPage: React.FC = () => {
                                             </DialogContent>
                                             <DialogActions>
                                                 <Button onClick={handleClose} color="secondary">Cancel</Button>
-                                                <Button onClick={handleAddAccounts} variant="contained" color="secondary">Add</Button>
+                                                <Button onClick={handleAddAccounts} variant="contained"
+                                                        color="secondary">Add</Button>
                                             </DialogActions>
                                         </Dialog>
                                     </TableCell>
@@ -210,14 +226,15 @@ const SettingsPage: React.FC = () => {
                                 {accounts.map((account) => (
                                     <TableRow
                                         key={account.id}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                     >
                                         <TableCell align="left" width="90%">
                                             {account.name}
                                         </TableCell>
                                         <TableCell align="right" width="10%">
-                                            <IconButton onClick={() => handleDelete(account.id)} aria-label="delete" size="large" color="error">
-                                                <RemoveIcon fontSize="inherit" />
+                                            <IconButton onClick={() => handleDelete(account.id)} aria-label="delete"
+                                                        size="large" color="error">
+                                                <RemoveIcon fontSize="inherit"/>
                                             </IconButton>
                                         </TableCell>
                                     </TableRow>
@@ -299,7 +316,8 @@ const SettingsPage: React.FC = () => {
                                         "&, & + .MuiFormControlLabel-label": {
                                             color: "secondary.main"
                                         }
-                                    }} color="secondary" checked = {inviteUserAdmin} onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
+                                    }} color="secondary" checked={inviteUserAdmin}
+                                                       onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
                                     label="Admin"
                                     name="is_admin"
                                     id="is_admin"
@@ -313,7 +331,7 @@ const SettingsPage: React.FC = () => {
                         </Dialog>
                     </Box>
                     <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 250 }} aria-label="simple table">
+                        <Table sx={{minWidth: 250}} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="left">First Name</TableCell>
@@ -327,7 +345,7 @@ const SettingsPage: React.FC = () => {
                                 {activeUsers.map((user) => (
                                     <TableRow
                                         key={user.id}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                     >
                                         <TableCell component="th" scope="row">
                                             {user.first_name}

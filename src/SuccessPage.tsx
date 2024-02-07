@@ -7,7 +7,7 @@ import {
 import TransactionList from "./TransactionList";
 import MainAppBar from "./MainAppBar";
 import {useAppDispatch, useAppSelector} from "./redux/store";
-import {fetchUserAccounts, selectAccounts} from "./redux/accountSlice";
+import {fetchOwnAccounts, selectOwnAccounts} from "./redux/accountSlice";
 import {
     fetchAndClearTransactions,
     fetchTransactions,
@@ -22,7 +22,7 @@ const SuccessPage: React.FC = () => {
     const transactions = useAppSelector(selectTransactions)
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [, setError] = useState<boolean>(false)
-    const accounts = useAppSelector(selectAccounts)
+    const accounts = useAppSelector(selectOwnAccounts)
     const user = useAppSelector(selectUser)
     const count = useAppSelector(selectCount);
 
@@ -32,7 +32,7 @@ const SuccessPage: React.FC = () => {
             console.log("was called")
             setIsLoading(false)
         })
-        dispatch(fetchUserAccounts())
+        dispatch(fetchOwnAccounts())
 
     }, [dispatch, user]);
 
