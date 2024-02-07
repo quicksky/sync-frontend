@@ -13,6 +13,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
 import {fetchUserList, selectActiveUsers, selectPendingUsers} from "./redux/clientSlice";
 import {addClientAccounts, createUser, deleteClientAccount} from "./Backend";
 import {
@@ -29,6 +30,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
+
 
 const drawerWidth = 240
 
