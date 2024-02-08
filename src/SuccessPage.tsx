@@ -16,6 +16,7 @@ import {
     Transaction
 } from "./redux/transactionSlice";
 import {selectIsAdmin, selectUser} from "./redux/userSlice";
+import AdminTable from "./AdminTable";
 
 const SuccessPage: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -25,6 +26,7 @@ const SuccessPage: React.FC = () => {
     const accounts = useAppSelector(selectOwnAccounts)
     const user = useAppSelector(selectUser)
     const count = useAppSelector(selectCount);
+    const adminViewState = useState<boolean>(false)
 
     useEffect(() => {
         setIsLoading(true)
@@ -43,13 +45,15 @@ const SuccessPage: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center',
         }}>
-            <MainAppBar/>
+            <MainAppBar adminViewState={adminViewState}/>
 
             {isLoading ? (
-                <CircularProgress/>
-            ) : (
-                <TransactionList transactions={transactions} accounts={accounts} count={count}/>
-            )}
+                    <CircularProgress/>
+                ) :
+                adminViewState[0] ? (<AdminTable transactions={transactions} accounts={accounts} count={count}/>) :
+                    (<TransactionList transactions={transactions} accounts={accounts} count={count}/>)
+
+            }
 
         </Box>
     );
