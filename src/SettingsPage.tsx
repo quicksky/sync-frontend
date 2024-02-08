@@ -6,9 +6,7 @@ import {useAppDispatch, useAppSelector} from "./redux/store";
 import {
     Account,
     fetchClientAccounts,
-    fetchOwnAccounts, fetchUserAccounts,
     selectClientAccounts,
-    selectOwnAccounts, selectUserAccounts
 } from "./redux/accountSlice";
 import Link from "./Link";
 import Table from '@mui/material/Table';
@@ -30,7 +28,7 @@ import {
 } from "./Backend";
 import {
     Alert,
-    Button, Checkbox, CssBaseline,
+    Button, Checkbox, CircularProgress, CssBaseline,
     Dialog,
     DialogActions,
     DialogContent,
@@ -44,6 +42,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
+import {useLocation, useNavigate} from "react-router-dom";
 
 
 const drawerWidth = 240
@@ -82,11 +81,29 @@ const SettingsPage: React.FC = () => {
     const [checkboxDialogUserId, setCheckboxDialogUserId] = useState<string>("")
     const [addAccountText, setAddAccountText] = useState("")
     const [inviteUserAdmin, setInviteUserAdmin] = useState<boolean>(false)
-    const [accountPermissionLoading, setAccountPermissionLoading] = React.useState(false)
-    const userAccounts = useAppSelector(selectUserAccounts)
+    const [userAccounts, setUserAccounts] = useState<Account[]>([])
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const getTabValue = () => {
+        const searchParams = new URLSearchParams(location.search);
+        const tab = searchParams.get('tab');
+        switch (tab) {
+            case 'accounts':
+                return 0;
+            case 'users':
+                return 1;
+            case 'plaid':
+                return 2;
+            default:
+                return 0;
+        }
+    }
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
+        const tabParam = ['accounts', 'users', 'plaid'][newValue] || 'accounts';
+        navigate(`?tab=${tabParam}`);
     };
 
     const handleDelete = (id: number) => {
@@ -103,11 +120,14 @@ const SettingsPage: React.FC = () => {
     }
 
     const onAccountCheckboxClick = (checked: boolean, account_id: number, user_id: string) => {
-        setAccountPermissionLoading(true)
         checked ? grantAccount({user_id: user_id, account_id: account_id}).then(() => {
-            setAccountPermissionLoading(false)
-        }) :  revokeAccount({user_id: user_id, account_id: account_id}).then(() => {
-            setAccountPermissionLoading(false)
+            getUserAccounts({user_id: user_id}).then(r => {
+                setUserAccounts(r)
+            })
+        }) : revokeAccount({user_id: user_id, account_id: account_id}).then(() => {
+            getUserAccounts({user_id: user_id}).then(r => {
+                setUserAccounts(r)
+            })
         })
     }
 
@@ -124,8 +144,8 @@ const SettingsPage: React.FC = () => {
 
     const handleOpenCheckboxDialog = (user_id: string) => {
         setCheckboxDialogUserId(user_id)
-        dispatch(fetchUserAccounts(user_id)).then(() =>{
-            console.log(userAccounts)
+        getUserAccounts({user_id: user_id}).then(r => {
+            setUserAccounts(r)
             setOpenCheckboxDialog(true)
         })
     }
@@ -138,6 +158,10 @@ const SettingsPage: React.FC = () => {
         dispatch(fetchClientAccounts())
         dispatch(fetchUserList())
     }, [dispatch])
+
+    useEffect(() => {
+        setValue(getTabValue());
+    }, [location.search]);
 
     const onUserInviteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -268,7 +292,7 @@ const SettingsPage: React.FC = () => {
                                         sx={{'&:last-child td, &:last-child th': {border: 0}}}
                                     >
                                         <TableCell align="left" width="90%">
-                                            {<div style={{ wordBreak: 'break-all' }}>{account.name}</div>}
+                                            {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
                                         </TableCell>
                                         <TableCell align="right" width="10%">
                                             <IconButton onClick={() => handleDelete(account.id)} aria-label="delete"
@@ -324,7 +348,7 @@ const SettingsPage: React.FC = () => {
                                         <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
                                         <TableCell align="right">
                                             <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
-                                                <EditIcon />
+                                                <EditIcon/>
                                             </IconButton>
                                         </TableCell>
                                     </TableRow>
@@ -409,7 +433,6 @@ const SettingsPage: React.FC = () => {
                     </Dialog>
 
 
-
                     {/*User Accounts Checkbox Dialog*/}
                     <Dialog
                         open={openCheckboxDialog}
@@ -420,17 +443,20 @@ const SettingsPage: React.FC = () => {
                     >
                         <DialogTitle color="secondary">Check User Accounts</DialogTitle>
                         <DialogContent>
-                            <List dense sx={{ minWidth: 300, maxWidth: 800, height: '65vh' }}>
+                            <List dense sx={{minWidth: 300, maxWidth: 800, height: '65vh'}}>
                                 {accounts.map((account) => (
-                                    <ListItem key = {account.id}>
+                                    <ListItem key={account.id}>
                                         <FormControlLabel
-                                            control={<Checkbox sx={{
-                                                "&, & + .MuiFormControlLabel-label": {
-                                                    color: "secondary.main"
-                                                }
-                                            }} color="secondary" checked={userAccounts.includes(account)}
-                                                               onChange={(evt) => onAccountCheckboxClick(evt.target.checked, account.id, checkboxDialogUserId)}/>}
-                                            label={<div style={{ wordBreak: 'break-all' }}>{account.name}</div>}
+                                            control={
+                                                <Checkbox sx={{
+                                                    "&, & + .MuiFormControlLabel-label": {
+                                                        color: "secondary.main"
+                                                    }
+                                                }} color="secondary"
+                                                          checked={userAccounts.map(a => a.id).includes(account.id)}
+                                                          onChange={(evt) => onAccountCheckboxClick(evt.target.checked, account.id, checkboxDialogUserId)}/>
+                                            }
+                                            label={<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
                                             name="is_admin"
                                             id="is_admin"
                                         />
