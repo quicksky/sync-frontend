@@ -27,7 +27,7 @@ const initialState: AccountState = {
 export const fetchOwnAccounts = createAsyncThunk('client/fetchOwnAccounts', async () => {
     return await getOwnAccounts();
 });
-export const fetchClientAccounts = createAsyncThunk('client/fetchUserAccounts', async (user_id: number) => {
+export const fetchClientAccounts = createAsyncThunk('client/fetchClientAccounts', async () => {
     return await getClientAccounts();
 });
 
@@ -62,7 +62,8 @@ const accountSlice = createSlice({
                 state.status = 'failed';
                 state.ownAccounts = [];
                 state.error = action.error.message || null;
-            });
+            })
+
     }
 });
 
