@@ -5,8 +5,8 @@ import {GetClientUserListResponse} from "./redux/clientSlice";
 import {Transaction} from "./redux/transactionSlice";
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
-//const API_BASE_URL = 'http://localhost:9000';
+//const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,
@@ -116,6 +116,18 @@ export const getClientAccounts = async (): Promise<Account[]> => {
 export const getOwnAccounts = async (): Promise<Account[]> => {
     const endpoint = `${API_BASE_URL}/user/getAccounts`
     const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const grantAccount = async (req: { user_id: string, account_id: number }) => {
+    const endpoint = `${API_BASE_URL}/user/grantAccount`
+    const response = await apiAxios.post(endpoint, req)
+    return response.data
+}
+
+export const revokeAccount = async (req: { user_id: string, account_id: number }) => {
+    const endpoint = `${API_BASE_URL}/user/revokeAccount`
+    const response = await apiAxios.post(endpoint, req)
     return response.data
 }
 
