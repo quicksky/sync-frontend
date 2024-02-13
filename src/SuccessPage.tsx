@@ -30,7 +30,11 @@ const SuccessPage: React.FC = () => {
 
     useEffect(() => {
         setIsLoading(true)
-        user && dispatch(fetchAndClearTransactions({limit: 50, offset: 0})).finally(() => {
+        user && dispatch(fetchAndClearTransactions({
+            limit: 50,
+            offset: 0,
+            filters: {include_payments: false}
+        })).finally(() => {
             console.log("was called")
             setIsLoading(false)
         })
