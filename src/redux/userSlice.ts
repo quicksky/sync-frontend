@@ -4,7 +4,7 @@ import {getUserApi, loginUserApi} from '../Backend';
 import {RootState} from "./store";
 
 export interface User {
-    id: number;
+    id: string;
     email: string;
     first_name: string;
     last_name: string;

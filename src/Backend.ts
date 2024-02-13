@@ -119,18 +119,6 @@ export const getOwnAccounts = async (): Promise<Account[]> => {
     return response.data
 }
 
-export const grantAccount = async (req: { user_id: string, account_id: number }) => {
-    const endpoint = `${API_BASE_URL}/user/grantAccount`
-    const response = await apiAxios.post(endpoint, req)
-    return response.data
-}
-
-export const revokeAccount = async (req: { user_id: string, account_id: number }) => {
-    const endpoint = `${API_BASE_URL}/user/revokeAccount`
-    const response = await apiAxios.post(endpoint, req)
-    return response.data
-}
-
 export const getUserAccounts = async (req: { user_id: string }): Promise<Account[]> => {
     const endpoint = `${API_BASE_URL}/client/getUserAccounts`
     const response = await apiAxios.post(endpoint, req)
