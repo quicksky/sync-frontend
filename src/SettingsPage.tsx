@@ -443,7 +443,7 @@ const SettingsPage: React.FC = () => {
                             component: 'form',
                         }}
                     >
-                        <DialogTitle color="secondary">Check User Accounts</DialogTitle>
+                        <DialogTitle color="secondary">Edit User Accounts</DialogTitle>
                         <DialogContent>
                             <List dense sx={{minWidth: 300, maxWidth: 800, height: '65vh'}}>
                                 {accounts.map((account) => (
