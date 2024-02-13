@@ -43,6 +43,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import {useLocation, useNavigate} from "react-router-dom";
+import {ArrowBack, AssignmentReturn, Backspace} from "@mui/icons-material";
 
 
 const drawerWidth = 240
@@ -213,6 +214,7 @@ const SettingsPage: React.FC = () => {
             >
                 {/*<Toolbar />*/}
                 {/*<Divider />*/}
+                <IconButton onClick={() => navigate("/home")}><ArrowBack/></IconButton>
 
                 <Tabs
                     textColor="primary"
