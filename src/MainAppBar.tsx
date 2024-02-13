@@ -33,9 +33,11 @@ import DateInput from "plaid-threads/DateInput";
 import {DatePicker} from "@mui/x-date-pickers";
 
 /*import {DatePicker} from '@mui/x-date-pickers/DatePicker';*/
+interface MainAppBarProps {
+    adminViewState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+}
 
-
-function MainAppBar() {
+const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     const user = useAppSelector(selectUser)
     const isAdmin = useAppSelector(selectIsAdmin)
     const dispatch = useAppDispatch()
@@ -99,6 +101,10 @@ function MainAppBar() {
         })
     }
 
+    const handleAdminViewChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        props.adminViewState[1](event.target.checked);
+    };
+
     const [exportError, setExportError] = useState<boolean>(false)
     const [exportErrorText, setExportErrorText] = useState<string>("")
 
@@ -146,8 +152,9 @@ function MainAppBar() {
                         }}>
                             REFRESH
                         </Button>) : <CircularProgress/>}
-                        {/*{userIsAdmin ? (<FormControlLabel control={<Switch defaultChecked/>}*/}
-                        {/*                                  label="Admin View"/>) : undefined}*/}
+                        {userIsAdmin ? (<FormControlLabel
+                            control={<Switch checked={props.adminViewState[0]} onChange={handleAdminViewChange}/>}
+                            label="Admin View"/>) : undefined}
                         <Dialog
                             open={syncErrorAlertOpen}
                             onClose={handleSyncErrorClose}
