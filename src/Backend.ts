@@ -5,8 +5,8 @@ import {GetClientUserListResponse} from "./redux/clientSlice";
 import {Transaction} from "./redux/transactionSlice";
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
-//const API_BASE_URL = 'http://localhost:9000';
+//const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,

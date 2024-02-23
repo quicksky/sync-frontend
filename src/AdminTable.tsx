@@ -1,13 +1,8 @@
-import React, {ChangeEvent, useRef, useState} from 'react';
+import React, {ReactElement, useState} from 'react';
 import {
     Box,
     Button,
-    Collapse,
-    FormControl,
-    InputLabel,
-    MenuItem,
     Paper,
-    Select,
     Table,
     TableBody,
     TableCell,
@@ -16,151 +11,223 @@ import {
     TableRow,
     TablePagination,
     TextField,
-    Typography, IconButton, Tooltip, CircularProgress
+    Typography,
+    IconButton,
+    CircularProgress, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
-import {
-    deleteReceipt,
-    getTransactionImage,
-    GetTransactionRequest,
-    setTransactionInfo,
-    uploadTransactionFile
-} from "./Backend";
-import {Account} from "./redux/accountSlice";
-import ImageViewer from 'react-simple-image-viewer';
+import {getTransactionImage, GetTransactionRequest, setTransactionInfo} from "./Backend";
 import {useAppDispatch} from "./redux/store";
 import {fetchAndClearTransactions, fetchTransactions, Transaction} from "./redux/transactionSlice";
-import {Check, Close, Delete, Receipt, Upload} from "@mui/icons-material";
+import {Check, Close, Edit, Receipt} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
-import Compress from 'compress.js'
-
+import {Account} from "./redux/accountSlice";
+import {Viewer} from "@react-pdf-viewer/core";
+import ImageViewer from "react-simple-image-viewer";
+import {defaultLayoutPlugin, ToolbarProps} from "@react-pdf-viewer/default-layout";
+import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension";
 
 interface AdminTableProps {
     transactions: Transaction[];
     accounts: Account[];
     count: number;
-
 }
 
-
 const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) => {
+    const dispatch = useAppDispatch();
     const [page, setPage] = useState(0);
     const rowsPerPage = 50;
-    const [isViewerOpen, setViewerOpen] = useState<boolean>(false)
-    const [images, setImages] = useState<string[]>([])
-    const dispatch = useAppDispatch()
-    const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
+    const [activeTransactionId, setActiveTransactionId] = useState<string>("");
+    const [accountId, setAccountId] = useState<number | null>(null)
+    const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
+    const [receiptUrl, setReceiptUrl] = useState<string>("");
+    const [isImageViewerOpen, setImageViewerOpen] = useState<boolean>(false);
+    const [editTransactionDetails, setEditTransactionDetails] = useState<{
+        memo: string | null;
+        account: number | null
+    }>({memo: null, account: null});
 
-    const compress = new Compress()
-
-    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
+    const handleEditChange = (field: string, value: string) => {
+        setEditTransactionDetails(prevDetails => ({
+            ...prevDetails,
+            [field]: value,
+        }));
+    };
 
     const handleLoadReceipt = (transaction: Transaction) => {
         if (transaction && transaction.receipt_key) {
             getTransactionImage(transaction.transaction_id).then((file) => {
-                setImages([file])
-                setViewerOpen(true)
+                setReceiptUrl(file)
+                getAWSPresignedFileExtension(file) === 'pdf' ? setPdfViewerOpen(true) : setImageViewerOpen(true);
             }).catch(() => {
-                setImages([])
+                setReceiptUrl("")
             })
         } else {
-            setImages([])
+            setReceiptUrl("")
         }
     }
 
+    //todo
+    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
+    const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
+        <>
+            <Toolbar/>
+            <IconButton onClick={() => setPdfViewerOpen(false)}>
+                <Close></Close>
+            </IconButton>
+        </>
+    );
+
+    const defaultLayoutPluginInstance = defaultLayoutPlugin({
+        renderToolbar,
+    });
+
+    const handleSubmitEdit = (transactionId: string) => {
+
+        setTransactionInfo({
+            id: transactionId,
+            account_id: accountId,
+            memo: editTransactionDetails.memo
+        }).then(() => {
+            dispatch(fetchAndClearTransactions(transactionRequest));
+        });
+        setActiveTransactionId(""); // Close editing mode
+    };
+
     const handleChangePage = (event: unknown, newPage: number) => {
-        setPaginationLoading(true)
-        setTransactionRequest({offset: 0, limit: (newPage + 1) * 50})
-        if (((newPage + 1) * 50) > transactions.length) {
-            dispatch(fetchTransactions({
-                offset: newPage * 50,
-                limit: 50,
-                filters: {include_payments: false}
-            })).then(() => (
-                setPage(newPage)
-            ))
-        } else {
-            setPage(newPage)
-        }
-        setPaginationLoading(false)
+        setPage(newPage);
+        // You might want to implement further logic here for fetching new transactions
     };
-
-
     const closeImageViewer = () => {
-        setViewerOpen(false);
+        setImageViewerOpen(false);
     };
 
-    // @ts-ignore
-    // @ts-ignore
     return (
-        isViewerOpen ? <Box sx={{mt: 50}}><ImageViewer
-                src={images}
+        isPdfViewerOpen ? (
+
+            <div style={{
+                backgroundColor: '#fefefe',
+                margin: 'auto',
+                padding: 20,
+                border: '1px solid #888',
+                width: '80%',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                height: '750px'
+            }}>
+                <Viewer
+
+                    plugins={[defaultLayoutPluginInstance]}
+                    fileUrl={receiptUrl}
+                />
+                <Button onClick={() => setPdfViewerOpen(false)}>Close</Button>
+            </div>
+
+        ) : (
+            isImageViewerOpen ? <Box sx={{mt: 50}}><ImageViewer
+                src={[receiptUrl]}
                 currentIndex={0}
                 disableScroll={true}
                 closeOnClickOutside={true}
-                onClose={closeImageViewer}/></Box> :
-            <Paper style={{padding: '20px', marginTop: '20px', overflowX: 'auto'}}>
-                {isViewerOpen ? (
-                    <ImageViewer
-                        src={images}
-                        currentIndex={0}
-                        disableScroll={true}
-                        closeOnClickOutside={true}
-                        onClose={closeImageViewer}
-                    />
-                ) : (
-                    <><Typography variant="h6" style={{marginBottom: '20px'}}>
+                onClose={closeImageViewer}/></Box> : (
+                <Paper style={{padding: '20px', marginTop: '20px', overflowX: 'auto'}}>
+                    <Typography variant="h6" style={{marginBottom: '20px'}}>
                         Transaction History
-                    </Typography><TableContainer component={Paper}>
+                    </Typography>
+                    <TableContainer component={Paper}>
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{color: "primary.main"}}>Reviewed</TableCell>
-                                    <TableCell sx={{color: "primary.main"}}>Date</TableCell>
-                                    <TableCell sx={{color: "primary.main"}}>Description</TableCell>
-                                    <TableCell sx={{color: "primary.main"}}>Memo</TableCell>
-                                    <TableCell sx={{color: "primary.main"}}>Account</TableCell>
-                                    <TableCell sx={{color: "primary.main"}}>Amount</TableCell>
-                                    <TableCell sx={{color: "primary.main"}} align="right">Receipt</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell>Description</TableCell>
+                                    <TableCell>Memo</TableCell>
+                                    <TableCell>Account</TableCell>
+                                    <TableCell>Owner</TableCell>
+                                    <TableCell>Amount</TableCell>
+                                    <TableCell>Receipt</TableCell>
+                                    <TableCell>Edit</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
                                     const account = accounts.find((a) => a.id === transaction.internal_account)
                                     const accountName = account ? account.name : ""
+                                    const isEditable = activeTransactionId === transaction.transaction_id;
                                     return (
-                                        <>
-                                            <TableRow key={transaction.transaction_id}>
-                                                <TableCell>{transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                    <Check/> : <Close/>}</TableCell>
-                                                <TableCell>{transaction.date}</TableCell>
-                                                <TableCell>{transaction.name}</TableCell>
-                                                <TableCell>{transaction.memo}</TableCell>
-                                                <TableCell>{accountName}</TableCell>
-                                                <TableCell align="right">{formatUSD(transaction.amount)}</TableCell>
-                                                <TableCell>{transaction.receipt_key ? <IconButton
-                                                    onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton> : undefined}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                            </TableRow>
-                                        </>
-                                    )
+                                        <TableRow key={transaction.transaction_id}>
+                                            <TableCell>{transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                <Check/> : <Close/>}</TableCell>
+                                            <TableCell>{transaction.date}</TableCell>
+                                            <TableCell>
+                                                {transaction.name}
+                                            </TableCell>
+                                            <TableCell>
+                                                {isEditable ? (
+                                                    <TextField
+                                                        size="small"
+                                                        value={editTransactionDetails.memo || transaction.memo}
+                                                        onChange={(e) => handleEditChange('memo', e.target.value)}
+                                                    />
+                                                ) : transaction.memo}
+                                            </TableCell>
+                                            <TableCell>
+                                                {isEditable ? (
+                                                    <FormControl focused color="secondary" variant="outlined"
+                                                                 fullWidth
+                                                                 margin="normal">
+                                                        <InputLabel color="secondary"
+                                                                    sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
+                                                        <Select labelId="label-for-account" label="Account"
+                                                                defaultValue={editTransactionDetails.account ? +editTransactionDetails.account : ""}
+                                                                onChange={(e) => setAccountId(+e.target.value)}>
+                                                            {accounts.map(account => (
+                                                                <MenuItem key={account.id}
+                                                                          value={account.id}>{account.name}</MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                ) : accountName}
+                                            </TableCell>
+                                            <TableCell>{transaction.account_owner}</TableCell>
+                                            <TableCell align="right">{formatUSD(transaction.amount)}</TableCell>
+                                            <TableCell>
+                                                {transaction.receipt_key && <IconButton
+                                                    onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>}
+                                            </TableCell>
+                                            <TableCell>
+                                                {isEditable ? (
+                                                    <>
+                                                        <IconButton
+                                                            onClick={() => handleSubmitEdit(transaction.transaction_id)}><Check/></IconButton>
+                                                        <IconButton
+                                                            onClick={() => setActiveTransactionId("")}><Close/></IconButton>
+                                                    </>
+                                                ) : (
+                                                    <IconButton onClick={() => {
+                                                        setActiveTransactionId(transaction.transaction_id);
+                                                        setEditTransactionDetails({
+                                                            memo: transaction.memo,
+                                                            account: transaction.internal_account
+                                                        });
+                                                    }}><Edit/></IconButton>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
                                 })}
                             </TableBody>
                         </Table>
                     </TableContainer>
-                        {paginationLoading ?
-                            (<CircularProgress/>) :
-                            (<TablePagination
-                                rowsPerPageOptions={[50]}
-                                component="div"
-                                count={count}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}/>)}
-                    </>
-                )}
-            </Paper>
-    );
+                    <TablePagination
+                        rowsPerPageOptions={[50]}
+                        component="div"
+                        count={count}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                    />
+                </Paper>)
+        ))
 };
 
 export default AdminTable;

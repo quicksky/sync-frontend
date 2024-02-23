@@ -8,6 +8,7 @@ import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import SettingsPage from "./SettingsPage";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
+import {Worker} from "@react-pdf-viewer/core";
 
 
 const theme = createTheme({
@@ -27,20 +28,22 @@ const theme = createTheme({
 
 function App() {
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <Router>
-                        <Routes>
-                            <Route path="" element={<LoginPage/>}/>
-                            <Route path="/home" element={<PrivateRoute element={<SuccessPage/>}/>}/>
-                            <Route path="/settings" element={<PrivateRoute element={<SettingsPage/>}/>}/>
-                            <Route path="/welcome" element={<Onboarding/>}/>
-                        </Routes>
-                    </Router>
-                </LocalizationProvider>
-            </CssBaseline>
-        </ThemeProvider>
+        <Worker workerUrl={'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js'}>
+            <ThemeProvider theme={theme}>
+                <CssBaseline>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <Router>
+                            <Routes>
+                                <Route path="" element={<LoginPage/>}/>
+                                <Route path="/home" element={<PrivateRoute element={<SuccessPage/>}/>}/>
+                                <Route path="/settings" element={<PrivateRoute element={<SettingsPage/>}/>}/>
+                                <Route path="/welcome" element={<Onboarding/>}/>
+                            </Routes>
+                        </Router>
+                    </LocalizationProvider>
+                </CssBaseline>
+            </ThemeProvider>
+        </Worker>
 
     );
 }

@@ -33,7 +33,7 @@ const SuccessPage: React.FC = () => {
         user && dispatch(fetchAndClearTransactions({
             limit: 50,
             offset: 0,
-            filters: {include_payments: false}
+
         })).finally(() => {
             console.log("was called")
             setIsLoading(false)
