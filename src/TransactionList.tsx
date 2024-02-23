@@ -66,7 +66,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
     const [receiptUrl, setReceiptUrl] = useState<string>("");
     const [receiptIsPDF, setReceiptIsPDF] = useState<boolean>(false);
-    const [images, setImages] = useState<string[]>([])
     const uploadReceiptInput = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery({maxWidth: 500})
     const handleRecieptInputClick = () => {
@@ -172,7 +171,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             .then(() => {
                 console.log(2)
                 dispatch(fetchAndClearTransactions(transactionRequest));
-                setImages([]);
                 setOpenTransactionId(null);
             })
             .catch((error) => {
@@ -187,7 +185,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const handleDelete = (transactionId: string) => {
         deleteReceipt(transactionId).then(() => {
             dispatch(fetchAndClearTransactions(transactionRequest))
-            setImages([]);
             setOpenTransactionId(null);
         })
     }
@@ -217,7 +214,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         ) : (
 
             isViewerOpen ? <Box sx={{mt: 50}}><ImageViewer
-                    src={images}
+                    src={[receiptUrl]}
                     currentIndex={0}
                     disableScroll={false}
                     closeOnClickOutside={true}
