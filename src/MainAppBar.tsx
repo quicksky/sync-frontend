@@ -103,8 +103,8 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
         })
     }
 
-    const handleAdminViewChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        props.adminViewState[1](event.target.checked);
+    const handleAdminViewChange = () => {
+        props.adminViewState[1](prevState => !prevState);
     };
 
     const [exportError, setExportError] = useState<boolean>(false)
@@ -142,19 +142,27 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                             }}>
                             <Sync sx={{ color: 'primary.main' }}/>
                         </IconButton>) : <CircularProgress sx={{ transform: 'scaleX(-1) rotate(-90deg)' }} size={'30px'} /> }
-                        <Typography variant={isMobile ? "h4" : "h6"} noWrap component="div">
+                        <Typography variant={isMobile ? "h4" : "h6"} noWrap component="div" >
                             SYNC
                         </Typography>
                         {userIsAdmin && !isMobile ?
                             <Button
                                 onClick={handleClickOpen}
-                                sx={{my: 2, color: 'white', display: 'block'}}
+                                sx={{my: 2, color: 'white', display: 'block', marginX: '15px'}}
                             >
                                 Export
                             </Button> : undefined}
-                        {userIsAdmin && !isMobile ? (<FormControlLabel
-                            control={<Switch checked={props.adminViewState[0]} onChange={handleAdminViewChange}/>}
-                            label="Admin View"/>) : undefined}
+
+                        {userIsAdmin && !isMobile ? (
+                            <Button variant={props.adminViewState[0] ? "contained" : "outlined"} onClick={handleAdminViewChange}>
+                                Admin View
+                            </Button>)
+
+                            // <FormControlLabel
+                            // control={<Switch checked={props.adminViewState[0]} onChange={handleAdminViewChange}/>}
+                            // label="Admin View"/>)
+
+                            : undefined}
 
                         <Dialog
                             open={syncErrorAlertOpen}
