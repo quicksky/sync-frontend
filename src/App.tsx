@@ -9,6 +9,8 @@ import SettingsPage from "./SettingsPage";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {Worker} from "@react-pdf-viewer/core";
+import ResetPassword from "./ResetPassword";
+import PasswordResetForm from "./PasswordResetForm";
 
 
 const theme = createTheme({
@@ -38,6 +40,8 @@ function App() {
                                 <Route path="/home" element={<PrivateRoute element={<SuccessPage/>}/>}/>
                                 <Route path="/settings" element={<PrivateRoute element={<SettingsPage/>}/>}/>
                                 <Route path="/welcome" element={<Onboarding/>}/>
+                                <Route path="/resetPassword" element={<ResetPassword/>}/>
+                                <Route path="/forgotPassword" element={<PasswordResetForm/>}/>
                             </Routes>
                         </Router>
                     </LocalizationProvider>
