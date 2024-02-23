@@ -207,6 +207,7 @@ const SettingsPage: React.FC = () => {
                     '& .MuiDrawer-paper': {
                         width: drawerWidth,
                         boxSizing: 'border-box',
+                        overflowX: 'hidden',
                     },
                 }}
                 variant="permanent"

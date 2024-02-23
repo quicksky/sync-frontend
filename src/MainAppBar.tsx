@@ -31,6 +31,7 @@ import {fetchAndClearTransactions, fetchTransactions} from "./redux/transactionS
 import {LoadingSpinner} from "plaid-threads";
 import DateInput from "plaid-threads/DateInput";
 import {DatePicker} from "@mui/x-date-pickers";
+import {useMediaQuery} from "react-responsive"
 
 /*import {DatePicker} from '@mui/x-date-pickers/DatePicker';*/
 interface MainAppBarProps {
@@ -41,6 +42,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     const user = useAppSelector(selectUser)
     const isAdmin = useAppSelector(selectIsAdmin)
     const dispatch = useAppDispatch()
+    const isMobile = useMediaQuery({maxWidth: 500} )
 
     const navigate = useNavigate();
     const userIsAdmin = user && user.role > 1
@@ -127,34 +129,33 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
             >
                 <Container maxWidth="xl"
                            sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 1}}>
-                    <Box sx={{display: 'flex', alignItems: 'center', maxHeight: 2}}>
-                        <Sync sx={{marginRight: 2}}/>
-                        <Typography variant="h6" noWrap component="div">
+                    <Box sx={{display: 'flex', alignItems: 'center', maxHeight: 2, marginY: '5px'}}>
+                        {!syncTransactionsLoading ? (<IconButton onClick={() => {
+                                setSyncTransactionsLoading(true)
+                                syncTransactions().then(() => {
+                                    dispatch(fetchAndClearTransactions({limit: 50, offset: 0}))
+                                }).catch(() => {
+                                    handleSyncErrorOpen()
+                                }).finally(() => {
+                                    setSyncTransactionsLoading(false)
+                                })
+                            }}>
+                            <Sync sx={{ color: 'primary.main' }}/>
+                        </IconButton>) : <CircularProgress sx={{ transform: 'scaleX(-1) rotate(-90deg)' }} size={'30px'} /> }
+                        <Typography variant={isMobile ? "h4" : "h6"} noWrap component="div">
                             SYNC
                         </Typography>
-
-                        {userIsAdmin ?
+                        {userIsAdmin && !isMobile ?
                             <Button
                                 onClick={handleClickOpen}
                                 sx={{my: 2, color: 'white', display: 'block'}}
                             >
                                 Export
                             </Button> : undefined}
-                        {!syncTransactionsLoading ? (<Button onClick={() => {
-                            setSyncTransactionsLoading(true)
-                            syncTransactions().then(() => {
-                                dispatch(fetchAndClearTransactions({limit: 50, offset: 0}))
-                            }).catch(() => {
-                                handleSyncErrorOpen()
-                            }).finally(() => {
-                                setSyncTransactionsLoading(false)
-                            })
-                        }}>
-                            REFRESH
-                        </Button>) : <CircularProgress/>}
-                        {userIsAdmin ? (<FormControlLabel
+                        {userIsAdmin && !isMobile ? (<FormControlLabel
                             control={<Switch checked={props.adminViewState[0]} onChange={handleAdminViewChange}/>}
                             label="Admin View"/>) : undefined}
+
                         <Dialog
                             open={syncErrorAlertOpen}
                             onClose={handleSyncErrorClose}
@@ -218,7 +219,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                             </DialogActions>
                         </Dialog>
                     </Box>
-                    <Box sx={{display: 'flex', alignItems: 'left'}}>
+                    <Box sx={{display: 'flex', alignItems: 'left', marginY: '5px'}}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{p: 0, marginLeft: 2}}>
                                 <Avatar alt={user?.first_name} src="/static/images/avatar/2.jpg"/>
