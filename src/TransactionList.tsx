@@ -334,12 +334,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                 onClick={() => handleDelete(transaction.transaction_id)}>
                                                                         <Delete></Delete>
                                                                     </IconButton></Tooltip>*/}</>) : undefined}
-
-                                                                {file ? (
-                                                                    <Typography>
-                                                                        Selected File: {file.name}
-                                                                    </Typography>
-                                                                ) : undefined}
                                                             </Grid>
                                                         }
                                                         {isMobile ?
@@ -362,8 +356,12 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                             </Grid>
                                                         }
                                                     </Grid>
-                                                    <Grid>
-
+                                                    <Grid sx={{marginTop: '2px'}}>
+                                                        {file ? (
+                                                            <Typography>
+                                                                Selected File: {file.name}
+                                                            </Typography>
+                                                        ) : undefined}
                                                     </Grid>
                                                 </Box>
                                             </Collapse>
