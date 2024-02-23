@@ -29,7 +29,7 @@ import {Account} from "./redux/accountSlice";
 import ImageViewer from 'react-simple-image-viewer';
 import {useAppDispatch} from "./redux/store";
 import {fetchAndClearTransactions, fetchTransactions, Transaction} from "./redux/transactionSlice";
-import {Check, Close, Delete, Receipt, Upload} from "@mui/icons-material";
+import {Check, Close, Delete, Receipt, Remove, Upload} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
 import Compress from 'compress.js'
 import {Viewer} from '@react-pdf-viewer/core';
@@ -237,12 +237,22 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             <TableHead>
                                 <TableRow>
                                     {isMobile ? undefined :
-                                        <TableCell sx={{color: "primary.main", marginRight: '0px', padding: '0px'}} align="center">Status</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginRight: '0px', padding: '0px'}}
+                                                   align="center">Status</TableCell>
                                     }
-                                    <TableCell sx={isMobile ? {color: "primary.main", marginRight: '0px', paddingRight: '0px'} :
-                                                              {color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Description</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginLeft: '0px', paddingLeft: '0px'}} align="right">Amount</TableCell>
+                                    <TableCell sx={isMobile ? {
+                                            color: "primary.main",
+                                            marginRight: '0px',
+                                            paddingRight: '0px'
+                                        } :
+                                        {color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
+                                    <TableCell sx={{
+                                        color: "primary.main",
+                                        marginX: '0px',
+                                        paddingX: '0px'
+                                    }}>Description</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginLeft: '0px', paddingLeft: '0px'}}
+                                               align="right">Amount</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -253,16 +263,26 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                   style={{cursor: 'pointer'}}>
                                             {isMobile ? undefined :
                                                 <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
-                                                align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                <Check/> : <Close/>}</TableCell>
+                                                           align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                    <Check/> : <Remove/>}</TableCell>
                                             }
-                                            <TableCell sx={isMobile ? {marginRight: '0px', paddingRight: '0px', width: '30%'} :
-                                                                      {marginX: '0px', paddingX: '0px', width: '15%'}}>{transaction.date}</TableCell>
+                                            <TableCell
+                                                sx={isMobile ? {marginRight: '0px', paddingRight: '0px', width: '30%'} :
+                                                    {
+                                                        marginX: '0px',
+                                                        paddingX: '0px',
+                                                        width: '15%'
+                                                    }}>{transaction.date}</TableCell>
                                             <TableCell sx={isMobile ? {marginX: '0px', paddingX: '0px', width: '55%'} :
-                                                                      {marginX: '0px', paddingX: '0px', width: '60%'}}>{transaction.name}</TableCell>
-                                            <TableCell sx={isMobile ? {marginLeft: '0px', paddingLeft: '0px', width: '15%'} :
-                                                                      {marginLeft: '0px', paddingLeft: '0px', width: '15%'}}
-                                                            align="right">{formatUSD(transaction.amount)}</TableCell>
+                                                {
+                                                    marginX: '0px',
+                                                    paddingX: '0px',
+                                                    width: '60%'
+                                                }}>{transaction.name}</TableCell>
+                                            <TableCell
+                                                sx={isMobile ? {marginLeft: '0px', paddingLeft: '0px', width: '15%'} :
+                                                    {marginLeft: '0px', paddingLeft: '0px', width: '15%'}}
+                                                align="right">{formatUSD(transaction.amount)}</TableCell>
                                         </TableRow>
                                         <TableRow>
                                             <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
@@ -279,11 +299,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                             {isMobile ?
                                                                 <Grid item xs>
                                                                     <Grid container direction="row-reverse">
-                                                                            {transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                                                <Check/> : <Close/>}
+                                                                        {transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                                            <Check/> : <Remove/>}
                                                                     </Grid>
                                                                 </Grid>
-                                                            : undefined }
+                                                                : undefined}
                                                         </Grid>
                                                         <FormControl focused color="secondary" variant="outlined"
                                                                      fullWidth
@@ -317,7 +337,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                         color="primary"
                                                                         size={isMobile ? "small" : undefined}>
                                                                     Upload Receipt
-                                                                    <input type="file" hidden onChange={handleFileChange}/>
+                                                                    <input type="file" hidden
+                                                                           onChange={handleFileChange}/>
                                                                 </Button>
                                                             </Grid>
                                                             {isMobile ?
@@ -325,7 +346,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     <Grid container direction="row-reverse">
                                                                         {receiptUrl.length ? (
                                                                             <><Button sx={{ml: 2}} size="small"
-                                                                                      variant="contained" color="primary"
+                                                                                      variant="contained"
+                                                                                      color="primary"
                                                                                       onClick={openReceipt}>
                                                                                 View Receipt
                                                                             </Button>
@@ -389,15 +411,15 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             </TableBody>
                         </Table>
                     </TableContainer>
-                        {paginationLoading ?
-                            (<CircularProgress/>) :
-                            (<TablePagination
-                                rowsPerPageOptions={[50]}
-                                component="div"
-                                count={count}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}/>)}
+                    {paginationLoading ?
+                        (<CircularProgress/>) :
+                        (<TablePagination
+                            rowsPerPageOptions={[50]}
+                            component="div"
+                            count={count}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}/>)}
 
 
                 </Paper>)
