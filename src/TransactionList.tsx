@@ -275,8 +275,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
                                                         <Select labelId="label-for-account" label="Account"
                                                                 defaultValue={accountId ? +accountId : ""}
-                                                                onChange={(e) => setAccountId(+e.target.value)}>
-                                                            {accounts.map(account => (
+                                                                onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
+                                                            {[{
+                                                                id: -1,
+                                                                name: "<none>"
+                                                            }].concat(accounts).map(account => (
                                                                 <MenuItem key={account.id}
                                                                           value={account.id}>{account.name}</MenuItem>
                                                             ))}

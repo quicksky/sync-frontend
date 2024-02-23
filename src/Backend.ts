@@ -195,3 +195,9 @@ export const deleteReceipt = async (id: string) => {
     const response = await apiAxios.get(endpoint)
     return response.data
 }
+
+export const initiatePasswordReset = async (email: string) => {
+    const endpoint = `${API_BASE_URL}/user/initiatePasswordReset`
+    const response = await apiAxios.post(endpoint, {email: email})
+    return response.data
+}

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, TextField, Container, Typography} from '@mui/material';
+import {Button, TextField, Container, Typography, Grid} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{mt: 2, mb: 2}}
+                        sx={{mt: 2, mb: 1}}
                     >
                         Sign In
                     </Button>
@@ -89,7 +89,10 @@ const LoginPage: React.FC = () => {
                     {/*    </Grid>*/}
                     {/*</Grid>*/}
                     {error ? (<Typography>{errorText}</Typography>) : undefined}
-
+                    <Grid container justifyContent={"right"}>
+                        <Button onClick={() => navigate('/forgotPassword')}>Forgot
+                            Password</Button>
+                    </Grid>
                 </Box>
             </Box>
         </Container>
