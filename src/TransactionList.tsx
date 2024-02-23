@@ -66,7 +66,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
     const [receiptUrl, setReceiptUrl] = useState<string>("");
     const [receiptIsPDF, setReceiptIsPDF] = useState<boolean>(false);
-    const [images, setImages] = useState<string[]>([])
     const uploadReceiptInput = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery({maxWidth: 500})
     const handleRecieptInputClick = () => {
@@ -172,7 +171,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             .then(() => {
                 console.log(2)
                 dispatch(fetchAndClearTransactions(transactionRequest));
-                setImages([]);
                 setOpenTransactionId(null);
             })
             .catch((error) => {
@@ -187,7 +185,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const handleDelete = (transactionId: string) => {
         deleteReceipt(transactionId).then(() => {
             dispatch(fetchAndClearTransactions(transactionRequest))
-            setImages([]);
             setOpenTransactionId(null);
         })
     }
@@ -217,7 +214,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         ) : (
 
             isViewerOpen ? <Box sx={{mt: 50}}><ImageViewer
-                    src={images}
+                    src={[receiptUrl]}
                     currentIndex={0}
                     disableScroll={false}
                     closeOnClickOutside={true}
@@ -236,12 +233,19 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={isMobile ? {color: "primary.main", marginRight: '0px', paddingRight: '0px'} :
-                                                          {color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                                           align="center">Status</TableCell>
-                                <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
-                                <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Description</TableCell>
-                                <TableCell sx={{color: "primary.main", marginLeft: '0px', paddingLeft: '0px'}} align="right">Amount</TableCell>
+                                <TableCell
+                                    sx={isMobile ? {color: "primary.main", marginRight: '0px', paddingRight: '0px'} :
+                                        {color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                    align="center">Status</TableCell>
+                                <TableCell
+                                    sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
+                                <TableCell sx={{
+                                    color: "primary.main",
+                                    marginX: '0px',
+                                    paddingX: '0px'
+                                }}>Description</TableCell>
+                                <TableCell sx={{color: "primary.main", marginLeft: '0px', paddingLeft: '0px'}}
+                                           align="right">Amount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -250,14 +254,23 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                     <TableRow key={transaction.transaction_id}
                                               onClick={() => handleRowClick(transaction)}
                                               style={{cursor: 'pointer'}}>
-                                        <TableCell sx={isMobile ? {marginRight: '0px', paddingRight: '0px', width: '15%'} :
-                                                                  {marginX: '0px', paddingX: '0px', width: '15%'}}
+                                        <TableCell
+                                            sx={isMobile ? {marginRight: '0px', paddingRight: '0px', width: '15%'} :
+                                                {marginX: '0px', paddingX: '0px', width: '15%'}}
                                             align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
                                             <Check/> : <Close/>}</TableCell>
-                                        <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}>{transaction.date}</TableCell>
-                                        <TableCell sx={{marginX: '0px', paddingX: '0px', width: '60%'}}>{transaction.name}</TableCell>
+                                        <TableCell sx={{
+                                            marginX: '0px',
+                                            paddingX: '0px',
+                                            width: '15%'
+                                        }}>{transaction.date}</TableCell>
+                                        <TableCell sx={{
+                                            marginX: '0px',
+                                            paddingX: '0px',
+                                            width: '60%'
+                                        }}>{transaction.name}</TableCell>
                                         <TableCell sx={{marginLeft: '0px', paddingLeft: '0px', width: '10%'}}
-                                                        align="right">{formatUSD(transaction.amount)}</TableCell>
+                                                   align="right">{formatUSD(transaction.amount)}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
