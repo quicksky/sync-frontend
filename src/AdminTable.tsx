@@ -40,20 +40,10 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const isMobile = useMediaQuery({maxWidth: 500})
     const [activeTransactionId, setActiveTransactionId] = useState<string>("");
     const [accountId, setAccountId] = useState<number | null>(null)
+    const [memo, setMemo] = useState<string | null>('');
     const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
     const [receiptUrl, setReceiptUrl] = useState<string>("");
     const [isImageViewerOpen, setImageViewerOpen] = useState<boolean>(false);
-    const [editTransactionDetails, setEditTransactionDetails] = useState<{
-        memo: string | null;
-        account: number | null
-    }>({memo: null, account: null});
-
-    const handleEditChange = (field: string, value: string) => {
-        setEditTransactionDetails(prevDetails => ({
-            ...prevDetails,
-            [field]: value,
-        }));
-    };
 
     const handleLoadReceipt = (transaction: Transaction) => {
         if (transaction && transaction.receipt_key) {
@@ -88,7 +78,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
         setTransactionInfo({
             id: transactionId,
             account_id: accountId,
-            memo: editTransactionDetails.memo
+            memo: memo
         }).then(() => {
             dispatch(fetchAndClearTransactions(transactionRequest));
         });
@@ -132,7 +122,8 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 disableScroll={true}
                 closeOnClickOutside={true}
                 onClose={closeImageViewer}/></Box> : (
-                <Paper style={{padding: '20px', marginTop: '20px', marginBottom: '20px', overflowX: 'auto', width: '70%'}}>
+                <Paper
+                    style={{padding: '20px', marginTop: '20px', marginBottom: '20px', overflowX: 'auto', width: '70%'}}>
                     <Typography variant="h6" style={{marginBottom: '20px'}}>
                         Transaction History
                     </Typography>
@@ -140,15 +131,27 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}} align="center">Status</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Description</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Memo</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}} align="center">Account</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}} align="right">Owner</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}} align="right">Amount</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}} align="center">Receipt</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}} align='center'>Edit</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align="center">Status</TableCell>
+                                    <TableCell
+                                        sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
+                                    <TableCell sx={{
+                                        color: "primary.main",
+                                        marginX: '0px',
+                                        paddingX: '0px'
+                                    }}>Description</TableCell>
+                                    <TableCell
+                                        sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Memo</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align="center">Account</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align="right">Owner</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align="right">Amount</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align="center">Receipt</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align='center'>Edit</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -158,8 +161,10 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     const isEditable = activeTransactionId === transaction.transaction_id;
                                     return (
                                         <TableRow key={transaction.transaction_id}>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}} align="center">
-                                                {transaction.memo && transaction.receipt_key && transaction.internal_account ? <Check/> : <Close/>}</TableCell>
+                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
+                                                       align="center">
+                                                {transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                    <Check/> : <Close/>}</TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
                                                 {transaction.date}
                                             </TableCell>
@@ -175,51 +180,58 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                         multiline
                                                         rows={4}
                                                         color='warning'
-                                                        value={editTransactionDetails.memo || transaction.memo}
-                                                        onChange={(e) => handleEditChange('memo', e.target.value)}
+                                                        value={memo}
+                                                        onChange={(e) => setMemo(e.target.value)}
                                                     />
                                                 ) : transaction.memo} </div>}
                                             </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}} align="center">
+                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
+                                                       align="center">
                                                 {isEditable ? (
                                                     <FormControl variant="outlined" focused fullWidth color="warning">
                                                         <Select labelId="label-for-account"
-                                                                defaultValue={editTransactionDetails.account ? +editTransactionDetails.account : ""}
+                                                                defaultValue={accountId ? +accountId : ""}
                                                                 onChange={(e) => setAccountId(+e.target.value)}>
                                                             {accounts.map(account => (
-                                                                <MenuItem key={account.id} value={account.id}>{account.name}</MenuItem>
+                                                                <MenuItem key={account.id}
+                                                                          value={account.id}>{account.name}</MenuItem>
                                                             ))}
                                                         </Select>
                                                     </FormControl>
                                                 ) : accountName}
                                             </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}} align="right">
+                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}}
+                                                       align="right">
                                                 {transaction.account_owner}
                                             </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}} align="right">
+                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
+                                                       align="right">
                                                 {formatUSD(transaction.amount)}
                                             </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}} align="center">
+                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
+                                                       align="center">
                                                 {transaction.receipt_key && <IconButton
                                                     onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>}
                                             </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}} align="center">
+                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}}
+                                                       align="center">
                                                 {isEditable ? (
                                                     <>
-                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <div style={{display: 'flex', flexDirection: 'column'}}>
                                                             <IconButton sx={{margin: '0px', padding: '0px'}}
-                                                                onClick={() => handleSubmitEdit(transaction.transaction_id)}><Check/></IconButton>
+                                                                        onClick={() => handleSubmitEdit(transaction.transaction_id)}><Check/></IconButton>
                                                             <IconButton sx={{margin: '0px', padding: '0px'}}
-                                                                onClick={() => setActiveTransactionId("")}><Close/></IconButton>
+                                                                        onClick={() => {
+                                                                            setActiveTransactionId("")
+
+                                                                        }}><Close/></IconButton>
                                                         </div>
                                                     </>
                                                 ) : (
                                                     <IconButton onClick={() => {
                                                         setActiveTransactionId(transaction.transaction_id);
-                                                        setEditTransactionDetails({
-                                                            memo: transaction.memo,
-                                                            account: transaction.internal_account
-                                                        });
+                                                        setMemo(transaction.memo)
+                                                        setAccountId(transaction.internal_account)
                                                     }}><Edit/></IconButton>
                                                 )}
                                             </TableCell>
