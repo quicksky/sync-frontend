@@ -16,7 +16,7 @@ import {
     TableRow,
     TablePagination,
     TextField,
-    Typography, IconButton, Tooltip, CircularProgress
+    Typography, IconButton, Tooltip, CircularProgress, Grid
 } from '@mui/material';
 import {
     deleteReceipt,
@@ -39,7 +39,8 @@ import {pageNavigationPlugin} from '@react-pdf-viewer/page-navigation'
 
 // Import the styles
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension";
+import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension"
+import {useMediaQuery} from "react-responsive"
 
 
 const compressionValue = 0.5
@@ -67,6 +68,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const [receiptIsPDF, setReceiptIsPDF] = useState<boolean>(false);
     const [images, setImages] = useState<string[]>([])
     const uploadReceiptInput = useRef<HTMLInputElement>(null);
+    const isMobile = useMediaQuery({maxWidth: 500})
     const handleRecieptInputClick = () => {
         uploadReceiptInput.current?.click()
     };
@@ -99,6 +101,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             dispatch(fetchTransactions({
                 offset: newPage * 50,
                 limit: 50,
+                filters: {include_payments: false}
             })).then(() => (
                 setPage(newPage)
             ))
@@ -139,9 +142,12 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         }
         setOpenTransactionId(openTransactionId === transaction.transaction_id ? null : transaction.transaction_id);
     };
+
     const closeImageViewer = () => {
         setViewerOpen(false);
     };
+
+
     const handleSave = (transaction: Transaction) => {
         const transactionInfoPromise = setTransactionInfo({
             id: transaction.transaction_id,
@@ -151,6 +157,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             setMemo(null);
             setAccountId(null);
         });
+
+
         const uploadFilePromise = file ? uploadTransactionFile({
             id: transaction.transaction_id,
             file: file.file
@@ -171,6 +179,10 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                 //error
             });
     };
+
+    const openReceipt = () => {
+        receiptIsPDF ? setPdfViewerOpen(true) : setViewerOpen(true)
+    }
 
     const handleDelete = (transactionId: string) => {
         deleteReceipt(transactionId).then(() => {
@@ -203,23 +215,40 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             </div>
 
         ) : (
+
             isViewerOpen ? <Box sx={{mt: 50}}><ImageViewer
-                    src={[receiptUrl]}
+                    src={images}
                     currentIndex={0}
-                    disableScroll={true}
+                    disableScroll={false}
                     closeOnClickOutside={true}
                     onClose={closeImageViewer}/></Box> :
-                <Paper style={{padding: '20px', marginTop: '20px', overflowX: 'auto'}}>
+                <Paper style={isMobile ? {
+                        padding: '20px',
+                        marginTop: '20px',
+                        marginBottom: '20px',
+                        overflowX: 'auto',
+                        width: '100%'
+                    } :
+                    {padding: '20px', marginTop: '20px', marginBottom: '20px', overflowX: 'auto', width: '40%'}}>
                     <Typography variant="h6" style={{marginBottom: '20px'}}>
                         Transaction History
                     </Typography><TableContainer component={Paper}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{color: "primary.main"}}>Date</TableCell>
-                                <TableCell sx={{color: "primary.main"}}>Reviewed</TableCell>
-                                <TableCell sx={{color: "primary.main"}}>Description</TableCell>
-                                <TableCell sx={{color: "primary.main"}} align="right">Amount</TableCell>
+                                <TableCell
+                                    sx={isMobile ? {color: "primary.main", marginRight: '0px', paddingRight: '0px'} :
+                                        {color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                    align="center">Status</TableCell>
+                                <TableCell
+                                    sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
+                                <TableCell sx={{
+                                    color: "primary.main",
+                                    marginX: '0px',
+                                    paddingX: '0px'
+                                }}>Description</TableCell>
+                                <TableCell sx={{color: "primary.main", marginLeft: '0px', paddingLeft: '0px'}}
+                                           align="right">Amount</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -228,11 +257,23 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                     <TableRow key={transaction.transaction_id}
                                               onClick={() => handleRowClick(transaction)}
                                               style={{cursor: 'pointer'}}>
-                                        <TableCell>{transaction.date}</TableCell>
-                                        <TableCell>{transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                        <TableCell
+                                            sx={isMobile ? {marginRight: '0px', paddingRight: '0px', width: '15%'} :
+                                                {marginX: '0px', paddingX: '0px', width: '15%'}}
+                                            align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
                                             <Check/> : <Close/>}</TableCell>
-                                        <TableCell>{transaction.name}</TableCell>
-                                        <TableCell align="right">{formatUSD(transaction.amount)}</TableCell>
+                                        <TableCell sx={{
+                                            marginX: '0px',
+                                            paddingX: '0px',
+                                            width: '15%'
+                                        }}>{transaction.date}</TableCell>
+                                        <TableCell sx={{
+                                            marginX: '0px',
+                                            paddingX: '0px',
+                                            width: '60%'
+                                        }}>{transaction.name}</TableCell>
+                                        <TableCell sx={{marginLeft: '0px', paddingLeft: '0px', width: '10%'}}
+                                                   align="right">{formatUSD(transaction.amount)}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
@@ -250,11 +291,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
                                                         <Select labelId="label-for-account" label="Account"
                                                                 defaultValue={accountId ? +accountId : ""}
-                                                                onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
-                                                            {[{
-                                                                id: -1,
-                                                                name: "<none>"
-                                                            }].concat(accounts).map(account => (
+                                                                onChange={(e) => setAccountId(+e.target.value)}>
+                                                            {accounts.map(account => (
                                                                 <MenuItem key={account.id}
                                                                           value={account.id}>{account.name}</MenuItem>
                                                             ))}
@@ -268,32 +306,81 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                         label="Memo"
                                                         fullWidth margin="normal"
                                                         onChange={(e) => setMemo(e.target.value)}/>
-                                                    <Button variant="contained" component="label">
-                                                        Upload Receipt
-                                                        <input type="file" hidden onChange={handleFileChange}/>
-                                                    </Button>
-                                                    {receiptUrl ? (
-                                                        <><Button sx={{ml: 2}} variant="contained" color="primary"
-                                                                  onClick={() => receiptIsPDF ? setPdfViewerOpen(!isPdfViewerOpen) : setViewerOpen(!isViewerOpen)}>
-                                                            View Receipt
-                                                        </Button>
-                                                            <Tooltip title={"Delete Receipt"}>
-                                                                <IconButton sx={{ml: 2}}
-                                                                            onClick={() => handleDelete(transaction.transaction_id)}>
-                                                                    <Delete></Delete>
-                                                                </IconButton></Tooltip></>) : undefined}
-                                                    {file ? (
-                                                        <Typography>
-                                                            Selected File: {file.name}
-                                                        </Typography>
-                                                    ) : undefined}
 
-                                                    <Box mt={2}>
-                                                        <Button variant="contained" color="primary"
-                                                                onClick={() => handleSave(transaction)}>
-                                                            Save
-                                                        </Button>
-                                                    </Box>
+                                                    <Grid container>
+                                                        <Grid item>
+                                                            <Button variant="contained" component="label"
+                                                                    color="primary"
+                                                                    size={isMobile ? "small" : undefined}>
+                                                                Upload Receipt
+                                                                <input type="file" hidden onChange={handleFileChange}/>
+                                                            </Button>
+                                                        </Grid>
+                                                        {isMobile ?
+                                                            <Grid item xs>
+                                                                <Grid container direction="row-reverse">
+                                                                    {receiptUrl.length ? (
+                                                                        <><Button sx={{ml: 2}} size="small"
+                                                                                  variant="contained" color="primary"
+                                                                                  onClick={openReceipt}>
+                                                                            View Receipt
+                                                                        </Button>
+
+                                                                            {/*<Tooltip title={"Delete Receipt"}>
+                                                                    <IconButton color="secondary" sx={{ml: 2}}
+                                                                                onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                        <Delete></Delete>
+                                                                    </IconButton></Tooltip>*/}</>) : undefined}
+
+                                                                    {file ? (
+                                                                        <Typography>
+                                                                            Selected File: {file.name}
+                                                                        </Typography>
+                                                                    ) : undefined}
+                                                                </Grid>
+                                                            </Grid>
+                                                            :
+                                                            <Grid item>
+                                                                {receiptUrl.length ? (
+                                                                    <><Button sx={{ml: 2}} variant="contained"
+                                                                              color="primary"
+                                                                              onClick={openReceipt}>
+                                                                        View Receipt
+                                                                    </Button>
+
+                                                                        {/*<Tooltip title={"Delete Receipt"}>
+                                                                    <IconButton color="secondary" sx={{ml: 2}}
+                                                                                onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                        <Delete></Delete>
+                                                                    </IconButton></Tooltip>*/}</>) : undefined}
+
+                                                                {file ? (
+                                                                    <Typography>
+                                                                        Selected File: {file.name}
+                                                                    </Typography>
+                                                                ) : undefined}
+                                                            </Grid>
+                                                        }
+                                                        {isMobile ?
+                                                            <Grid container justifyContent="right"
+                                                                  sx={{marginTop: '5px'}}>
+                                                                <Button size={isMobile ? "small" : undefined}
+                                                                        variant="contained" color="secondary"
+                                                                        onClick={() => handleSave(transaction)}>
+                                                                    Save
+                                                                </Button>
+                                                            </Grid>
+                                                            :
+                                                            <Grid item xs>
+                                                                <Grid container direction="row-reverse">
+                                                                    <Button variant="contained" color="secondary"
+                                                                            onClick={() => handleSave(transaction)}>
+                                                                        Save
+                                                                    </Button>
+                                                                </Grid>
+                                                            </Grid>
+                                                        }
+                                                    </Grid>
                                                 </Box>
                                             </Collapse>
                                         </TableCell>
