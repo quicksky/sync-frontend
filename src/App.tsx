@@ -20,8 +20,11 @@ const theme = createTheme({
             main: "#FFFFFF",
         },
         secondary: {
-            main: "#20202e"
+            main: "#20202e",
         },
+        warning: {
+            main: "#d3d3d3",
+        }
     },
 });
 
