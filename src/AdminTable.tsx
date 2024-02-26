@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -16,7 +16,7 @@ import {
     CircularProgress, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import {getTransactionImage, GetTransactionRequest, setTransactionInfo} from "./Backend";
-import {useAppDispatch} from "./redux/store";
+import {useAppDispatch, useAppSelector} from "./redux/store";
 import {fetchAndClearTransactions, fetchTransactions, Transaction} from "./redux/transactionSlice";
 import {Check, Close, Edit, Receipt} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
@@ -26,6 +26,7 @@ import ImageViewer from "react-simple-image-viewer";
 import {defaultLayoutPlugin, ToolbarProps} from "@react-pdf-viewer/default-layout";
 import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension";
 import {useMediaQuery} from "react-responsive"
+import {fetchUserList, selectActiveUsers} from "./redux/clientSlice";
 
 interface AdminTableProps {
     transactions: Transaction[];
@@ -44,6 +45,12 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
     const [receiptUrl, setReceiptUrl] = useState<string>("");
     const [isImageViewerOpen, setImageViewerOpen] = useState<boolean>(false);
+    const users = useAppSelector(selectActiveUsers);
+    const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        dispatch(fetchUserList());
+    }, [dispatch])
 
     const handleLoadReceipt = (transaction: Transaction) => {
         if (transaction && transaction.receipt_key) {
@@ -86,8 +93,19 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     };
 
     const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
-        // You might want to implement further logic here for fetching new transactions
+        setPaginationLoading(true)
+        setTransactionRequest({offset: 0, limit: (newPage + 1) * 50})
+        if (((newPage + 1) * 50) > transactions.length) {
+            dispatch(fetchTransactions({
+                offset: newPage * 50,
+                limit: 50,
+            })).then(() => (
+                setPage(newPage)
+            ))
+        } else {
+            setPage(newPage)
+        }
+        setPaginationLoading(false)
     };
     const closeImageViewer = () => {
         setImageViewerOpen(false);
@@ -124,9 +142,17 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 onClose={closeImageViewer}/></Box> : (
                 <Paper
                     style={{padding: '20px', marginTop: '20px', marginBottom: '20px', overflowX: 'auto', width: '70%'}}>
-                    <Typography variant="h6" style={{marginBottom: '20px'}}>
-                        Transaction History
-                    </Typography>
+                    {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
+                    {/*    Admin View*/}
+                    {/*</Typography>*/}
+                    {/*<Select labelId="label-for-account"*/}
+                    {/*        defaultValue={""}*/}
+                    {/*        onChange={(e) => setAccountId(+e.target.value)}>*/}
+                    {/*    {users.map(user => (*/}
+                    {/*        <MenuItem key={user.id}*/}
+                    {/*                  value={user.id}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>*/}
+                    {/*    ))}*/}
+                    {/*</Select>*/}
                     <TableContainer component={Paper}>
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
@@ -241,14 +267,15 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             </TableBody>
                         </Table>
                     </TableContainer>
-                    <TablePagination
-                        rowsPerPageOptions={[50]}
-                        component="div"
-                        count={count}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                    />
+                    {paginationLoading ?
+                        (<CircularProgress/>) :
+                        (<TablePagination
+                            rowsPerPageOptions={[50]}
+                            component="div"
+                            count={count}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}/>)}
                 </Paper>)
         ))
 };

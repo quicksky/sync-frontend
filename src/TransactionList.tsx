@@ -100,7 +100,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             dispatch(fetchTransactions({
                 offset: newPage * 50,
                 limit: 50,
-                filters: {include_payments: false}
             })).then(() => (
                 setPage(newPage)
             ))
