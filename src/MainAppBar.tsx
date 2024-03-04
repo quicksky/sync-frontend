@@ -20,7 +20,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, Drawer, FormControlLabel, Switch,
+    DialogTitle, Drawer, FormControl, FormControlLabel, Select, SelectChangeEvent, Switch,
     TextField
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "./redux/store";
@@ -32,6 +32,7 @@ import {LoadingSpinner} from "plaid-threads";
 import DateInput from "plaid-threads/DateInput";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useMediaQuery} from "react-responsive"
+import {selectActiveUsers} from "./redux/clientSlice";
 
 /*import {DatePicker} from '@mui/x-date-pickers/DatePicker';*/
 interface MainAppBarProps {
@@ -42,7 +43,9 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     const user = useAppSelector(selectUser)
     const isAdmin = useAppSelector(selectIsAdmin)
     const dispatch = useAppDispatch()
-    const isMobile = useMediaQuery({maxWidth: 500} )
+    const isMobile = useMediaQuery({maxWidth: 500})
+    const users = useAppSelector(selectActiveUsers)
+    const [exportCardNumber, setExportCardNumber] = useState<string | undefined>("")
 
     const navigate = useNavigate();
     const userIsAdmin = user && user.role > 1
@@ -89,7 +92,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
         console.log(formJson)
         const startDate = formJson.start_date;
         const endDate = formJson.end_date;
-        generateExport({start_date: startDate, end_date: endDate}).then(r => {
+        generateExport({start_date: startDate, end_date: endDate, user_card_number: exportCardNumber}).then(r => {
             triggerDownload(new Blob([r.data]), r.fileName)
             handleClose();
         }).catch(e => {
@@ -140,9 +143,10 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                     setSyncTransactionsLoading(false)
                                 })
                             }}>
-                            <Sync sx={{ color: 'primary.main' }}/>
-                        </IconButton>) : <CircularProgress sx={{ transform: 'scaleX(-1) rotate(-90deg)' }} size={'30px'} /> }
-                        <Typography variant={isMobile ? "h4" : "h6"} noWrap component="div" >
+                                <Sync sx={{color: 'primary.main'}}/>
+                            </IconButton>) :
+                            <CircularProgress sx={{transform: 'scaleX(-1) rotate(-90deg)'}} size={'30px'}/>}
+                        <Typography variant={isMobile ? "h4" : "h6"} noWrap component="div">
                             SYNC
                         </Typography>
                         {userIsAdmin && !isMobile ?
@@ -154,9 +158,10 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                             </Button> : undefined}
 
                         {userIsAdmin && !isMobile ? (
-                            <Button variant={props.adminViewState[0] ? "contained" : "outlined"} onClick={handleAdminViewChange}>
-                                Admin View
-                            </Button>)
+                                <Button variant={props.adminViewState[0] ? "contained" : "outlined"}
+                                        onClick={handleAdminViewChange}>
+                                    Admin View
+                                </Button>)
 
                             // <FormControlLabel
                             // control={<Switch checked={props.adminViewState[0]} onChange={handleAdminViewChange}/>}
@@ -215,10 +220,26 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                 ></DatePicker>
 
                                 <DatePicker
+                                    sx={{ml: 2}}
                                     label="End Date"
                                     name="end_date"
                                     format={"YYYY-MM-DD"}></DatePicker>
 
+                                <FormControl sx={{maxWidth: "40%", minWidth: "40%"}} focused color="secondary"
+                                             variant="outlined"
+                                             margin="normal">
+                                    <Select
+                                        sx={{maxWidth: "75%", minWidth: "75%"}}
+                                        labelId="label-for-account"
+                                        defaultValue={""}
+                                        onChange={(e: SelectChangeEvent<string | undefined>) => setExportCardNumber(e.target.value)}>
+                                        <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
+                                        {users.map(user => (
+                                            <MenuItem key={user.id}
+                                                      value={user.card_number ? user.card_number : ""}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </DialogContent>
                             {exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}
                             <DialogActions>

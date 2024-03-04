@@ -13,20 +13,37 @@ import {
     TextField,
     Typography,
     IconButton,
-    CircularProgress, FormControl, InputLabel, Select, MenuItem
+    CircularProgress, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Checkbox
 } from '@mui/material';
-import {getTransactionImage, GetTransactionRequest, setTransactionInfo} from "./Backend";
+import {
+    approveTransaction,
+    getTransactionImage,
+    GetTransactionRequest,
+    getUserAccounts,
+    grantAccount,
+    revokeAccount,
+    setTransactionInfo, unapproveTransaction
+} from "./Backend";
 import {useAppDispatch, useAppSelector} from "./redux/store";
-import {fetchAndClearTransactions, fetchTransactions, Transaction} from "./redux/transactionSlice";
+import {
+    fetchAdminTransactions,
+    fetchAndClearAdminTransactions,
+    fetchAndClearTransactions,
+    fetchTransactions,
+    selectCount,
+    selectTransactions,
+    Transaction
+} from "./redux/transactionSlice";
 import {Check, Close, Edit, Receipt} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
-import {Account} from "./redux/accountSlice";
+import {Account, fetchOwnAccounts} from "./redux/accountSlice";
 import {Viewer} from "@react-pdf-viewer/core";
 import ImageViewer from "react-simple-image-viewer";
 import {defaultLayoutPlugin, ToolbarProps} from "@react-pdf-viewer/default-layout";
 import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension";
 import {useMediaQuery} from "react-responsive"
 import {fetchUserList, selectActiveUsers} from "./redux/clientSlice";
+import {selectUser} from "./redux/userSlice";
 
 interface AdminTableProps {
     transactions: Transaction[];
@@ -35,6 +52,8 @@ interface AdminTableProps {
 }
 
 const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) => {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const user = useAppSelector(selectUser)
     const dispatch = useAppDispatch();
     const [page, setPage] = useState(0);
     const rowsPerPage = 50;
@@ -47,10 +66,24 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const [isImageViewerOpen, setImageViewerOpen] = useState<boolean>(false);
     const users = useAppSelector(selectActiveUsers);
     const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
+    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
 
-    useEffect(() => {
-        dispatch(fetchUserList());
-    }, [dispatch])
+
+    const handleUserFilter = (e: SelectChangeEvent<string | undefined>) => {
+        setPage(0);
+        setTransactionRequest({
+            ...transactionRequest,
+            filters: {
+                user_card_number: e.target.value
+            }
+        })
+        dispatch(fetchAndClearAdminTransactions({
+            ...transactionRequest,
+            filters: {
+                user_card_number: e.target.value
+            }
+        }))
+    }
 
     const handleLoadReceipt = (transaction: Transaction) => {
         if (transaction && transaction.receipt_key) {
@@ -66,7 +99,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     }
 
     //todo
-    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
+
     const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
         <>
             <Toolbar/>
@@ -87,21 +120,23 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
             account_id: accountId,
             memo: memo
         }).then(() => {
-            dispatch(fetchAndClearTransactions(transactionRequest));
+            dispatch(fetchAndClearAdminTransactions(transactionRequest));
         });
-        setActiveTransactionId(""); // Close editing mode
+        setActiveTransactionId("");
     };
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPaginationLoading(true)
-        setTransactionRequest({offset: 0, limit: (newPage + 1) * 50})
+        setTransactionRequest({...transactionRequest, offset: 0, limit: (newPage + 1) * 50})
         if (((newPage + 1) * 50) > transactions.length) {
-            dispatch(fetchTransactions({
+            dispatch(fetchAdminTransactions({
+                ...transactionRequest,
                 offset: newPage * 50,
                 limit: 50,
-            })).then(() => (
+            })).then(() => {
                 setPage(newPage)
-            ))
+                console.log(transactions)
+            })
         } else {
             setPage(newPage)
         }
@@ -110,6 +145,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const closeImageViewer = () => {
         setImageViewerOpen(false);
     };
+
+    const onTransactionCheckboxClick = (checked: boolean, transaction_id: string) => {
+        checked ? approveTransaction(transaction_id) : unapproveTransaction(transaction_id)
+        dispatch(fetchAndClearAdminTransactions(transactionRequest))
+    }
 
 
     return (
@@ -126,7 +166,6 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 height: '750px'
             }}>
                 <Viewer
-
                     plugins={[defaultLayoutPluginInstance]}
                     fileUrl={receiptUrl}
                 />
@@ -141,33 +180,51 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 closeOnClickOutside={true}
                 onClose={closeImageViewer}/></Box> : (
                 <Paper
-                    style={{padding: '20px', marginTop: '20px', marginBottom: '20px', overflowX: 'auto', width: '70%'}}>
+                    style={{
+                        padding: '20px',
+                        marginTop: '20px',
+                        marginBottom: '20px',
+                        overflowX: 'auto',
+                        width: '70%'
+                    }}>
                     {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
                     {/*    Admin View*/}
                     {/*</Typography>*/}
-                    {/*<Select labelId="label-for-account"*/}
-                    {/*        defaultValue={""}*/}
-                    {/*        onChange={(e) => setAccountId(+e.target.value)}>*/}
-                    {/*    {users.map(user => (*/}
-                    {/*        <MenuItem key={user.id}*/}
-                    {/*                  value={user.id}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>*/}
-                    {/*    ))}*/}
-                    {/*</Select>*/}
+                    <Select
+                        labelId="label-for-account"
+                        defaultValue={""}
+                        onChange={handleUserFilter}>
+                        <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
+                        {users.map(user => (
+                            <MenuItem key={user.id}
+                                      value={user.card_number ? user.card_number : ""}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>
+                        ))}
+                    </Select>
                     <TableContainer component={Paper}>
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                               align="center">Admin Reviewed</TableCell>
+                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
                                                align="center">Status</TableCell>
                                     <TableCell
-                                        sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
+                                        sx={{
+                                            color: "primary.main",
+                                            marginX: '0px',
+                                            paddingX: '0px'
+                                        }}>Date</TableCell>
                                     <TableCell sx={{
                                         color: "primary.main",
                                         marginX: '0px',
                                         paddingX: '0px'
                                     }}>Description</TableCell>
                                     <TableCell
-                                        sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}>Memo</TableCell>
+                                        sx={{
+                                            color: "primary.main",
+                                            marginX: '0px',
+                                            paddingX: '0px'
+                                        }}>Memo</TableCell>
                                     <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
                                                align="center">Account</TableCell>
                                     <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
@@ -185,14 +242,31 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     const account = accounts.find((a) => a.id === transaction.internal_account)
                                     const accountName = account ? account.name : ""
                                     const isEditable = activeTransactionId === transaction.transaction_id;
+                                    const card_number = transaction.account_owner.slice(-4)
+                                    const owner = users.find(user => user.card_number === card_number)
+                                    const splitDate = transaction.date.split('-')
+                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0]
+
                                     return (
-                                        <TableRow key={transaction.transaction_id}>
+                                        <TableRow key={transaction.transaction_id}
+                                                  sx={{"background-color": transaction.admin_approved ? "#acfcac" : "white"}}>
+                                            <TableCell align={"center"}
+                                                       sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                                                <Checkbox sx={{
+                                                    "&, & + .MuiFormControlLabel-label": {
+                                                        color: "secondary.main"
+                                                    }
+                                                }} color="secondary"
+                                                          checked={transaction.admin_approved}
+                                                          onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}
+                                                />
+                                            </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
                                                        align="center">
                                                 {transaction.memo && transaction.receipt_key && transaction.internal_account ?
                                                     <Check/> : <Close/>}</TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                                                {transaction.date}
+                                                {dateString}
                                             </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '00px', width: '9%'}}>
                                                 {transaction.name}
@@ -214,10 +288,12 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
                                                        align="center">
                                                 {isEditable ? (
-                                                    <FormControl variant="outlined" focused fullWidth color="warning">
+                                                    <FormControl variant="outlined" focused fullWidth
+                                                                 color="warning">
                                                         <Select labelId="label-for-account"
                                                                 defaultValue={accountId ? +accountId : ""}
-                                                                onChange={(e) => setAccountId(+e.target.value)}>
+                                                                onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
+                                                            <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
                                                             {accounts.map(account => (
                                                                 <MenuItem key={account.id}
                                                                           value={account.id}>{account.name}</MenuItem>
@@ -228,7 +304,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                             </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}}
                                                        align="right">
-                                                {transaction.account_owner}
+                                                {owner ? `${owner.first_name} ${owner.last_name} (${owner.card_number})` : transaction.account_owner}
                                             </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
                                                        align="right">

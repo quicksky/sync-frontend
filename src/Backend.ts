@@ -5,8 +5,8 @@ import {GetClientUserListResponse} from "./redux/clientSlice";
 import {Transaction} from "./redux/transactionSlice";
 
 
-const API_BASE_URL = 'https://service.quicksky.io';
-//const API_BASE_URL = 'http://localhost:9000';
+//const API_BASE_URL = 'https://service.quicksky.io';
+const API_BASE_URL = 'http://localhost:9000';
 
 const apiAxios = axios.create({
     withCredentials: true,
@@ -15,9 +15,10 @@ const apiAxios = axios.create({
 export interface TransactionFilters {
     dates?: {
         start_date: string,
-        end_date: string
+        end_date: string,
     }
-    include_payments?: boolean
+    include_payments?: boolean,
+    user_card_number?: string
 }
 
 export interface GetTransactionRequest {
@@ -93,7 +94,7 @@ export const exchangeToken = async (token: string) => {
     return response.data
 }
 
-export const generateExport = async (dateRange: { start_date: string, end_date: string }): Promise<{
+export const generateExport = async (dateRange: { start_date: string, end_date: string, user_card_number?: string }): Promise<{
     fileName: string;
     data: BinaryData;
 }> => {
@@ -199,5 +200,16 @@ export const deleteReceipt = async (id: string) => {
 export const initiatePasswordReset = async (email: string) => {
     const endpoint = `${API_BASE_URL}/user/initiatePasswordReset`
     const response = await apiAxios.post(endpoint, {email: email})
+    return response.data
+}
+
+export const approveTransaction = async (id: string) => {
+    const endpoint = `${API_BASE_URL}/transactions/approve/${id}`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+export const unapproveTransaction = async (id: string) => {
+    const endpoint = `${API_BASE_URL}/transactions/unapprove/${id}`
+    const response = await apiAxios.get(endpoint)
     return response.data
 }

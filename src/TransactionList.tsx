@@ -1,4 +1,4 @@
-import React, {ChangeEvent, ReactElement, useRef, useState} from 'react';
+import React, {ChangeEvent, ReactElement, useEffect, useRef, useState} from 'react';
 import {
     Box,
     Button,
@@ -22,13 +22,19 @@ import {
     deleteReceipt,
     getTransactionImage,
     GetTransactionRequest,
-    setTransactionInfo,
+    setTransactionInfo, TransactionFilters,
     uploadTransactionFile
 } from "./Backend";
-import {Account} from "./redux/accountSlice";
+import {Account, fetchOwnAccounts} from "./redux/accountSlice";
 import ImageViewer from 'react-simple-image-viewer';
-import {useAppDispatch} from "./redux/store";
-import {fetchAndClearTransactions, fetchTransactions, Transaction} from "./redux/transactionSlice";
+import {useAppDispatch, useAppSelector} from "./redux/store";
+import {
+    fetchAndClearTransactions,
+    fetchTransactions,
+    selectCount,
+    selectTransactions,
+    Transaction
+} from "./redux/transactionSlice";
 import {Check, Close, Delete, Receipt, Remove, Upload} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
 import Compress from 'compress.js'
@@ -41,6 +47,7 @@ import {pageNavigationPlugin} from '@react-pdf-viewer/page-navigation'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension"
 import {useMediaQuery} from "react-responsive"
+import {selectUser} from "./redux/userSlice";
 
 
 const compressionValue = 0.5
@@ -56,6 +63,8 @@ interface TransactionListProps {
 
 
 const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts, count}) => {
+    const user = useAppSelector(selectUser)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const [openTransactionId, setOpenTransactionId] = useState<string | null>(null);
     const [page, setPage] = useState(0);
     const [file, setFile] = useState<{ file: File, name: string } | null>(null)
@@ -76,7 +85,13 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
     const compress = new Compress()
 
-    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
+
+    const [transactionFilters, setTransactionFilters] = useState<TransactionFilters>({user_card_number: user?.card_number})
+    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({
+        limit: 50,
+        offset: 0,
+        filters: transactionFilters
+    })
 
     const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
         <>
@@ -95,14 +110,15 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPaginationLoading(true)
-        setTransactionRequest({offset: 0, limit: (newPage + 1) * 50})
+        setTransactionRequest({offset: 0, limit: (newPage + 1) * 50, filters: {user_card_number: user?.card_number}})
         if (((newPage + 1) * 50) > transactions.length) {
             dispatch(fetchTransactions({
                 offset: newPage * 50,
                 limit: 50,
-            })).then(() => (
+                filters: {user_card_number: user?.card_number}
+            })).then(() => {
                 setPage(newPage)
-            ))
+            })
         } else {
             setPage(newPage)
         }
@@ -189,9 +205,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     }
 
     return (
-
         isPdfViewerOpen ? (
-
             <div style={{
                 backgroundColor: '#fefefe',
                 margin: 'auto',
@@ -255,97 +269,127 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => (
-                                    <>
-                                        <TableRow key={transaction.transaction_id}
-                                                  onClick={() => handleRowClick(transaction)}
-                                                  style={{cursor: 'pointer'}}>
-                                            {isMobile ? undefined :
-                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
-                                                           align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                    <Check/> : <Remove/>}</TableCell>
-                                            }
-                                            <TableCell
-                                                sx={isMobile ? {marginRight: '0px', paddingRight: '0px', width: '30%'} :
-                                                    {
-                                                        marginX: '0px',
-                                                        paddingX: '0px',
-                                                        width: '15%'
-                                                    }}>{transaction.date}</TableCell>
-                                            <TableCell sx={isMobile ? {marginX: '0px', paddingX: '0px', width: '55%'} :
-                                                {
-                                                    marginX: '0px',
-                                                    paddingX: '0px',
-                                                    width: '60%'
-                                                }}>{transaction.name}</TableCell>
-                                            <TableCell
-                                                sx={isMobile ? {marginLeft: '0px', paddingLeft: '0px', width: '15%'} :
-                                                    {marginLeft: '0px', paddingLeft: '0px', width: '15%'}}
-                                                align="right">{formatUSD(transaction.amount)}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
-                                                <Collapse in={openTransactionId === transaction.transaction_id}
-                                                          timeout="auto"
-                                                          unmountOnExit>
-                                                    <Box margin={1}>
-                                                        <Grid container>
-                                                            <Grid item>
-                                                                <Typography variant="h6" gutterBottom component="div">
-                                                                    Edit Transaction
-                                                                </Typography>
-                                                            </Grid>
-                                                            {isMobile ?
-                                                                <Grid item xs>
-                                                                    <Grid container direction="row-reverse">
-                                                                        {transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                                            <Check/> : <Remove/>}
-                                                                    </Grid>
-                                                                </Grid>
-                                                                : undefined}
-                                                        </Grid>
-                                                        <FormControl focused color="secondary" variant="outlined"
-                                                                     fullWidth
-                                                                     margin="normal">
-                                                            <InputLabel color="secondary"
-                                                                        sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
-                                                            <Select labelId="label-for-account" label="Account"
-                                                                    defaultValue={accountId ? +accountId : ""}
-                                                                    onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
-                                                                {[{
-                                                                    id: -1,
-                                                                    name: "<none>"
-                                                                }].concat(accounts).map(account => (
-                                                                    <MenuItem key={account.id}
-                                                                              value={account.id}>{account.name}</MenuItem>
-                                                                ))}
-                                                            </Select>
-                                                        </FormControl>
-                                                        <TextField
-                                                            focused
-                                                            color="secondary"
-                                                            sx={{input: {color: 'secondary.main'}}}
-                                                            value={memo}
-                                                            label="Memo"
-                                                            fullWidth margin="normal"
-                                                            onChange={(e) => setMemo(e.target.value)}/>
+                                {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
+                                    const splitDate = transaction.date.split('-')
+                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0]
 
-                                                        <Grid container>
-                                                            <Grid item>
-                                                                <Button variant="contained" component="label"
-                                                                        color="primary"
-                                                                        size={isMobile ? "small" : undefined}>
-                                                                    Upload Receipt
-                                                                    <input type="file" hidden
-                                                                           onChange={handleFileChange}/>
-                                                                </Button>
+                                    return (
+                                        <>
+                                            <TableRow key={transaction.transaction_id}
+                                                      onClick={() => handleRowClick(transaction)}
+                                                      style={{cursor: 'pointer'}}>
+                                                {isMobile ? undefined :
+                                                    <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
+                                                               align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                        <Check/> : <Remove/>}</TableCell>
+                                                }
+                                                <TableCell
+                                                    sx={isMobile ? {
+                                                            marginRight: '0px',
+                                                            paddingRight: '0px',
+                                                            width: '30%'
+                                                        } :
+                                                        {
+                                                            marginX: '0px',
+                                                            paddingX: '0px',
+                                                            width: '15%'
+                                                        }}>{dateString}</TableCell>
+                                                <TableCell
+                                                    sx={isMobile ? {marginX: '0px', paddingX: '0px', width: '55%'} :
+                                                        {
+                                                            marginX: '0px',
+                                                            paddingX: '0px',
+                                                            width: '60%'
+                                                        }}>{transaction.name}</TableCell>
+                                                <TableCell
+                                                    sx={isMobile ? {
+                                                            marginLeft: '0px',
+                                                            paddingLeft: '0px',
+                                                            width: '15%'
+                                                        } :
+                                                        {marginLeft: '0px', paddingLeft: '0px', width: '15%'}}
+                                                    align="right">{formatUSD(transaction.amount)}</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
+                                                    <Collapse in={openTransactionId === transaction.transaction_id}
+                                                              timeout="auto"
+                                                              unmountOnExit>
+                                                        <Box margin={1}>
+                                                            <Grid container>
+                                                                <Grid item>
+                                                                    <Typography variant="h6" gutterBottom
+                                                                                component="div">
+                                                                        Edit Transaction
+                                                                    </Typography>
+                                                                </Grid>
+                                                                {isMobile ?
+                                                                    <Grid item xs>
+                                                                        <Grid container direction="row-reverse">
+                                                                            {transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                                                <Check/> : <Remove/>}
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                    : undefined}
                                                             </Grid>
-                                                            {isMobile ?
-                                                                <Grid item xs>
-                                                                    <Grid container direction="row-reverse">
+                                                            <FormControl focused color="secondary" variant="outlined"
+                                                                         fullWidth
+                                                                         margin="normal">
+                                                                <InputLabel color="secondary"
+                                                                            sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
+                                                                <Select labelId="label-for-account" label="Account"
+                                                                        defaultValue={accountId ? +accountId : ""}
+                                                                        onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
+                                                                    {[{
+                                                                        id: -1,
+                                                                        name: "<none>"
+                                                                    }].concat(accounts).map(account => (
+                                                                        <MenuItem key={account.id}
+                                                                                  value={account.id}>{account.name}</MenuItem>
+                                                                    ))}
+                                                                </Select>
+                                                            </FormControl>
+                                                            <TextField
+                                                                focused
+                                                                color="secondary"
+                                                                sx={{input: {color: 'secondary.main'}}}
+                                                                value={memo}
+                                                                label="Memo"
+                                                                fullWidth margin="normal"
+                                                                onChange={(e) => setMemo(e.target.value)}/>
+
+                                                            <Grid container>
+                                                                <Grid item>
+                                                                    <Button variant="contained" component="label"
+                                                                            color="primary"
+                                                                            size={isMobile ? "small" : undefined}>
+                                                                        Upload Receipt
+                                                                        <input type="file" hidden
+                                                                               onChange={handleFileChange}/>
+                                                                    </Button>
+                                                                </Grid>
+                                                                {isMobile ?
+                                                                    <Grid item xs>
+                                                                        <Grid container direction="row-reverse">
+                                                                            {receiptUrl.length ? (
+                                                                                <><Button sx={{ml: 2}} size="small"
+                                                                                          variant="contained"
+                                                                                          color="primary"
+                                                                                          onClick={openReceipt}>
+                                                                                    View Receipt
+                                                                                </Button>
+
+                                                                                    {/*<Tooltip title={"Delete Receipt"}>
+                                                                        <IconButton color="secondary" sx={{ml: 2}}
+                                                                                    onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                            <Delete></Delete>
+                                                                        </IconButton></Tooltip>*/}</>) : undefined}
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                    :
+                                                                    <Grid item>
                                                                         {receiptUrl.length ? (
-                                                                            <><Button sx={{ml: 2}} size="small"
-                                                                                      variant="contained"
+                                                                            <><Button sx={{ml: 2}} variant="contained"
                                                                                       color="primary"
                                                                                       onClick={openReceipt}>
                                                                                 View Receipt
@@ -357,56 +401,42 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                             <Delete></Delete>
                                                                         </IconButton></Tooltip>*/}</>) : undefined}
                                                                     </Grid>
-                                                                </Grid>
-                                                                :
-                                                                <Grid item>
-                                                                    {receiptUrl.length ? (
-                                                                        <><Button sx={{ml: 2}} variant="contained"
-                                                                                  color="primary"
-                                                                                  onClick={openReceipt}>
-                                                                            View Receipt
-                                                                        </Button>
-
-                                                                            {/*<Tooltip title={"Delete Receipt"}>
-                                                                        <IconButton color="secondary" sx={{ml: 2}}
-                                                                                    onClick={() => handleDelete(transaction.transaction_id)}>
-                                                                            <Delete></Delete>
-                                                                        </IconButton></Tooltip>*/}</>) : undefined}
-                                                                </Grid>
-                                                            }
-                                                            {isMobile ?
-                                                                <Grid container justifyContent="right"
-                                                                      sx={{marginTop: '5px'}}>
-                                                                    <Button size={isMobile ? "small" : undefined}
-                                                                            variant="contained" color="secondary"
-                                                                            onClick={() => handleSave(transaction)}>
-                                                                        Save
-                                                                    </Button>
-                                                                </Grid>
-                                                                :
-                                                                <Grid item xs>
-                                                                    <Grid container direction="row-reverse">
-                                                                        <Button variant="contained" color="secondary"
+                                                                }
+                                                                {isMobile ?
+                                                                    <Grid container justifyContent="right"
+                                                                          sx={{marginTop: '5px'}}>
+                                                                        <Button size={isMobile ? "small" : undefined}
+                                                                                variant="contained" color="secondary"
                                                                                 onClick={() => handleSave(transaction)}>
                                                                             Save
                                                                         </Button>
                                                                     </Grid>
-                                                                </Grid>
-                                                            }
-                                                        </Grid>
-                                                        <Grid sx={{marginTop: '2px'}}>
-                                                            {file ? (
-                                                                <Typography>
-                                                                    Selected File: {file.name}
-                                                                </Typography>
-                                                            ) : undefined}
-                                                        </Grid>
-                                                    </Box>
-                                                </Collapse>
-                                            </TableCell>
-                                        </TableRow>
-                                    </>
-                                ))}
+                                                                    :
+                                                                    <Grid item xs>
+                                                                        <Grid container direction="row-reverse">
+                                                                            <Button variant="contained"
+                                                                                    color="secondary"
+                                                                                    onClick={() => handleSave(transaction)}>
+                                                                                Save
+                                                                            </Button>
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                }
+                                                            </Grid>
+                                                            <Grid sx={{marginTop: '2px'}}>
+                                                                {file ? (
+                                                                    <Typography>
+                                                                        Selected File: {file.name}
+                                                                    </Typography>
+                                                                ) : undefined}
+                                                            </Grid>
+                                                        </Box>
+                                                    </Collapse>
+                                                </TableCell>
+                                            </TableRow>
+                                        </>
+                                    )
+                                })}
                             </TableBody>
                         </Table>
                     </TableContainer>
