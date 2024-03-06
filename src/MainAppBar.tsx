@@ -20,7 +20,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, Drawer, FormControl, FormControlLabel, Select, SelectChangeEvent, Switch,
+    DialogTitle, Drawer, FormControl, FormControlLabel, Grid, Select, SelectChangeEvent, Switch,
     TextField
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "./redux/store";
@@ -124,8 +124,8 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                     '& .MuiDrawer-paper': {
                         width: '100%',
                         boxSizing: 'border-box',
-                        backgroundColor: '#20202e', // Change the background color here
-                        color: '#fff', // This changes the text color inside the drawer
+                        backgroundColor: '#20202e',
+                        color: '#fff',
                     },
                 }}
                 anchor="top"
@@ -136,7 +136,11 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                         {!syncTransactionsLoading ? (<IconButton onClick={() => {
                                 setSyncTransactionsLoading(true)
                                 syncTransactions().then(() => {
-                                    dispatch(fetchAndClearTransactions({limit: 50, offset: 0}))
+                                    dispatch(fetchAndClearTransactions({
+                                        limit: 50,
+                                        offset: 0,
+                                        filters: props.adminViewState[0] ? {} : {user_card_number: user?.card_number}
+                                    }))
                                 }).catch(() => {
                                     handleSyncErrorOpen()
                                 }).finally(() => {

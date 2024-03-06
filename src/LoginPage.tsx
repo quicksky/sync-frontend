@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, TextField, Container, Typography, Grid} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import {getUserApi} from "./Backend";
 
 const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -15,6 +16,15 @@ const LoginPage: React.FC = () => {
     //error text
 
     const navigate = useNavigate();
+
+    //try to login
+
+    useEffect(() => {
+        getUserApi().then(() => {
+            navigate("/home")
+        }).catch(() => {
+        })
+    }, [dispatch])
 
     const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
