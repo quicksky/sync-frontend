@@ -1,6 +1,6 @@
 // userSlice.ts
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {getClientUserList} from '../Backend';
+import {getClientUserList, getVendorList} from '../Backend';
 import {RootState} from "./store";
 import {Account} from "./accountSlice";
 import {User} from "./userSlice";
@@ -11,9 +11,19 @@ export interface GetClientUserListResponse {
     active: User[]
 }
 
+export interface Vendor {
+    id: number,
+    vendor_name: string,
+    aliases: {
+        vendor_alias: string,
+        starts_with: boolean
+    }[]
+}
+
 interface ClientState {
     pendingUsers: User[],
-    activeUsers: User[]
+    activeUsers: User[],
+    vendors: Vendor[]
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
 }
@@ -21,6 +31,7 @@ interface ClientState {
 const initialState: ClientState = {
     pendingUsers: [],
     activeUsers: [],
+    vendors: [],
     status: 'idle',
     error: null,
 };
@@ -28,6 +39,9 @@ const initialState: ClientState = {
 
 export const fetchUserList = createAsyncThunk('client/fetchUserList', async () => {
     return await getClientUserList();
+});
+export const fetchVendorList = createAsyncThunk('client/fetchVendorList', async () => {
+    return await getVendorList();
 });
 
 const clientSlice = createSlice({
@@ -50,6 +64,19 @@ const clientSlice = createSlice({
                 state.activeUsers = [];
                 state.pendingUsers = [];
                 state.error = action.error.message || null;
+            })
+            .addCase(fetchVendorList.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(fetchVendorList.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.vendors = action.payload;
+                state.error = null;
+            })
+            .addCase(fetchVendorList.rejected, (state, action) => {
+                state.status = 'failed';
+                state.vendors = []
+                state.error = action.error.message || null;
             });
     }
 });
@@ -57,4 +84,5 @@ const clientSlice = createSlice({
 export default clientSlice.reducer;
 export const selectActiveUsers = (state: RootState): User[] => state.client.activeUsers;
 export const selectPendingUsers = (state: RootState): User[] => state.client.pendingUsers;
+export const selectVendors = (state: RootState): Vendor[] => state.client.vendors
 

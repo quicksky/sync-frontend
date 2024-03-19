@@ -13,6 +13,7 @@ const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
     const [error, setError] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>("");
+    console.log("im running??")
     //error text
 
     const navigate = useNavigate();

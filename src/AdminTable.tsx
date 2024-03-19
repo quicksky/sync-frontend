@@ -13,7 +13,7 @@ import {
     TextField,
     Typography,
     IconButton,
-    CircularProgress, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Checkbox
+    FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Checkbox, CircularProgress
 } from '@mui/material';
 import {
     approveTransaction,
@@ -67,6 +67,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const users = useAppSelector(selectActiveUsers);
     const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
     const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
+    const [markCompletedLoading, setMarkCompletedLoading] = useState<string | false>(false)
 
 
     const handleUserFilter = (e: SelectChangeEvent<string | undefined>) => {
@@ -147,8 +148,9 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     };
 
     const onTransactionCheckboxClick = (checked: boolean, transaction_id: string) => {
+        setMarkCompletedLoading(transaction_id)
         checked ? approveTransaction(transaction_id) : unapproveTransaction(transaction_id)
-        dispatch(fetchAndClearAdminTransactions(transactionRequest))
+        dispatch(fetchAndClearAdminTransactions(transactionRequest)).finally(() => setMarkCompletedLoading(false))
     }
 
 
@@ -249,7 +251,9 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
 
                                     return (
                                         <TableRow key={transaction.transaction_id}
-                                                  sx={{"background-color": transaction.admin_approved ? "#acfcac" : "white"}}>
+                                                  sx={{
+                                                      "background-color": transaction.admin_approved ? "#acfcac" : "white",
+                                                  }}>
                                             <TableCell align={"center"}
                                                        sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
                                                 <Checkbox sx={{
@@ -268,8 +272,14 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
                                                 {dateString}
                                             </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '00px', width: '9%'}}>
-                                                {transaction.name}
+                                            <TableCell sx={{
+                                                marginX: '0px',
+                                                paddingX: '00px',
+                                                width: '9%'
+                                            }}>
+                                                {transaction.name} {transaction.alias ? (
+                                                <b>({transaction.alias})</b>) : undefined}
+
                                             </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
                                                 {<div style={{wordBreak: 'break-all'}}> {isEditable ? (

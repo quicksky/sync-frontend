@@ -36,6 +36,7 @@ const SuccessPage: React.FC = () => {
 
     useEffect(() => {
         setIsLoading(true)
+        console.log(user)
         user && Promise.all([user && dispatch(fetchAndClearTransactions({
             limit: 50,
             offset: 0,
@@ -47,7 +48,7 @@ const SuccessPage: React.FC = () => {
             })),
             user && dispatch(fetchOwnAccounts()),
             isAdmin && dispatch(fetchClientAccounts()), isAdmin && dispatch(fetchUserList())]).finally(() => setIsLoading(false))
-    }, [dispatch, user]);
+    }, [user]);
 
     return (
         <Box sx={{

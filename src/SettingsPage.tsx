@@ -17,7 +17,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
-import {fetchUserList, selectActiveUsers, selectPendingUsers} from "./redux/clientSlice";
+import {fetchUserList, fetchVendorList, selectActiveUsers, selectPendingUsers} from "./redux/clientSlice";
 import {
     addClientAccounts,
     createUser,
@@ -44,6 +44,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import {useLocation, useNavigate} from "react-router-dom";
 import {ArrowBack, AssignmentReturn, Backspace} from "@mui/icons-material";
+import Vendors from "./SettingsComponents/Vendors";
 
 
 const drawerWidth = 240
@@ -92,10 +93,12 @@ const SettingsPage: React.FC = () => {
         switch (tab) {
             case 'accounts':
                 return 0;
-            case 'users':
+            case 'vendors':
                 return 1;
-            case 'plaid':
+            case 'users':
                 return 2;
+            case 'plaid':
+                return 3;
             default:
                 return 0;
         }
@@ -103,7 +106,7 @@ const SettingsPage: React.FC = () => {
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        const tabParam = ['accounts', 'users', 'plaid'][newValue] || 'accounts';
+        const tabParam = ['accounts', 'vendors', 'users', 'plaid'][newValue] || 'accounts';
         navigate(`?tab=${tabParam}`);
     };
 
@@ -158,6 +161,7 @@ const SettingsPage: React.FC = () => {
     useEffect(() => {
         dispatch(fetchClientAccounts())
         dispatch(fetchUserList())
+        dispatch(fetchVendorList())
     }, [dispatch])
 
     useEffect(() => {
@@ -229,6 +233,7 @@ const SettingsPage: React.FC = () => {
                     }}
                 >
                     <Tab label="Accounts"/>
+                    <Tab label="Vendors"/>
                     <Tab label="Users"/>
                     <Tab label="Plaid Link"/>
                 </Tabs>
@@ -309,10 +314,13 @@ const SettingsPage: React.FC = () => {
                         </Table>
                     </TableContainer>
                 </TabPanel>
-
+                {/*VENDOR PANEL*/}
+                <TabPanel value={value} index={1}>
+                    <Vendors/>
+                </TabPanel>
 
                 {/*USERS PANEL*/}
-                <TabPanel value={value} index={1}>
+                <TabPanel value={value} index={2}>
                     {/*{activeUsers.map((user) => (*/}
                     {/*    <Typography>*/}
                     {/*        {user.first_name}*/}
@@ -475,7 +483,7 @@ const SettingsPage: React.FC = () => {
                 </TabPanel>
 
                 {/*PLAID PANEL*/}
-                <TabPanel value={value} index={2}>
+                <TabPanel value={value} index={3}>
                     <Link repair={false}/>
                     <Link repair={true}/>
                 </TabPanel>

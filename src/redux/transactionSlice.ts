@@ -22,8 +22,8 @@ export interface Transaction {
     receipt_key: number | null
     internal_account: number | null,
     memo: string | null,
-    admin_approved: boolean
-
+    admin_approved: boolean,
+    alias?: string
 }
 
 interface TransactionState {

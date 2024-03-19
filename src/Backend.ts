@@ -94,7 +94,11 @@ export const exchangeToken = async (token: string) => {
     return response.data
 }
 
-export const generateExport = async (dateRange: { start_date: string, end_date: string, user_card_number?: string }): Promise<{
+export const generateExport = async (dateRange: {
+    start_date: string,
+    end_date: string,
+    user_card_number?: string
+}): Promise<{
     fileName: string;
     data: BinaryData;
 }> => {
@@ -161,7 +165,13 @@ export const inviteUser = async (user_id: number) => {
     await apiAxios.get(endpoint)
 }
 
-export const createUser = async (request: { role: number, first_name: string, last_name: string, email: string, card_number: number | null }) => {
+export const createUser = async (request: {
+    role: number,
+    first_name: string,
+    last_name: string,
+    email: string,
+    card_number: number | null
+}) => {
     const endpoint = `${API_BASE_URL}/user/createUser`
     const response = await apiAxios.post(endpoint, request)
     return response.data
@@ -211,5 +221,37 @@ export const approveTransaction = async (id: string) => {
 export const unapproveTransaction = async (id: string) => {
     const endpoint = `${API_BASE_URL}/transactions/unapprove/${id}`
     const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const getVendorList = async () => {
+    const endpoint = `${API_BASE_URL}/client/getVendors`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+
+export const addVendor = async (vendor_name: string) => {
+    const endpoint = `${API_BASE_URL}/client/addVendor`
+    const response = await apiAxios.post(endpoint, {vendor_name: vendor_name})
+    return response.data
+}
+
+export const addVendorAlias = async (req: { vendor_id: number, vendor_alias: string, starts_with: boolean }) => {
+    const endpoint = `${API_BASE_URL}/client/addVendorAlias`
+    const response = await apiAxios.post(endpoint, {
+        vendor_id: req.vendor_id,
+        vendor_alias: req.vendor_alias,
+        starts_with: req.starts_with
+    })
+    return response.data
+}
+export const deleteVendor = async (vendor_id: number) => {
+    const endpoint = `${API_BASE_URL}/client/deleteVendor`
+    const response = await apiAxios.post(endpoint, {vendor_id})
+    return response.data
+}
+export const deleteVendorAlias = async (req: { vendor_id: number, vendor_alias: string }) => {
+    const endpoint = `${API_BASE_URL}/client/deleteVendorAlias`
+    const response = await apiAxios.post(endpoint, req)
     return response.data
 }
