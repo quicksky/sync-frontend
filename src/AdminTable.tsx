@@ -147,10 +147,15 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
         setImageViewerOpen(false);
     };
 
+    const refreshTransactions = (callback: () => void) => {
+        dispatch(fetchAndClearAdminTransactions(transactionRequest)).finally(callback)
+    }
+
     const onTransactionCheckboxClick = (checked: boolean, transaction_id: string) => {
         setMarkCompletedLoading(transaction_id)
-        checked ? approveTransaction(transaction_id) : unapproveTransaction(transaction_id)
-        dispatch(fetchAndClearAdminTransactions(transactionRequest)).finally(() => setMarkCompletedLoading(false))
+        checked ?
+            approveTransaction(transaction_id).then(() => refreshTransactions(() => setMarkCompletedLoading(false))) :
+            unapproveTransaction(transaction_id).then(() => refreshTransactions(() => setMarkCompletedLoading(false)))
     }
 
 
@@ -207,7 +212,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             <TableHead>
                                 <TableRow>
                                     <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="center">Admin Reviewed</TableCell>
+                                               align="center">Reviewed</TableCell>
                                     <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
                                                align="center">Status</TableCell>
                                     <TableCell
@@ -246,7 +251,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     const isEditable = activeTransactionId === transaction.transaction_id;
                                     const card_number = transaction.account_owner.slice(-4)
                                     const owner = users.find(user => user.card_number === card_number)
-                                    const splitDate = transaction.date.split('-')
+                                    const splitDate = transaction.authorized_date.split('-')
                                     const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0]
 
                                     return (

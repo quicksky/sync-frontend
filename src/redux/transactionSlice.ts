@@ -23,6 +23,7 @@ export interface Transaction {
     internal_account: number | null,
     memo: string | null,
     admin_approved: boolean,
+    authorized_date: string,
     alias?: string
 }
 

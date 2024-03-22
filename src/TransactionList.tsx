@@ -270,7 +270,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             </TableHead>
                             <TableBody>
                                 {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
-                                    const splitDate = transaction.date.split('-')
+                                    const splitDate = transaction.authorized_date.split('-')
                                     const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0]
 
                                     return (
