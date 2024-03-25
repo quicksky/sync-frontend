@@ -46,7 +46,7 @@ const SuccessPage: React.FC = () => {
                 limit: 50,
                 offset: 0
             })),
-            user && dispatch(fetchOwnAccounts()),
+            user && isAdmin && dispatch(fetchOwnAccounts()),
             isAdmin && dispatch(fetchClientAccounts()), isAdmin && dispatch(fetchUserList())]).finally(() => setIsLoading(false))
     }, [user]);
 
@@ -64,7 +64,8 @@ const SuccessPage: React.FC = () => {
                 ) :
                 adminViewState[0] ? (
                         <AdminTable transactions={adminTransactions} accounts={adminAccounts} count={adminCount}/>) :
-                    (<TransactionList transactions={transactions} accounts={accounts} count={count}/>)
+                    (<TransactionList transactions={transactions} accounts={isAdmin ? adminAccounts : accounts}
+                                      count={count}/>)
 
             }
 
