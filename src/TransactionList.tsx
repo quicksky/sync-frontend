@@ -394,12 +394,12 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                       onClick={openReceipt}>
                                                                                 View Receipt
                                                                             </Button>
-
-                                                                                {/*<Tooltip title={"Delete Receipt"}>
-                                                                        <IconButton color="secondary" sx={{ml: 2}}
-                                                                                    onClick={() => handleDelete(transaction.transaction_id)}>
-                                                                            <Delete></Delete>
-                                                                        </IconButton></Tooltip>*/}</>) : undefined}
+                                                                                {<Tooltip title={"Delete Receipt"}>
+                                                                                    <IconButton color="secondary"
+                                                                                                sx={{ml: 2}}
+                                                                                                onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                                        <Delete></Delete>
+                                                                                    </IconButton></Tooltip>}</>) : undefined}
                                                                     </Grid>
                                                                 }
                                                                 {isMobile ?

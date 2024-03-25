@@ -3,6 +3,7 @@ import {parseContentDispositionFilename} from "./helpers/parseContentDisposition
 import {Account} from "./redux/accountSlice";
 import {GetClientUserListResponse} from "./redux/clientSlice";
 import {Transaction} from "./redux/transactionSlice";
+import {redirectToLogin} from "./helpers/redirectToLogin";
 
 
 const API_BASE_URL = 'https://service.quicksky.io';
@@ -11,6 +12,27 @@ const API_BASE_URL = 'https://service.quicksky.io';
 const apiAxios = axios.create({
     withCredentials: true,
 });
+
+
+const post = async <A, B>(path: string, body: A): Promise<B> => {
+    const endpoint = `${API_BASE_URL}/${path}`;
+    const response = await apiAxios.post<B>(endpoint, body)
+    console.log(response.status)
+    if (response.status === 401) {
+        redirectToLogin()
+    }
+    return response.data
+}
+const get = async <A>(path: string): Promise<A> => {
+    const endpoint = `${API_BASE_URL}/${path}`;
+    const response = await apiAxios.get(endpoint)
+    if (response.status === 401) {
+        redirectToLogin()
+        return Promise.reject()
+    } else {
+        return response.data
+    }
+}
 
 export interface TransactionFilters {
     dates?: {
@@ -80,6 +102,7 @@ export const getTransactions = async (request: GetTransactionRequest): Promise<G
     const endpoint = `${API_BASE_URL}/transactions/getTransactions`
     const response = await apiAxios.post(endpoint, request)
     return response.data
+    // return post<GetTransactionRequest, GetTransactionResponse>('transactions/getTransactions', request)
 }
 
 export const resetUserPassword = async (password: string, token: string) => {
