@@ -80,6 +80,7 @@ const SettingsPage: React.FC = () => {
     const dispatch = useAppDispatch()
     const accounts = useAppSelector(selectClientAccounts)
     const activeUsers = useAppSelector(selectActiveUsers)
+    const pendingUsers = useAppSelector(selectPendingUsers)
     const [checkboxDialogUserId, setCheckboxDialogUserId] = useState<string>("")
     const [addAccountText, setAddAccountText] = useState("")
     const [inviteUserAdmin, setInviteUserAdmin] = useState<boolean>(false)
@@ -341,11 +342,12 @@ const SettingsPage: React.FC = () => {
                                     <TableCell align="right">Email</TableCell>
                                     <TableCell align="right">Card Number</TableCell>
                                     <TableCell align="right">Role</TableCell>
+                                    <TableCell align="right">Status</TableCell>
                                     <TableCell align="right">Accounts</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {activeUsers.map((user) => (
+                                {activeUsers.concat(pendingUsers).map((user) => (
                                     <TableRow
                                         key={user.id}
                                         sx={{'&:last-child td, &:last-child th': {border: 0}}}
@@ -357,6 +359,8 @@ const SettingsPage: React.FC = () => {
                                         <TableCell align="right">{user.email}</TableCell>
                                         <TableCell align="right">{user.card_number}</TableCell>
                                         <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
+                                        <TableCell
+                                            align="right">{pendingUsers.map((user) => user.id).includes(user.id) ? "Pending" : "Active"}</TableCell>
                                         <TableCell align="right">
                                             <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
                                                 <EditIcon/>

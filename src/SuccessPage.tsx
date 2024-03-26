@@ -46,7 +46,7 @@ const SuccessPage: React.FC = () => {
                 limit: 50,
                 offset: 0
             })),
-            user && isAdmin && dispatch(fetchOwnAccounts()),
+            user && !isAdmin && dispatch(fetchOwnAccounts()),
             isAdmin && dispatch(fetchClientAccounts()), isAdmin && dispatch(fetchUserList())]).finally(() => setIsLoading(false))
     }, [user]);
 
