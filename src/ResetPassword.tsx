@@ -29,7 +29,6 @@ const ResetPassword: React.FC = () => {
         resetUserPassword(password, token).then(() => {
             navigate('/')
         }).catch((data) => {
-            console.log(data)
         })
     }
 

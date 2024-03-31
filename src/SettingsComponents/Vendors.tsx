@@ -203,12 +203,10 @@ const Vendors: React.FC = () => {
 
     const handleDeleteVendor = (vendorId: number) => {
         deleteVendor(vendorId).then(() => dispatch(fetchVendorList()))
-        console.log('Deleting vendor:', vendorId);
     };
 
     const handleDeleteAlias = (vendorId: number, alias: string) => {
         deleteVendorAlias({vendor_id: vendorId, vendor_alias: alias}).then(() => dispatch(fetchVendorList()))
-        console.log(`Deleting alias ${alias} for vendor ID: ${vendorId}`);
     };
 
     return (

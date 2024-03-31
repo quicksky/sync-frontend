@@ -16,7 +16,6 @@ const PasswordResetForm: React.FC = () => {
         initiatePasswordReset(email).then(() => {
             navigate('/')
         }).catch((data) => {
-            console.log(data)
         })
     }
 

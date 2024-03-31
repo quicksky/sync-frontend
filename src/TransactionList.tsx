@@ -16,7 +16,16 @@ import {
     TableRow,
     TablePagination,
     TextField,
-    Typography, IconButton, Tooltip, CircularProgress, Grid
+    Typography,
+    IconButton,
+    Tooltip,
+    CircularProgress,
+    Grid,
+    DialogTitle,
+    DialogContent,
+    FormControlLabel,
+    Checkbox,
+    DialogActions, Dialog
 } from '@mui/material';
 import {
     deleteReceipt,
@@ -77,6 +86,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const [receiptIsPDF, setReceiptIsPDF] = useState<boolean>(false);
     const uploadReceiptInput = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery({maxWidth: 500})
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false)
     const handleRecieptInputClick = () => {
         uploadReceiptInput.current?.click()
     };
@@ -143,7 +153,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const handleRowClick = (transaction: Transaction) => {
         setMemo(transaction ? transaction.memo : null)
         setAccountId(transaction.internal_account)
-        console.log(accountId)
         if (transaction && transaction.receipt_key) {
             getTransactionImage(transaction.transaction_id).then((file) => {
                 setReceiptIsPDF(getAWSPresignedFileExtension(file) === 'pdf');
@@ -178,13 +187,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             file: file.file
         }).then(() => {
             setFile(null);
-            console.log(1)
         }) : Promise.resolve()
 
 
         Promise.all([transactionInfoPromise, uploadFilePromise])
             .then(() => {
-                console.log(2)
                 dispatch(fetchAndClearTransactions(transactionRequest));
                 setOpenTransactionId(null);
             })
@@ -201,6 +208,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         deleteReceipt(transactionId).then(() => {
             dispatch(fetchAndClearTransactions(transactionRequest))
             setOpenTransactionId(null);
+            setConfirmDialogOpen(false)
         })
     }
 
@@ -232,7 +240,19 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                     disableScroll={false}
                     closeOnClickOutside={true}
                     onClose={closeImageViewer}/></Box> :
-                <Paper style={isMobile ? {
+                <><Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
+                    <DialogTitle>Delete Receipt</DialogTitle>
+                    <DialogContent>
+                        <Typography>Are you sure you want to delete this receipt?</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant={'contained'} onClick={() => {
+                            setConfirmDialogOpen(false)
+                        }}>Cancel</Button>
+                        <Button variant={'contained'} color={'secondary'}
+                                onClick={() => handleDelete(openTransactionId ? openTransactionId : "")}>Ok</Button>
+                    </DialogActions>
+                </Dialog><Paper style={isMobile ? {
                         padding: '10px',
                         marginTop: '20px',
                         marginBottom: '20px',
@@ -243,16 +263,14 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                     {isMobile ? undefined :
                         <Typography variant="h6" style={{marginBottom: '20px'}}>
                             Transaction History
-                        </Typography>
-                    }
+                        </Typography>}
                     <TableContainer component={Paper}>
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
                                     {isMobile ? undefined :
                                         <TableCell sx={{color: "primary.main", marginRight: '0px', padding: '0px'}}
-                                                   align="center">Status</TableCell>
-                                    }
+                                                   align="center">Status</TableCell>}
                                     <TableCell sx={isMobile ? {
                                             color: "primary.main",
                                             marginRight: '0px',
@@ -270,8 +288,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             </TableHead>
                             <TableBody>
                                 {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
-                                    const splitDate = transaction.authorized_date.split('-')
-                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0]
+                                    const splitDate = transaction.authorized_date.split('-');
+                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
 
                                     return (
                                         <>
@@ -281,8 +299,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                 {isMobile ? undefined :
                                                     <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
                                                                align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                        <Check/> : <Remove/>}</TableCell>
-                                                }
+                                                        <Check/> : <Remove/>}</TableCell>}
                                                 <TableCell
                                                     sx={isMobile ? {
                                                             marginRight: '0px',
@@ -332,7 +349,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     </Grid>
                                                                     : undefined}
                                                             </Grid>
-                                                            <FormControl focused color="secondary" variant="outlined"
+                                                            <FormControl focused color="secondary"
+                                                                         variant="outlined"
                                                                          fullWidth
                                                                          margin="normal">
                                                                 <InputLabel color="secondary"
@@ -380,16 +398,17 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                 </Button>
 
                                                                                     {/*<Tooltip title={"Delete Receipt"}>
-                                                                        <IconButton color="secondary" sx={{ml: 2}}
-                                                                                    onClick={() => handleDelete(transaction.transaction_id)}>
-                                                                            <Delete></Delete>
-                                                                        </IconButton></Tooltip>*/}</>) : undefined}
+                <IconButton color="secondary" sx={{ml: 2}}
+                            onClick={() => handleDelete(transaction.transaction_id)}>
+                    <Delete></Delete>
+                </IconButton></Tooltip>*/}</>) : undefined}
                                                                         </Grid>
                                                                     </Grid>
                                                                     :
                                                                     <Grid item>
                                                                         {receiptUrl.length ? (
-                                                                            <><Button sx={{ml: 2}} variant="contained"
+                                                                            <><Button sx={{ml: 2}}
+                                                                                      variant="contained"
                                                                                       color="primary"
                                                                                       onClick={openReceipt}>
                                                                                 View Receipt
@@ -397,17 +416,17 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                 {<Tooltip title={"Delete Receipt"}>
                                                                                     <IconButton color="secondary"
                                                                                                 sx={{ml: 2}}
-                                                                                                onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                                                onClick={() => setConfirmDialogOpen(true)}>
                                                                                         <Delete></Delete>
                                                                                     </IconButton></Tooltip>}</>) : undefined}
-                                                                    </Grid>
-                                                                }
+                                                                    </Grid>}
                                                                 {isMobile ?
                                                                     <Grid container justifyContent="right"
                                                                           sx={{marginTop: '5px'}}>
-                                                                        <Button size={isMobile ? "small" : undefined}
-                                                                                variant="contained" color="secondary"
-                                                                                onClick={() => handleSave(transaction)}>
+                                                                        <Button
+                                                                            size={isMobile ? "small" : undefined}
+                                                                            variant="contained" color="secondary"
+                                                                            onClick={() => handleSave(transaction)}>
                                                                             Save
                                                                         </Button>
                                                                     </Grid>
@@ -420,8 +439,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                 Save
                                                                             </Button>
                                                                         </Grid>
-                                                                    </Grid>
-                                                                }
+                                                                    </Grid>}
                                                             </Grid>
                                                             <Grid sx={{marginTop: '2px'}}>
                                                                 {file ? (
@@ -435,7 +453,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                 </TableCell>
                                             </TableRow>
                                         </>
-                                    )
+                                    );
                                 })}
                             </TableBody>
                         </Table>
@@ -451,7 +469,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             onPageChange={handleChangePage}/>)}
 
 
-                </Paper>)
+                </Paper></>)
     );
 };
 

@@ -136,7 +136,6 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 limit: 50,
             })).then(() => {
                 setPage(newPage)
-                console.log(transactions)
             })
         } else {
             setPage(newPage)

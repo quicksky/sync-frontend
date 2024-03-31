@@ -14,7 +14,6 @@ interface PrivateRouteProps {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({element}) => {
     const dispatch = useAppDispatch();
     const sessionState = useAppSelector(selectUserState)
-    console.log(sessionState)
     const isAuthenticated = sessionState && sessionState.status === 'succeeded'
     const allowed = sessionState && sessionState.status !== 'failed'
     useEffect(() => {

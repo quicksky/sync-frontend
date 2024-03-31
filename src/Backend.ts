@@ -17,7 +17,6 @@ const apiAxios = axios.create({
 const post = async <A, B>(path: string, body: A): Promise<B> => {
     const endpoint = `${API_BASE_URL}/${path}`;
     const response = await apiAxios.post<B>(endpoint, body)
-    console.log(response.status)
     if (response.status === 401) {
         redirectToLogin()
     }
@@ -127,7 +126,6 @@ export const generateExport = async (dateRange: {
 }> => {
     const endpoint = `${API_BASE_URL}/export/generateExport`
     return apiAxios.post(endpoint, dateRange, {responseType: "blob"}).then((res) => {
-        console.log(res.headers)
         return {
             fileName: parseContentDispositionFilename(res.headers["content-disposition"]) || `test.xlsx`,
             data: res.data,

@@ -89,7 +89,6 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
-        console.log(formJson)
         const startDate = formJson.start_date;
         const endDate = formJson.end_date;
         generateExport({start_date: startDate, end_date: endDate, user_card_number: exportCardNumber}).then(r => {

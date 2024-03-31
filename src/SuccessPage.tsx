@@ -36,7 +36,6 @@ const SuccessPage: React.FC = () => {
 
     useEffect(() => {
         setIsLoading(true)
-        console.log(user)
         user && Promise.all([user && dispatch(fetchAndClearTransactions({
             limit: 50,
             offset: 0,
