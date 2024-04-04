@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
                     {/*        </Link>*/}
                     {/*    </Grid>*/}
                     {/*</Grid>*/}
-                    {error ? (<Typography>{errorText}</Typography>) : undefined}
+                    {error ? (<Typography color={"white"}>{errorText}</Typography>) : undefined}
                     <Grid container justifyContent={"right"}>
                         <Button onClick={() => navigate('/forgotPassword')}>Forgot
                             Password</Button>

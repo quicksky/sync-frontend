@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {resetUserPassword} from "./Backend";
+import {resetUserPassword, validPassword} from "./Backend";
 import {Button, Container, TextField, Typography} from "@mui/material";
 import Box from "@mui/material/Box";
 import {useNavigate} from "react-router-dom";
@@ -26,9 +26,16 @@ const ResetPassword: React.FC = () => {
             setErrorText("Passwords do not match")
             return
         }
+        if (!validPassword(password)) {
+            setError(true)
+            setErrorText("Password must be at least 8 characters long, contain a capital letter, a number, and a symbol.")
+            return
+        }
         resetUserPassword(password, token).then(() => {
             navigate('/')
         }).catch((data) => {
+            setError(true)
+            setErrorText("Error communicating with server")
         })
     }
 

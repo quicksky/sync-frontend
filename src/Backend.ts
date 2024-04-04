@@ -14,6 +14,12 @@ const apiAxios = axios.create({
 });
 
 
+export const passwordRegex = new RegExp('^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$');
+
+export const validPassword = (password: string): boolean => {
+    return passwordRegex.test(password);
+}
+
 const post = async <A, B>(path: string, body: A): Promise<B> => {
     const endpoint = `${API_BASE_URL}/${path}`;
     const response = await apiAxios.post<B>(endpoint, body)
