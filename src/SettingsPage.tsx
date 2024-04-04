@@ -184,7 +184,7 @@ const SettingsPage: React.FC = () => {
             email: email,
             card_number: cardNumber
         }).then(r => {
-
+            dispatch(fetchUserList())
             handleClose();
         }).catch(e => {
             // if (e.code == "ERR_BAD_REQUEST") {
