@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const formJson = Object.fromEntries((formData as any).entries());
-        const email = formJson.email;
+        const email = formJson.email.toLowerCase();
         const password = formJson.password;
         setError(false)
         dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
@@ -71,6 +71,7 @@ const LoginPage: React.FC = () => {
                         id="email"
                         name="email"
                         label="Email"
+                        autoCapitalize={'none'}
                         sx={{input: {color: '#FFFFFF'}}}
                     />
                     <TextField
