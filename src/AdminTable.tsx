@@ -160,7 +160,6 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
 
     return (
         isPdfViewerOpen ? (
-
             <div style={{
                 backgroundColor: '#fefefe',
                 margin: 'auto',
@@ -191,7 +190,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         marginTop: '20px',
                         marginBottom: '20px',
                         overflowX: 'auto',
-                        width: '70%'
+                        width: '80%'
                     }}>
                     {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
                     {/*    Admin View*/}
@@ -297,7 +296,10 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                         value={memo}
                                                         onChange={(e) => setMemo(e.target.value)}
                                                     />
-                                                ) : transaction.memo} </div>}
+                                                ) : <Typography variant="body2"
+                                                                style={{
+                                                                    wordBreak: 'normal', overflowWrap: 'break-word'
+                                                                }}>{transaction.memo}</Typography>} </div>}
                                             </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
                                                        align="center">

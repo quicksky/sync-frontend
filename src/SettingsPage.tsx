@@ -35,7 +35,7 @@ import {
     DialogContentText,
     DialogTitle, Divider, Drawer, FormControlLabel, List, ListItem, ListItemText,
     TableContainer,
-    TextField,
+    TextField, Tooltip,
     Typography
 } from "@mui/material";
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -362,9 +362,15 @@ const SettingsPage: React.FC = () => {
                                         <TableCell
                                             align="right">{pendingUsers.map((user) => user.id).includes(user.id) ? "Pending" : "Active"}</TableCell>
                                         <TableCell align="right">
-                                            <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
-                                                <EditIcon/>
-                                            </IconButton>
+                                            {user.role > 1 ?
+                                                <IconButton disabled={true}>
+                                                    <EditIcon/>
+                                                </IconButton>
+                                                :
+                                                <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
+                                                    <EditIcon/>
+                                                </IconButton>
+                                            }
                                         </TableCell>
                                     </TableRow>
                                 ))}
