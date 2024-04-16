@@ -59,7 +59,7 @@ import {useMediaQuery} from "react-responsive"
 import {selectUser} from "./redux/userSlice";
 
 
-const compressionValue = 0.5
+const compressionValue = 0.35
 const supportedFileTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"]
 const pdfFileType = "application/pdf"
 
@@ -87,6 +87,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const uploadReceiptInput = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery({maxWidth: 500})
     const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false)
+    const [dataSaveLock, setDataSaveLock] = useState<boolean>(false)
     const handleRecieptInputClick = () => {
         uploadReceiptInput.current?.click()
     };
@@ -151,6 +152,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         }) : originalFile && setFile({file: originalFile, name: originalFile.name})
     };
     const handleRowClick = (transaction: Transaction) => {
+        if (dataSaveLock) {
+            // Optionally show an alert or disable interaction
+            console.log('Data is currently being saved, please wait...');
+            return;
+        }
         setMemo(transaction ? transaction.memo : null)
         setAccountId(transaction.internal_account)
         if (transaction && transaction.receipt_key) {
@@ -172,6 +178,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
 
     const handleSave = (transaction: Transaction) => {
+        setDataSaveLock(true)
         const transactionInfoPromise = setTransactionInfo({
             id: transaction.transaction_id,
             account_id: accountId,
@@ -189,7 +196,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             setFile(null);
         }) : Promise.resolve()
 
-
         Promise.all([transactionInfoPromise, uploadFilePromise])
             .then(() => {
                 dispatch(fetchAndClearTransactions(transactionRequest));
@@ -197,7 +203,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             })
             .catch((error) => {
                 //error
-            });
+            }).finally(() => setDataSaveLock(false));
     };
 
     const openReceipt = () => {
@@ -397,11 +403,12 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                     View Receipt
                                                                                 </Button>
 
-                                                                                    {/*<Tooltip title={"Delete Receipt"}>
-                <IconButton color="secondary" sx={{ml: 2}}
-                            onClick={() => handleDelete(transaction.transaction_id)}>
-                    <Delete></Delete>
-                </IconButton></Tooltip>*/}</>) : undefined}
+                                                                                    {<Tooltip title={"Delete Receipt"}>
+                                                                                        <IconButton color="secondary"
+                                                                                                    sx={{ml: 2}}
+                                                                                                    onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                                            <Delete></Delete>
+                                                                                        </IconButton></Tooltip>}</>) : undefined}
                                                                         </Grid>
                                                                     </Grid>
                                                                     :
@@ -420,24 +427,33 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                         <Delete></Delete>
                                                                                     </IconButton></Tooltip>}</>) : undefined}
                                                                     </Grid>}
+                                                                {/*not good */}
                                                                 {isMobile ?
                                                                     <Grid container justifyContent="right"
                                                                           sx={{marginTop: '5px'}}>
-                                                                        <Button
-                                                                            size={isMobile ? "small" : undefined}
-                                                                            variant="contained" color="secondary"
-                                                                            onClick={() => handleSave(transaction)}>
-                                                                            Save
-                                                                        </Button>
+                                                                        {dataSaveLock ?
+                                                                            <CircularProgress color={"secondary"}/>
+                                                                            :
+                                                                            <Button
+                                                                                size={isMobile ? "small" : undefined}
+                                                                                variant="contained" color="secondary"
+                                                                                onClick={() => handleSave(transaction)}>
+                                                                                Save
+                                                                            </Button>
+                                                                        }
                                                                     </Grid>
                                                                     :
                                                                     <Grid item xs>
                                                                         <Grid container direction="row-reverse">
-                                                                            <Button variant="contained"
-                                                                                    color="secondary"
-                                                                                    onClick={() => handleSave(transaction)}>
-                                                                                Save
-                                                                            </Button>
+                                                                            {dataSaveLock ?
+                                                                                <CircularProgress color={"secondary"}/>
+                                                                                :
+                                                                                <Button variant="contained"
+                                                                                        color="secondary"
+                                                                                        onClick={() => handleSave(transaction)}>
+                                                                                    Save
+                                                                                </Button>
+                                                                            }
                                                                         </Grid>
                                                                     </Grid>}
                                                             </Grid>
