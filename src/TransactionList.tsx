@@ -406,7 +406,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                     {<Tooltip title={"Delete Receipt"}>
                                                                                         <IconButton color="secondary"
                                                                                                     sx={{ml: 2}}
-                                                                                                    onClick={() => handleDelete(transaction.transaction_id)}>
+                                                                                                    onClick={() => setConfirmDialogOpen(true)}>
                                                                                             <Delete></Delete>
                                                                                         </IconButton></Tooltip>}</>) : undefined}
                                                                         </Grid>
