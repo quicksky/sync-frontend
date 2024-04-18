@@ -41,9 +41,10 @@ const get = async <A>(path: string): Promise<A> => {
 
 export interface TransactionFilters {
     dates?: {
-        start_date: string,
-        end_date: string,
+        start_date?: string,
+        end_date?: string,
     }
+    search?: string,
     include_payments?: boolean,
     user_card_number?: string
 }

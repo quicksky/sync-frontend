@@ -184,7 +184,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                             <DialogContent>
                                 <DialogContentText id="alert-dialog-description">
                                     {syncErrorMessage} {userIsAdmin ? <a
-                                    href={"mailto:support@quicksky.net&subject=Sync%20Transactions%20Error"}
+                                    href={"mailto:support@quicksky.net"}
                                     target="_blank">support@quicksky.net</a> : undefined}
                                 </DialogContentText>
                             </DialogContent>

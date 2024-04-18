@@ -13,7 +13,7 @@ import ResetPassword from "./ResetPassword";
 import PasswordResetForm from "./PasswordResetForm";
 
 
-const theme = createTheme({
+export const theme = createTheme({
     palette: {
         background: {
             default: "#20202e",

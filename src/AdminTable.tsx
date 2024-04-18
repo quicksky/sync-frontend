@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {ChangeEvent, KeyboardEventHandler, ReactElement, useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -13,7 +13,15 @@ import {
     TextField,
     Typography,
     IconButton,
-    FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Checkbox, CircularProgress
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    SelectChangeEvent,
+    Checkbox,
+    CircularProgress,
+    FormControlLabel,
+    InputAdornment, createTheme, ThemeProvider
 } from '@mui/material';
 import {
     approveTransaction,
@@ -34,7 +42,7 @@ import {
     selectTransactions,
     Transaction
 } from "./redux/transactionSlice";
-import {Check, Close, Edit, Receipt} from "@mui/icons-material";
+import {Check, Close, Edit, Receipt, Search, Start} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
 import {Account, fetchOwnAccounts} from "./redux/accountSlice";
 import {Viewer} from "@react-pdf-viewer/core";
@@ -44,6 +52,10 @@ import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtensi
 import {useMediaQuery} from "react-responsive"
 import {fetchUserList, selectActiveUsers} from "./redux/clientSlice";
 import {selectUser} from "./redux/userSlice";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {theme} from "./App";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import dayjs, {Dayjs} from "dayjs";
 
 interface AdminTableProps {
     transactions: Transaction[];
@@ -70,17 +82,118 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const [markCompletedLoading, setMarkCompletedLoading] = useState<string | false>(false)
 
 
+    const newTheme = () => createTheme({
+        ...theme,
+        components: {
+            MuiTextField: {
+                defaultProps: {
+                    size: "small",
+                }
+            }
+        }
+    })
+
+    //filters
+    const [adminApprovedOnly, setAdminApprovedOnly] = useState<boolean | undefined>(false)
+    const handleAdminApprovedFilter = (checked: boolean) => {
+
+    }
+
+    const [searchString, setSearchString] = useState<string | undefined>("")
+
+
+    const searchKeyDown = (e: { key: string }) => {
+        if (e.key == 'Enter') {
+            handleSearchFilter()
+        }
+    }
+    const clearSearch = () => {
+        setSearchString("")
+        handleSearchFilter(true)
+    }
+
+    const searchChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        setSearchString(e.target.value)
+    }
+    const handleSearchFilter = (clear?: boolean) => {
+        setPage(0)
+        setTransactionRequest({
+            ...transactionRequest,
+            filters: {
+                ...transactionRequest.filters,
+                search: clear ? "" : searchString
+            }
+        })
+        dispatch(fetchAndClearAdminTransactions({
+            ...transactionRequest,
+            filters: {
+                ...transactionRequest.filters,
+                search: clear ? "" : searchString
+            }
+        }))
+    }
+
+    const [startDate, setStartDate] = useState<Dayjs | null>(null)
+    const [endDate, setEndDate] = useState<Dayjs | null>(null)
+
+    //this is dumb
+    const handleStartDateChange = (date: Dayjs | null): void => {
+        setStartDate(date);
+        handleDateFilter({start_date: date ? date : undefined})
+    };
+    const handleEndDateChange = (date: Dayjs | null): void => {
+        setEndDate(date);
+        handleDateFilter({end_date: date ? date : undefined})
+    };
+
+    const dateFormat = "YYYY-MM-DD"
+
+    const clearDates = () => {
+        setStartDate(null)
+        setEndDate(null)
+        handleDateFilter({}, true)
+    }
+
+    const handleDateFilter = (overrideDates: { start_date?: Dayjs, end_date?: Dayjs }, clear?: boolean) => {
+        const startDateString = !clear ? overrideDates.start_date ? overrideDates.start_date.format(dateFormat) : startDate?.format(dateFormat) : undefined
+        const endDateString = !clear ? overrideDates.end_date ? overrideDates.end_date.format(dateFormat) : endDate?.format(dateFormat) : undefined
+        setPage(0);
+        setTransactionRequest({
+            ...transactionRequest,
+            filters: {
+                ...transactionRequest.filters,
+                dates: {
+                    start_date: startDateString,
+                    end_date: endDateString
+                }
+            }
+        })
+        dispatch(fetchAndClearAdminTransactions({
+            ...transactionRequest,
+            filters: {
+                ...transactionRequest.filters,
+                dates: {
+                    start_date: startDateString,
+                    end_date: endDateString
+                }
+            }
+        }))
+    }
+
+
     const handleUserFilter = (e: SelectChangeEvent<string | undefined>) => {
         setPage(0);
         setTransactionRequest({
             ...transactionRequest,
             filters: {
+                ...transactionRequest.filters,
                 user_card_number: e.target.value
             }
         })
         dispatch(fetchAndClearAdminTransactions({
             ...transactionRequest,
             filters: {
+                ...transactionRequest.filters,
                 user_card_number: e.target.value
             }
         }))
@@ -115,7 +228,6 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     });
 
     const handleSubmitEdit = (transactionId: string) => {
-
         setTransactionInfo({
             id: transactionId,
             account_id: accountId,
@@ -195,16 +307,59 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                     {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
                     {/*    Admin View*/}
                     {/*</Typography>*/}
-                    <Select
-                        labelId="label-for-account"
-                        defaultValue={""}
-                        onChange={handleUserFilter}>
-                        <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
-                        {users.map(user => (
-                            <MenuItem key={user.id}
-                                      value={user.card_number ? user.card_number : ""}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>
-                        ))}
-                    </Select>
+                    <Box sx={{mb: 2}}>
+                        <TextField
+                            sx={{mr: 2}}
+                            color={"secondary"}
+                            placeholder={"Search Transactions"}
+                            size="small"
+                            value={searchString}
+                            onChange={searchChange}
+                            onKeyDown={searchKeyDown}
+                            InputProps={{
+                                startAdornment: <InputAdornment
+                                    position="start"><Search/></InputAdornment>,
+
+                                endAdornment: searchString ? <InputAdornment
+                                    position={"end"}><IconButton
+                                    onClick={() => clearSearch()}><Close/></IconButton></InputAdornment> : undefined
+                            }}
+                        />
+                        <FormControl sx={{minWidth: "20%"}} size={"small"}>
+                            {!transactionRequest.filters?.user_card_number ?
+                                <InputLabel>User</InputLabel> : undefined}
+                            <Select
+                                color={"secondary"}
+                                size={"small"}
+                                onChange={handleUserFilter}>
+                                <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
+                                {users.map(user => (
+                                    <MenuItem key={user.id}
+                                              value={user.card_number ? user.card_number : ""}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <ThemeProvider theme={newTheme}>
+                            <DatePicker
+                                sx={{ml: 2, maxWidth: "15%"}}
+                                label="Start Date"
+                                value={startDate}
+                                onChange={handleStartDateChange}
+                                name="start_date"
+                                format={"YYYY-MM-DD"}
+
+                            ></DatePicker>
+                            <DatePicker
+                                sx={{ml: 2, maxWidth: "15%"}}
+                                value={endDate}
+                                onChange={handleEndDateChange}
+                                label="End Date"
+                                name="end_date"
+                                format={"YYYY-MM-DD"}></DatePicker>
+                        </ThemeProvider>
+                        {startDate || endDate ?
+                            <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
+                    </Box>
                     <TableContainer component={Paper}>
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
