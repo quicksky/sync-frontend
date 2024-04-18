@@ -80,6 +80,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
     const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
     const [markCompletedLoading, setMarkCompletedLoading] = useState<string | false>(false)
+    const [userSelectBoxValue, setUserSelectBoxValue] = useState<string | undefined>(undefined)
 
 
     const newTheme = () => createTheme({
@@ -183,6 +184,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
 
     const handleUserFilter = (e: SelectChangeEvent<string | undefined>) => {
         setPage(0);
+        setUserSelectBoxValue(e.target.value)
         setTransactionRequest({
             ...transactionRequest,
             filters: {
@@ -331,6 +333,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             <Select
                                 color={"secondary"}
                                 size={"small"}
+                                value={userSelectBoxValue}
                                 onChange={handleUserFilter}>
                                 <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
                                 {users.map(user => (
