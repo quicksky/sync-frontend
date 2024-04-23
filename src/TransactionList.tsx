@@ -88,6 +88,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const isMobile = useMediaQuery({maxWidth: 500})
     const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false)
     const [dataSaveLock, setDataSaveLock] = useState<boolean>(false)
+    const fontSize: number = isMobile ? 13 : 14
     const handleRecieptInputClick = () => {
         uploadReceiptInput.current?.click()
     };
@@ -296,7 +297,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                 {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
                                     const splitDate = transaction.authorized_date.split('-');
                                     const dateString = isMobile ? splitDate[1] + '-' + splitDate[2] : splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
-                                    const fontSize: number = isMobile ? 14 : 14
 
                                     return (
                                         <>
@@ -350,7 +350,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                         Edit Transaction
                                                                     </Typography>
                                                                 </Grid>
-                                                               
+
                                                             </Grid>
                                                             <FormControl focused color="secondary"
                                                                          variant="outlined"
