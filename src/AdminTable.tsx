@@ -446,6 +446,9 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                             <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
                                                 {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
                                                     <TextField
+                                                        style={{
+                                                            wordBreak: 'normal', overflowWrap: 'break-word'
+                                                        }}
                                                         size="medium"
                                                         focused
                                                         fullWidth
