@@ -56,6 +56,8 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {theme} from "./App";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import dayjs, {Dayjs} from "dayjs";
+import SyncPDFViewer from "./components/SyncPDFViewer";
+import syncPDFViewer from "./components/SyncPDFViewer";
 
 interface AdminTableProps {
     transactions: Transaction[];
@@ -214,22 +216,6 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
             setReceiptUrl("")
         }
     }
-
-    //todo
-
-    const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
-        <>
-            <Toolbar/>
-            <IconButton onClick={() => setPdfViewerOpen(false)}>
-                <Close></Close>
-            </IconButton>
-        </>
-    );
-
-    const defaultLayoutPluginInstance = defaultLayoutPlugin({
-        renderToolbar,
-    });
-
     const handleSubmitEdit = (transactionId: string) => {
         setTransactionInfo({
             id: transactionId,
@@ -275,23 +261,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
 
     return (
         isPdfViewerOpen ? (
-            <div style={{
-                backgroundColor: '#fefefe',
-                margin: 'auto',
-                padding: 20,
-                border: '1px solid #888',
-                width: '80%',
-                maxHeight: '90vh',
-                overflowY: 'auto',
-                height: '750px'
-            }}>
-                <Viewer
-                    plugins={[defaultLayoutPluginInstance]}
-                    fileUrl={receiptUrl}
-                />
-                <Button onClick={() => setPdfViewerOpen(false)}>Close</Button>
-            </div>
-
+            <SyncPDFViewer fileUrl={receiptUrl} onClose={() => setPdfViewerOpen(false)}/>
         ) : (
             isImageViewerOpen ? <Box sx={{mt: 50}}><ImageViewer
                 src={[receiptUrl]}
@@ -326,8 +296,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                 endAdornment: searchString ? <InputAdornment
                                     position={"end"}><IconButton
                                     onClick={() => clearSearch()}><Close/></IconButton></InputAdornment> : undefined
-                            }}
-                        />
+                            }}/>
                         <FormControl sx={{minWidth: "20%"}} size={"small"}>
                             {!transactionRequest.filters?.user_card_number ?
                                 <InputLabel>User</InputLabel> : undefined}
@@ -403,13 +372,13 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             </TableHead>
                             <TableBody>
                                 {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
-                                    const account = accounts.find((a) => a.id === transaction.internal_account)
-                                    const accountName = account ? account.name : ""
+                                    const account = accounts.find((a) => a.id === transaction.internal_account);
+                                    const accountName = account ? account.name : "";
                                     const isEditable = activeTransactionId === transaction.transaction_id;
-                                    const card_number = transaction.account_owner.slice(-4)
-                                    const owner = users.find(user => user.card_number === card_number)
-                                    const splitDate = transaction.authorized_date.split('-')
-                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0]
+                                    const card_number = transaction.account_owner.slice(-4);
+                                    const owner = users.find(user => user.card_number === card_number);
+                                    const splitDate = transaction.authorized_date.split('-');
+                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
 
                                     return (
                                         <TableRow key={transaction.transaction_id}
@@ -424,8 +393,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                     }
                                                 }} color="secondary"
                                                           checked={transaction.admin_approved}
-                                                          onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}
-                                                />
+                                                          onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
                                             </TableCell>
                                             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
                                                        align="center">
@@ -456,8 +424,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                         rows={4}
                                                         color='warning'
                                                         value={memo}
-                                                        onChange={(e) => setMemo(e.target.value)}
-                                                    />
+                                                        onChange={(e) => setMemo(e.target.value)}/>
                                                 ) : <Typography variant="body2"
                                                                 style={{
                                                                     wordBreak: 'normal', overflowWrap: 'break-word'
@@ -502,7 +469,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                                         onClick={() => handleSubmitEdit(transaction.transaction_id)}><Check/></IconButton>
                                                             <IconButton sx={{margin: '0px', padding: '0px'}}
                                                                         onClick={() => {
-                                                                            setActiveTransactionId("")
+                                                                            setActiveTransactionId("");
 
                                                                         }}><Close/></IconButton>
                                                         </div>
@@ -510,8 +477,8 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                 ) : (
                                                     <IconButton onClick={() => {
                                                         setActiveTransactionId(transaction.transaction_id);
-                                                        setMemo(transaction.memo)
-                                                        setAccountId(transaction.internal_account)
+                                                        setMemo(transaction.memo);
+                                                        setAccountId(transaction.internal_account);
                                                     }}><Edit/></IconButton>
                                                 )}
                                             </TableCell>
@@ -531,6 +498,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             page={page}
                             onPageChange={handleChangePage}/>)}
                 </Paper>)
+
         ))
 };
 
