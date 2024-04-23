@@ -276,12 +276,15 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             <TableHead>
                                 <TableRow>
 
-                                    <TableCell sx={{color: "primary.main", marginRight: '0px', padding: '0px'}}
+                                    <TableCell sx={{
+                                        color: "primary.main",
+                                        marginRight: '0px',
+                                        paddingLeft: '5px',
+                                        paddingRight: '0px'
+                                    }}
                                                align="center">Status</TableCell>
                                     <TableCell sx={isMobile ? {
-                                            color: "primary.main",
-                                            marginRight: '0px',
-                                            paddingRight: '0px'
+                                            color: "primary.main"
                                         } :
                                         {color: "primary.main", marginX: '0px', paddingX: '0px'}}>Date</TableCell>
                                     <TableCell sx={{
