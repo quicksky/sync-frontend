@@ -58,6 +58,7 @@ import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtensi
 import {useMediaQuery} from "react-responsive"
 import {selectUser} from "./redux/userSlice";
 import SyncPDFViewer from "./components/SyncPDFViewer";
+import {useNavigate} from "react-router-dom";
 
 
 const compressionValue = 0.35
@@ -208,8 +209,28 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             }).finally(() => setDataSaveLock(false));
     };
 
+    const downloadPDFReceipt = () => {
+
+        const link = document.createElement('a');
+        link.href = receiptUrl;
+        link.setAttribute(
+            'download',
+            `FileName.pdf`,
+        );
+
+        // Append to html link element page
+        document.body.appendChild(link);
+
+        // Start download
+        link.click();
+
+        // Clean up and remove the link
+        // @ts-ignore
+        link.parentNode.removeChild(link);
+    }
+
     const openReceipt = () => {
-        receiptIsPDF ? setPdfViewerOpen(true) : setViewerOpen(true)
+        receiptIsPDF ? isMobile ? downloadPDFReceipt() : setPdfViewerOpen(true) : setViewerOpen(true)
     }
 
     const handleDelete = (transactionId: string) => {
