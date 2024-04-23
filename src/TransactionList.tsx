@@ -350,14 +350,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                         Edit Transaction
                                                                     </Typography>
                                                                 </Grid>
-                                                                {isMobile ?
-                                                                    <Grid item xs>
-                                                                        <Grid container direction="row-reverse">
-                                                                            {transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                                                <Check/> : <Remove/>}
-                                                                        </Grid>
-                                                                    </Grid>
-                                                                    : undefined}
+                                                               
                                                             </Grid>
                                                             <FormControl focused color="secondary"
                                                                          variant="outlined"
