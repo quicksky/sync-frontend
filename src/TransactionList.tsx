@@ -274,9 +274,9 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                         <Table stickyHeader aria-label="sticky table">
                             <TableHead>
                                 <TableRow>
-                                    {isMobile ? undefined :
-                                        <TableCell sx={{color: "primary.main", marginRight: '0px', padding: '0px'}}
-                                                   align="center">Status</TableCell>}
+
+                                    <TableCell sx={{color: "primary.main", marginRight: '0px', padding: '0px'}}
+                                               align="center">Status</TableCell>
                                     <TableCell sx={isMobile ? {
                                             color: "primary.main",
                                             marginRight: '0px',
@@ -295,35 +295,38 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             <TableBody>
                                 {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
                                     const splitDate = transaction.authorized_date.split('-');
-                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
+                                    const dateString = isMobile ? splitDate[1] + '-' + splitDate[2] : splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
+                                    const fontSize: number = isMobile ? 14 : 14
 
                                     return (
                                         <>
                                             <TableRow key={transaction.transaction_id}
                                                       onClick={() => handleRowClick(transaction)}
                                                       style={{cursor: 'pointer'}}>
-                                                {isMobile ? undefined :
-                                                    <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
-                                                               align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                        <Check/> : <Remove/>}</TableCell>}
+
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
+                                                           align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                    <Check/> : <Remove/>}</TableCell>
                                                 <TableCell
                                                     sx={isMobile ? {
                                                             marginRight: '0px',
                                                             paddingRight: '0px',
-                                                            width: '30%'
+                                                            width: '20%'
                                                         } :
                                                         {
                                                             marginX: '0px',
-                                                            paddingX: '0px',
+                                                            paddingX: '10px',
                                                             width: '15%'
-                                                        }}>{dateString}</TableCell>
+                                                        }}><Typography
+                                                    fontSize={fontSize}>{dateString}</Typography></TableCell>
                                                 <TableCell
                                                     sx={isMobile ? {marginX: '0px', paddingX: '0px', width: '55%'} :
                                                         {
                                                             marginX: '0px',
                                                             paddingX: '0px',
                                                             width: '60%'
-                                                        }}>{transaction.name}</TableCell>
+                                                        }}><Typography
+                                                    fontSize={fontSize}>{transaction.name}</Typography></TableCell>
                                                 <TableCell
                                                     sx={isMobile ? {
                                                             marginLeft: '0px',
@@ -331,7 +334,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                             width: '15%'
                                                         } :
                                                         {marginLeft: '0px', paddingLeft: '0px', width: '15%'}}
-                                                    align="right">{formatUSD(transaction.amount)}</TableCell>
+                                                    align="right"><Typography
+                                                    fontSize={fontSize}>{formatUSD(transaction.amount)}</Typography></TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
