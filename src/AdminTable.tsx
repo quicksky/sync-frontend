@@ -21,7 +21,7 @@ import {
     Checkbox,
     CircularProgress,
     FormControlLabel,
-    InputAdornment, createTheme, ThemeProvider
+    InputAdornment, createTheme, ThemeProvider, Tooltip
 } from '@mui/material';
 import {
     approveTransaction,
@@ -42,7 +42,7 @@ import {
     selectTransactions,
     Transaction
 } from "./redux/transactionSlice";
-import {Check, Close, Edit, Receipt, Search, Start} from "@mui/icons-material";
+import {Check, Close, Edit, Receipt, Search, Start, UploadFile} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
 import {Account, fetchOwnAccounts} from "./redux/accountSlice";
 import {Viewer} from "@react-pdf-viewer/core";
@@ -482,8 +482,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                 </TableCell>
                                                 <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
                                                            align="center">
-                                                    {transaction.receipt_key && <IconButton
-                                                        onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>}
+                                                    {transaction.receipt_key &&
+                                                        <Tooltip title={"View Receipt"}>
+                                                            <IconButton
+                                                                onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>
+                                                        </Tooltip>}
                                                 </TableCell>
                                                 <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}}
                                                            align="center">
@@ -500,21 +503,23 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                             </div>
                                                         </>
                                                     ) : (
-                                                        <IconButton onClick={() => {
-                                                            setActiveTransactionId(transaction.transaction_id);
-                                                            setMemo(transaction.memo);
-                                                            setAccountId(transaction.internal_account);
-                                                        }}><Edit/></IconButton>
+                                                        <Tooltip title={"Edit Transaction"}>
+                                                            <IconButton onClick={() => {
+                                                                setActiveTransactionId(transaction.transaction_id);
+                                                                setMemo(transaction.memo);
+                                                                setAccountId(transaction.internal_account);
+                                                            }}><Edit/></IconButton></Tooltip>
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <IconButton onClick={() => {
-                                                        setUploadTransactionId(transaction.transaction_id)
-                                                        setUploadFileDialogOpen(true)
-                                                    }}>
-                                                        <Avatar
-                                                            src={'https://assets.quicksky.net/mom.jpg'}/>
-                                                    </IconButton>
+                                                    <Tooltip title={"Upload Receipt"}>
+                                                        <IconButton onClick={() => {
+                                                            setUploadTransactionId(transaction.transaction_id)
+                                                            setUploadFileDialogOpen(true)
+                                                        }}>
+                                                            <UploadFile/>
+                                                        </IconButton>
+                                                    </Tooltip>
                                                 </TableCell>
                                             </TableRow>
                                         );
