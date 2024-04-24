@@ -12,7 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import {Sync} from "@mui/icons-material";
 import {generateExport, logoutUserApi, syncTransactions} from "./Backend";
-import triggerDownload from "./triggerDownload";
+import triggerDownload from "./helpers/triggerDownload";
 import {
     Alert,
     CircularProgress,

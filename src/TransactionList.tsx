@@ -59,11 +59,8 @@ import {useMediaQuery} from "react-responsive"
 import {selectUser} from "./redux/userSlice";
 import SyncPDFViewer from "./components/SyncPDFViewer";
 import {useNavigate} from "react-router-dom";
+import {compressionValue, pdfFileType, supportedFileTypes} from "./helpers/fileInfo";
 
-
-const compressionValue = 0.35
-const supportedFileTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"]
-const pdfFileType = "application/pdf"
 
 interface TransactionListProps {
     transactions: Transaction[];
@@ -141,7 +138,6 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const originalFile = event.target.files ? event.target.files[0] : null
-
         originalFile && supportedFileTypes.includes(originalFile.type) && (originalFile.type != pdfFileType) ? compress.compress([originalFile], {
             size: 1,
             quality: compressionValue,

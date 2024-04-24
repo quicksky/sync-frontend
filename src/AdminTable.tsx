@@ -30,7 +30,7 @@ import {
     getUserAccounts,
     grantAccount,
     revokeAccount,
-    setTransactionInfo, unapproveTransaction
+    setTransactionInfo, unapproveTransaction, uploadTransactionFile
 } from "./Backend";
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {
@@ -58,6 +58,10 @@ import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import dayjs, {Dayjs} from "dayjs";
 import SyncPDFViewer from "./components/SyncPDFViewer";
 import syncPDFViewer from "./components/SyncPDFViewer";
+import Avatar from "@mui/material/Avatar";
+import SyncFileUpload from "./components/SyncFileUpload";
+import Compress from "compress.js";
+import {compressionValue, pdfFileType, supportedFileTypes} from "./helpers/fileInfo";
 
 interface AdminTableProps {
     transactions: Transaction[];
@@ -83,6 +87,9 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
     const [markCompletedLoading, setMarkCompletedLoading] = useState<string | false>(false)
     const [userSelectBoxValue, setUserSelectBoxValue] = useState<string | undefined>(undefined)
+    const compress = new Compress()
+    const [uploadFileDialogOpen, setUploadFileDialogOpen] = useState<boolean>(false)
+    const [uploadTransactionId, setUploadTransactionId] = useState<string>("")
 
 
     const newTheme = () => createTheme({
@@ -95,6 +102,15 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
             }
         }
     })
+
+
+    const onFileUpload = (file: File) => {
+        uploadTransactionFile({id: uploadTransactionId, file: file}).then(() => {
+            setUploadTransactionId("")
+            setUploadFileDialogOpen(false)
+        })
+    };
+
 
     //filters
     const [adminApprovedOnly, setAdminApprovedOnly] = useState<boolean | undefined>(false)
@@ -269,235 +285,250 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 disableScroll={true}
                 closeOnClickOutside={true}
                 onClose={closeImageViewer}/></Box> : (
-                <Paper
-                    style={{
-                        padding: '20px',
-                        marginTop: '20px',
-                        marginBottom: '20px',
-                        overflowX: 'auto',
-                        width: '80%'
-                    }}>
-                    {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
-                    {/*    Admin View*/}
-                    {/*</Typography>*/}
-                    <Box sx={{mb: 2}}>
-                        <TextField
-                            sx={{mr: 2}}
-                            color={"secondary"}
-                            placeholder={"Search Transactions"}
-                            size="small"
-                            value={searchString}
-                            onChange={searchChange}
-                            onKeyDown={searchKeyDown}
-                            InputProps={{
-                                startAdornment: <InputAdornment
-                                    position="start"><Search/></InputAdornment>,
-
-                                endAdornment: searchString ? <InputAdornment
-                                    position={"end"}><IconButton
-                                    onClick={() => clearSearch()}><Close/></IconButton></InputAdornment> : undefined
-                            }}/>
-                        <FormControl sx={{minWidth: "20%"}} size={"small"}>
-                            {!transactionRequest.filters?.user_card_number ?
-                                <InputLabel>User</InputLabel> : undefined}
-                            <Select
+                <><SyncFileUpload open={uploadFileDialogOpen} onClose={() => {
+                    setUploadFileDialogOpen(false)
+                    setUploadTransactionId("")
+                }} onSave={onFileUpload}/>
+                    <Paper
+                        style={{
+                            padding: '20px',
+                            marginTop: '20px',
+                            marginBottom: '20px',
+                            overflowX: 'auto',
+                            width: '80%'
+                        }}>
+                        {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
+                        {/*    Admin View*/}
+                        {/*</Typography>*/}
+                        <Box sx={{mb: 2}}>
+                            <TextField
+                                sx={{mr: 2}}
                                 color={"secondary"}
-                                size={"small"}
-                                value={userSelectBoxValue}
-                                onChange={handleUserFilter}>
-                                <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
-                                {users.map(user => (
-                                    <MenuItem key={user.id}
-                                              value={user.card_number ? user.card_number : ""}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <ThemeProvider theme={newTheme}>
-                            <DatePicker
-                                sx={{ml: 2, maxWidth: "15%"}}
-                                label="Start Date"
-                                value={startDate}
-                                onChange={handleStartDateChange}
-                                name="start_date"
-                                format={"YYYY-MM-DD"}
+                                placeholder={"Search Transactions"}
+                                size="small"
+                                value={searchString}
+                                onChange={searchChange}
+                                onKeyDown={searchKeyDown}
+                                InputProps={{
+                                    startAdornment: <InputAdornment
+                                        position="start"><Search/></InputAdornment>,
 
-                            ></DatePicker>
-                            <DatePicker
-                                sx={{ml: 2, maxWidth: "15%"}}
-                                value={endDate}
-                                onChange={handleEndDateChange}
-                                label="End Date"
-                                name="end_date"
-                                format={"YYYY-MM-DD"}></DatePicker>
-                        </ThemeProvider>
-                        {startDate || endDate ?
-                            <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
-                    </Box>
-                    <TableContainer component={Paper}>
-                        <Table stickyHeader aria-label="sticky table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="center">Reviewed</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="center">Status</TableCell>
-                                    <TableCell
-                                        sx={{
-                                            color: "primary.main",
-                                            marginX: '0px',
-                                            paddingX: '20px'
-                                        }}>Date</TableCell>
-                                    <TableCell sx={{
-                                        color: "primary.main",
-                                        marginX: '0px',
-                                        paddingX: '0px'
-                                    }}>Description</TableCell>
-                                    <TableCell
-                                        sx={{
+                                    endAdornment: searchString ? <InputAdornment
+                                        position={"end"}><IconButton
+                                        onClick={() => clearSearch()}><Close/></IconButton></InputAdornment> : undefined
+                                }}/>
+                            <FormControl sx={{minWidth: "20%"}} size={"small"}>
+                                {!transactionRequest.filters?.user_card_number ?
+                                    <InputLabel>User</InputLabel> : undefined}
+                                <Select
+                                    color={"secondary"}
+                                    size={"small"}
+                                    value={userSelectBoxValue}
+                                    onChange={handleUserFilter}>
+                                    <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
+                                    {users.map(user => (
+                                        <MenuItem key={user.id}
+                                                  value={user.card_number ? user.card_number : ""}>{user.first_name} {user.last_name} - {user.card_number}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <ThemeProvider theme={newTheme}>
+                                <DatePicker
+                                    sx={{ml: 2, maxWidth: "15%"}}
+                                    label="Start Date"
+                                    value={startDate}
+                                    onChange={handleStartDateChange}
+                                    name="start_date"
+                                    format={"YYYY-MM-DD"}
+
+                                ></DatePicker>
+                                <DatePicker
+                                    sx={{ml: 2, maxWidth: "15%"}}
+                                    value={endDate}
+                                    onChange={handleEndDateChange}
+                                    label="End Date"
+                                    name="end_date"
+                                    format={"YYYY-MM-DD"}></DatePicker>
+                            </ThemeProvider>
+                            {startDate || endDate ?
+                                <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
+                        </Box>
+                        <TableContainer component={Paper}>
+                            <Table stickyHeader aria-label="sticky table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align="center">Reviewed</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align="center">Status</TableCell>
+                                        <TableCell
+                                            sx={{
+                                                color: "primary.main",
+                                                marginX: '0px',
+                                                paddingX: '20px'
+                                            }}>Date</TableCell>
+                                        <TableCell sx={{
                                             color: "primary.main",
                                             marginX: '0px',
                                             paddingX: '0px'
-                                        }}>Memo</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="center">Account</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="right">Owner</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="right">Amount</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
-                                               align="center">Receipt</TableCell>
-                                    <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '10px'}}
-                                               align='center'>Edit</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
-                                    const account = accounts.find((a) => a.id === transaction.internal_account);
-                                    const accountName = account ? account.name : "";
-                                    const isEditable = activeTransactionId === transaction.transaction_id;
-                                    const card_number = transaction.account_owner.slice(-4);
-                                    const owner = users.find(user => user.card_number === card_number);
-                                    const splitDate = transaction.authorized_date.split('-');
-                                    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
-
-                                    return (
-                                        <TableRow key={transaction.transaction_id}
-                                                  sx={{
-                                                      "background-color": transaction.admin_approved ? "#acfcac" : "white",
-                                                  }}>
-                                            <TableCell align={"center"}
-                                                       sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                                                <Checkbox sx={{
-                                                    "&, & + .MuiFormControlLabel-label": {
-                                                        color: "secondary.main"
-                                                    }
-                                                }} color="secondary"
-                                                          checked={transaction.admin_approved}
-                                                          onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
-                                                       align="center">
-                                                {transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                    <Check/> : <Close/>}</TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                                                {dateString}
-                                            </TableCell>
-                                            <TableCell sx={{
+                                        }}>Description</TableCell>
+                                        <TableCell
+                                            sx={{
+                                                color: "primary.main",
                                                 marginX: '0px',
-                                                paddingX: '00px',
-                                                width: '9%'
-                                            }}>
-                                                {transaction.name} {transaction.alias ? (
-                                                <b>({transaction.alias})</b>) : undefined}
+                                                paddingX: '0px'
+                                            }}>Memo</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align="center">Account</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align="right">Owner</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align="right">Amount</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align="center">Receipt</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                                   align='center'>Edit</TableCell>
+                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '10px'}}
+                                                   align='center'>Upload</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
+                                        const account = accounts.find((a) => a.id === transaction.internal_account);
+                                        const accountName = account ? account.name : "";
+                                        const isEditable = activeTransactionId === transaction.transaction_id;
+                                        const card_number = transaction.account_owner.slice(-4);
+                                        const owner = users.find(user => user.card_number === card_number);
+                                        const splitDate = transaction.authorized_date.split('-');
+                                        const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
 
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
-                                                {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
-                                                    <TextField
-                                                        style={{
-                                                            wordBreak: 'normal', overflowWrap: 'break-word'
-                                                        }}
-                                                        size="medium"
-                                                        focused
-                                                        fullWidth
-                                                        multiline
-                                                        rows={4}
-                                                        color='warning'
-                                                        value={memo}
-                                                        onChange={(e) => setMemo(e.target.value)}/>
-                                                ) : <Typography variant="body2"
-                                                                style={{
-                                                                    wordBreak: 'normal', overflowWrap: 'break-word'
-                                                                }}>{transaction.memo}</Typography>} </div>}
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
-                                                       align="center">
-                                                {isEditable ? (
-                                                    <FormControl variant="outlined" focused fullWidth
-                                                                 color="warning">
-                                                        <Select labelId="label-for-account"
-                                                                defaultValue={accountId ? +accountId : ""}
-                                                                onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
-                                                            <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
-                                                            {accounts.map(account => (
-                                                                <MenuItem key={account.id}
-                                                                          value={account.id}>{account.name}</MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
-                                                ) : accountName}
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}}
-                                                       align="right">
-                                                {owner ? `${owner.first_name} ${owner.last_name} (${owner.card_number})` : transaction.account_owner}
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
-                                                       align="right">
-                                                {formatUSD(transaction.amount)}
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
-                                                       align="center">
-                                                {transaction.receipt_key && <IconButton
-                                                    onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>}
-                                            </TableCell>
-                                            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}}
-                                                       align="center">
-                                                {isEditable ? (
-                                                    <>
-                                                        <div style={{display: 'flex', flexDirection: 'column'}}>
-                                                            <IconButton sx={{margin: '0px', padding: '0px'}}
-                                                                        onClick={() => handleSubmitEdit(transaction.transaction_id)}><Check/></IconButton>
-                                                            <IconButton sx={{margin: '0px', padding: '0px'}}
-                                                                        onClick={() => {
-                                                                            setActiveTransactionId("");
+                                        return (
+                                            <TableRow key={transaction.transaction_id}
+                                                      sx={{
+                                                          "background-color": transaction.admin_approved ? "#acfcac" : "white",
+                                                      }}>
+                                                <TableCell align={"center"}
+                                                           sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                                                    <Checkbox sx={{
+                                                        "&, & + .MuiFormControlLabel-label": {
+                                                            color: "secondary.main"
+                                                        }
+                                                    }} color="secondary"
+                                                              checked={transaction.admin_approved}
+                                                              onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
+                                                           align="center">
+                                                    {transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                        <Check/> : <Close/>}</TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                                                    {dateString}
+                                                </TableCell>
+                                                <TableCell sx={{
+                                                    marginX: '0px',
+                                                    paddingX: '00px',
+                                                    width: '9%'
+                                                }}>
+                                                    {transaction.name} {transaction.alias ? (
+                                                    <b>({transaction.alias})</b>) : undefined}
 
-                                                                        }}><Close/></IconButton>
-                                                        </div>
-                                                    </>
-                                                ) : (
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
+                                                    {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
+                                                        <TextField
+                                                            style={{
+                                                                wordBreak: 'normal', overflowWrap: 'break-word'
+                                                            }}
+                                                            size="medium"
+                                                            focused
+                                                            fullWidth
+                                                            multiline
+                                                            rows={4}
+                                                            color='warning'
+                                                            value={memo}
+                                                            onChange={(e) => setMemo(e.target.value)}/>
+                                                    ) : <Typography variant="body2"
+                                                                    style={{
+                                                                        wordBreak: 'normal', overflowWrap: 'break-word'
+                                                                    }}>{transaction.memo}</Typography>} </div>}
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
+                                                           align="center">
+                                                    {isEditable ? (
+                                                        <FormControl variant="outlined" focused fullWidth
+                                                                     color="warning">
+                                                            <Select labelId="label-for-account"
+                                                                    defaultValue={accountId ? +accountId : ""}
+                                                                    onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
+                                                                <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
+                                                                {accounts.map(account => (
+                                                                    <MenuItem key={account.id}
+                                                                              value={account.id}>{account.name}</MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+                                                    ) : accountName}
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}}
+                                                           align="right">
+                                                    {owner ? `${owner.first_name} ${owner.last_name} (${owner.card_number})` : transaction.account_owner}
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
+                                                           align="right">
+                                                    {formatUSD(transaction.amount)}
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
+                                                           align="center">
+                                                    {transaction.receipt_key && <IconButton
+                                                        onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>}
+                                                </TableCell>
+                                                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}}
+                                                           align="center">
+                                                    {isEditable ? (
+                                                        <>
+                                                            <div style={{display: 'flex', flexDirection: 'column'}}>
+                                                                <IconButton sx={{margin: '0px', padding: '0px'}}
+                                                                            onClick={() => handleSubmitEdit(transaction.transaction_id)}><Check/></IconButton>
+                                                                <IconButton sx={{margin: '0px', padding: '0px'}}
+                                                                            onClick={() => {
+                                                                                setActiveTransactionId("");
+
+                                                                            }}><Close/></IconButton>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <IconButton onClick={() => {
+                                                            setActiveTransactionId(transaction.transaction_id);
+                                                            setMemo(transaction.memo);
+                                                            setAccountId(transaction.internal_account);
+                                                        }}><Edit/></IconButton>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell>
                                                     <IconButton onClick={() => {
-                                                        setActiveTransactionId(transaction.transaction_id);
-                                                        setMemo(transaction.memo);
-                                                        setAccountId(transaction.internal_account);
-                                                    }}><Edit/></IconButton>
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                    {paginationLoading ?
-                        (<CircularProgress/>) :
-                        (<TablePagination
-                            rowsPerPageOptions={[50]}
-                            component="div"
-                            count={count}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            onPageChange={handleChangePage}/>)}
-                </Paper>)
+                                                        setUploadTransactionId(transaction.transaction_id)
+                                                        setUploadFileDialogOpen(true)
+                                                    }}>
+                                                        <Avatar
+                                                            src={'https://assets.quicksky.net/mom.jpg'}/>
+                                                    </IconButton>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        {paginationLoading ?
+                            (<CircularProgress/>) :
+                            (<TablePagination
+                                rowsPerPageOptions={[50]}
+                                component="div"
+                                count={count}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}/>)}
+                    </Paper></>)
 
         ))
 };
