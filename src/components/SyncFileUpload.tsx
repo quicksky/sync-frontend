@@ -26,7 +26,7 @@ const getColor = (props: { isDragAccept: boolean; isDragReject: boolean; isDragA
 // @ts-ignore
 const StyledDropzone = styled('div')(
     ({theme, ...props}) => ({
-        border: '#00e676',
+        border: '2px dashed #00e676',
         borderRadius: '5px',
         padding: theme.spacing(2),
         textAlign: 'center',
@@ -39,6 +39,8 @@ interface DropzoneDialogProps {
     onClose: () => void;
     onSave: (file: File) => void;
 }
+
+//either compress on upload or add a loading spinner
 
 const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) => {
     const compress = new Compress()
@@ -86,13 +88,15 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
             </DialogContent>
             <DialogActions>
                 <Button color={'secondary'} onClick={() => {
-                    setFileToUpload(undefined)
                     onClose()
+                    setFileToUpload(undefined)
                 }}>Cancel</Button>
                 <Button color={'secondary'} onClick={() => {
+                    onClose()
                     if (fileToUpload) {
                         onSave(fileToUpload.file)
                     }
+                    setFileToUpload(undefined)
                 }}
                 >Upload</Button>
             </DialogActions>

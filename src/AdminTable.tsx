@@ -106,6 +106,9 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
 
     const onFileUpload = (file: File) => {
         uploadTransactionFile({id: uploadTransactionId, file: file}).then(() => {
+            console.log('what')
+            console.log(transactionRequest)
+            dispatch(fetchAndClearAdminTransactions(transactionRequest));
             setUploadTransactionId("")
             setUploadFileDialogOpen(false)
         })
