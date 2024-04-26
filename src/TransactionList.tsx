@@ -226,7 +226,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     }
 
     const openReceipt = () => {
-        receiptIsPDF ? isMobile ? downloadPDFReceipt() : setPdfViewerOpen(true) : setViewerOpen(true)
+        receiptIsPDF ? setPdfViewerOpen(true) : setViewerOpen(true)
     }
 
     const handleDelete = (transactionId: string) => {
