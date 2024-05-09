@@ -23,7 +23,7 @@ import {
     createUser,
     deleteClientAccount,
     getUserAccounts,
-    grantAccount,
+    grantAccount, reInviteUser,
     revokeAccount
 } from "./Backend";
 import {
@@ -43,8 +43,10 @@ import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import {useLocation, useNavigate} from "react-router-dom";
-import {ArrowBack, AssignmentReturn, Backspace} from "@mui/icons-material";
+import {ArrowBack, AssignmentReturn, Backspace, CancelOutlined, MailOutline} from "@mui/icons-material";
 import Vendors from "./SettingsComponents/Vendors";
+import Exports from "./SettingsComponents/Exports";
+import {SyncConfirmationDialog} from './components/SyncConfirmationDialog';
 
 
 const drawerWidth = 240
@@ -87,6 +89,8 @@ const SettingsPage: React.FC = () => {
     const [userAccounts, setUserAccounts] = useState<Account[]>([])
     const navigate = useNavigate();
     const location = useLocation();
+    const [resendUserInviteDialogOpen, setResendUserInviteDialogOpen] = useState<boolean>(false)
+    const [userId, setUserId] = useState<string>("")
 
     const getTabValue = () => {
         const searchParams = new URLSearchParams(location.search);
@@ -96,10 +100,12 @@ const SettingsPage: React.FC = () => {
                 return 0;
             case 'vendors':
                 return 1;
+            case 'exports':
+                return 2
             case 'users':
-                return 2;
-            case 'plaid':
                 return 3;
+            case 'plaid':
+                return 4;
             default:
                 return 0;
         }
@@ -107,7 +113,7 @@ const SettingsPage: React.FC = () => {
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        const tabParam = ['accounts', 'vendors', 'users', 'plaid'][newValue] || 'accounts';
+        const tabParam = ['accounts', 'vendors', 'exports', 'users', 'plaid'][newValue] || 'accounts';
         navigate(`?tab=${tabParam}`);
     };
 
@@ -235,6 +241,7 @@ const SettingsPage: React.FC = () => {
                 >
                     <Tab label="Accounts"/>
                     <Tab label="Vendors"/>
+                    <Tab label="Exports"/>
                     <Tab label="Users"/>
                     <Tab label="Plaid Link"/>
                 </Tabs>
@@ -320,8 +327,25 @@ const SettingsPage: React.FC = () => {
                     <Vendors/>
                 </TabPanel>
 
+                {/* EXPORT PANEL*/}
+                <TabPanel index={2} value={value}>
+                    <Exports/>
+                </TabPanel>
+
                 {/*USERS PANEL*/}
-                <TabPanel value={value} index={2}>
+                <TabPanel value={value} index={3}>
+                    <SyncConfirmationDialog open={resendUserInviteDialogOpen}
+                                            onClose={() => setResendUserInviteDialogOpen(false)}
+                                            message={"Re-invite this user?"}
+                                            title={"Resend Invite"}
+                                            confirmButtonName={"Send"}
+                                            onConfirm={() => {
+                                                //TODO: Use error dialogs
+                                                reInviteUser(userId).then(() => {
+                                                    setUserId("")
+                                                    setResendUserInviteDialogOpen(false);
+                                                })
+                                            }}/>
                     {/*{activeUsers.map((user) => (*/}
                     {/*    <Typography>*/}
                     {/*        {user.first_name}*/}
@@ -342,8 +366,8 @@ const SettingsPage: React.FC = () => {
                                     <TableCell align="right">Email</TableCell>
                                     <TableCell align="right">Card Number</TableCell>
                                     <TableCell align="right">Role</TableCell>
-                                    <TableCell align="right">Status</TableCell>
-                                    <TableCell align="right">Accounts</TableCell>
+                                    <TableCell align="center">Status</TableCell>
+                                    <TableCell align="center">Accounts</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -360,8 +384,17 @@ const SettingsPage: React.FC = () => {
                                         <TableCell align="right">{user.card_number}</TableCell>
                                         <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
                                         <TableCell
-                                            align="right">{pendingUsers.map((user) => user.id).includes(user.id) ? "Pending" : "Active"}</TableCell>
-                                        <TableCell align="right">
+                                            align="center"
+                                        >{pendingUsers.map((user) => user.id).includes(user.id) ? (
+                                            <>
+                                                <Typography justifySelf={"center"} fontSize={14}
+                                                >Pending</Typography>
+                                                <IconButton onClick={() => {
+                                                    setUserId(user.id)
+                                                    setResendUserInviteDialogOpen(true)
+                                                }} size={'large'}><MailOutline/></IconButton>
+                                            </>) : "Active"}</TableCell>
+                                        <TableCell align="center">
                                             {user.role > 1 ?
                                                 <IconButton disabled={true}>
                                                     <EditIcon/>
@@ -493,7 +526,7 @@ const SettingsPage: React.FC = () => {
                 </TabPanel>
 
                 {/*PLAID PANEL*/}
-                <TabPanel value={value} index={3}>
+                <TabPanel value={value} index={4}>
                     <Link repair={false}/>
                     <Link repair={true}/>
                 </TabPanel>

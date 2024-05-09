@@ -193,6 +193,11 @@ export const inviteUser = async (user_id: number) => {
     await apiAxios.get(endpoint)
 }
 
+export const reInviteUser = async (user_id: string) => {
+    const endpoint = `${API_BASE_URL}/user/resendUserInvite/${user_id}`
+    await apiAxios.get(endpoint)
+}
+
 export const createUser = async (request: {
     role: number,
     first_name: string,
