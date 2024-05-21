@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {parseContentDispositionFilename} from "./helpers/parseContentDisposition";
 import {Account} from "./redux/accountSlice";
-import {GetClientUserListResponse} from "./redux/clientSlice";
+import {ExcelMapping, GetClientUserListResponse, SetClientExcelMappingRequest} from "./redux/clientSlice";
 import {Transaction} from "./redux/transactionSlice";
 import {redirectToLogin} from "./helpers/redirectToLogin";
 
@@ -46,7 +46,8 @@ export interface TransactionFilters {
     }
     search?: string,
     include_payments?: boolean,
-    user_card_number?: string
+    user_card_number?: string,
+    include_hidden?: boolean
 }
 
 export interface GetTransactionRequest {
@@ -286,5 +287,15 @@ export const deleteVendor = async (vendor_id: number) => {
 export const deleteVendorAlias = async (req: { vendor_id: number, vendor_alias: string }) => {
     const endpoint = `${API_BASE_URL}/client/deleteVendorAlias`
     const response = await apiAxios.post(endpoint, req)
+    return response.data
+}
+export const getClientExcelMapping = async () => {
+    const endpoint = `${API_BASE_URL}/client/getExcelMapping`
+    const response = await apiAxios.get(endpoint)
+    return response.data
+}
+export const setClientExcelMapping = async (mapping: SetClientExcelMappingRequest) => {
+    const endpoint = `${API_BASE_URL}/client/setExcelMapping`
+    const response = await apiAxios.post(endpoint, mapping);
     return response.data
 }

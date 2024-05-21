@@ -84,7 +84,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const [isImageViewerOpen, setImageViewerOpen] = useState<boolean>(false);
     const users = useAppSelector(selectActiveUsers);
     const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
-    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({limit: 50, offset: 0})
+    const [transactionRequest, setTransactionRequest] = useState<GetTransactionRequest>({
+        limit: 50,
+        offset: 0,
+        filters: {include_hidden: true}
+    })
     const [markCompletedLoading, setMarkCompletedLoading] = useState<string | false>(false)
     const [userSelectBoxValue, setUserSelectBoxValue] = useState<string | undefined>(undefined)
     const compress = new Compress()

@@ -17,7 +17,13 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
-import {fetchUserList, fetchVendorList, selectActiveUsers, selectPendingUsers} from "./redux/clientSlice";
+import {
+    fetchClientExcelMapping,
+    fetchUserList,
+    fetchVendorList,
+    selectActiveUsers, selectExcelMapping,
+    selectPendingUsers
+} from "./redux/clientSlice";
 import {
     addClientAccounts,
     createUser,
@@ -27,23 +33,20 @@ import {
     revokeAccount
 } from "./Backend";
 import {
-    Alert,
-    Button, Checkbox, CircularProgress, CssBaseline,
+    Button, Checkbox, CssBaseline,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
-    DialogTitle, Divider, Drawer, FormControlLabel, List, ListItem, ListItemText,
+    DialogTitle, Drawer, FormControlLabel, List, ListItem,
     TableContainer,
-    TextField, Tooltip,
+    TextField,
     Typography
 } from "@mui/material";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
 import {useLocation, useNavigate} from "react-router-dom";
-import {ArrowBack, AssignmentReturn, Backspace, CancelOutlined, MailOutline} from "@mui/icons-material";
+import {ArrowBack, MailOutline} from "@mui/icons-material";
 import Vendors from "./SettingsComponents/Vendors";
 import Exports from "./SettingsComponents/Exports";
 import {SyncConfirmationDialog} from './components/SyncConfirmationDialog';
@@ -91,6 +94,7 @@ const SettingsPage: React.FC = () => {
     const location = useLocation();
     const [resendUserInviteDialogOpen, setResendUserInviteDialogOpen] = useState<boolean>(false)
     const [userId, setUserId] = useState<string>("")
+    const excelMapping = useAppSelector(selectExcelMapping);
 
     const getTabValue = () => {
         const searchParams = new URLSearchParams(location.search);
@@ -169,6 +173,7 @@ const SettingsPage: React.FC = () => {
         dispatch(fetchClientAccounts())
         dispatch(fetchUserList())
         dispatch(fetchVendorList())
+        dispatch(fetchClientExcelMapping())
     }, [dispatch])
 
     useEffect(() => {
@@ -329,6 +334,7 @@ const SettingsPage: React.FC = () => {
 
                 {/* EXPORT PANEL*/}
                 <TabPanel index={2} value={value}>
+                    {/*<Exports mapping={excelMapping}/>*/}
                     <Exports/>
                 </TabPanel>
 

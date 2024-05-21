@@ -243,7 +243,6 @@ const Vendors: React.FC = () => {
                                     ))}
                                 </TableCell>
                                 <TableCell>
-
                                     <IconButton
                                         onClick={() => handleOpenAddAliasDialog(vendor.id)}><Add></Add></IconButton>
                                     <IconButton
