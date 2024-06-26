@@ -139,9 +139,9 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const originalFile = event.target.files ? event.target.files[0] : null
         originalFile && supportedFileTypes.includes(originalFile.type) && (originalFile.type != pdfFileType) ? compress.compress([originalFile], {
-            size: 1,
+            size: 0.5,
             quality: compressionValue,
-            resize: false
+            resize: true
         }).then((data) => {
             const img = data[0];
             const base64str = img.data;
