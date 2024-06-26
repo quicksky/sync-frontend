@@ -136,6 +136,8 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
         setPaginationLoading(false)
     };
 
+
+    //this HAS to be refactored into an outside function for use on the admin table but im going to the beach rn :)
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const originalFile = event.target.files ? event.target.files[0] : null
         originalFile && supportedFileTypes.includes(originalFile.type) && (originalFile.type != pdfFileType) ? compress.compress([originalFile], {

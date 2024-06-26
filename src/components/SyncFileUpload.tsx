@@ -47,9 +47,9 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
     const [fileToUpload, setFileToUpload] = useState<{ file: File, name: string } | undefined>(undefined)
     const handleFileChange = (originalFile: File) => {
         supportedFileTypes.includes(originalFile.type) && (originalFile.type != pdfFileType) ? compress.compress([originalFile], {
-            size: 1,
+            size: 0.5,
             quality: compressionValue,
-            resize: false
+            resize: true
         }).then((data) => {
             const img = data[0];
             const base64str = img.data;
