@@ -104,12 +104,12 @@ const SettingsPage: React.FC = () => {
                 return 0;
             case 'vendors':
                 return 1;
-            case 'exports':
-                return 2
+            // case 'exports':
+            //     return 2
             case 'users':
-                return 3;
+                return 2;
             case 'plaid':
-                return 4;
+                return 3;
             default:
                 return 0;
         }
@@ -117,7 +117,7 @@ const SettingsPage: React.FC = () => {
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setValue(newValue);
-        const tabParam = ['accounts', 'vendors', 'exports', 'users', 'plaid'][newValue] || 'accounts';
+        const tabParam = ['accounts', 'vendors', 'users', 'plaid'][newValue] || 'accounts';
         navigate(`?tab=${tabParam}`);
     };
 
