@@ -246,7 +246,7 @@ const SettingsPage: React.FC = () => {
                 >
                     <Tab label="Accounts"/>
                     <Tab label="Vendors"/>
-                    <Tab label="Exports"/>
+                    {/*<Tab label="Exports"/>*/}
                     <Tab label="Users"/>
                     <Tab label="Plaid Link"/>
                 </Tabs>
