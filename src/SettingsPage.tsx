@@ -339,7 +339,7 @@ const SettingsPage: React.FC = () => {
                 {/*</TabPanel>*/}
 
                 {/*USERS PANEL*/}
-                <TabPanel value={value} index={3}>
+                <TabPanel value={value} index={2}>
                     <SyncConfirmationDialog open={resendUserInviteDialogOpen}
                                             onClose={() => setResendUserInviteDialogOpen(false)}
                                             message={"Re-invite this user?"}
@@ -532,7 +532,7 @@ const SettingsPage: React.FC = () => {
                 </TabPanel>
 
                 {/*PLAID PANEL*/}
-                <TabPanel value={value} index={4}>
+                <TabPanel value={value} index={3}>
                     <Link repair={false}/>
                     <Link repair={true}/>
                 </TabPanel>
