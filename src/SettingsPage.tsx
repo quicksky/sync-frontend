@@ -333,10 +333,10 @@ const SettingsPage: React.FC = () => {
                 </TabPanel>
 
                 {/* EXPORT PANEL*/}
-                <TabPanel index={2} value={value}>
-                    {/*<Exports mapping={excelMapping}/>*/}
-                    <Exports/>
-                </TabPanel>
+                {/*<TabPanel index={2} value={value}>*/}
+                {/*    /!*<Exports mapping={excelMapping}/>*!/*/}
+                {/*    <Exports/>*/}
+                {/*</TabPanel>*/}
 
                 {/*USERS PANEL*/}
                 <TabPanel value={value} index={3}>
