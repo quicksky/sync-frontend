@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
             navigate("/home")
         }).catch(e => {
             setError(true)
-            setErrorText(e.code === "ERR_BAD_REQUEST" ? "Invalid Email or Password" : "There was an error communicating with the server");
+            setErrorText(e.code === "ERR_BAD_REQUEST" ? "Invalid Email or Password" : "Server Error");
         })
     };
 
@@ -60,13 +60,14 @@ const LoginPage: React.FC = () => {
                 <Avatar sx={{m: 1, bgcolor: '#FFFFFF'}}>
                     <LockOutlinedIcon/>
                 </Avatar>
-                <Typography component="h1" variant="h5" color='primary'>
-                    Sign in
+                <Typography component="h1" variant="h5" color={error ? 'error' : 'primary'}>
+                    {error ? errorText : "Sign in"}
                 </Typography>
                 <Box component="form" onSubmit={handleLogin} noValidate sx={{mt: 1}}>
                     <TextField
                         margin="normal"
                         focused
+                        error={error}
                         fullWidth
                         id="email"
                         name="email"
@@ -77,6 +78,7 @@ const LoginPage: React.FC = () => {
                     <TextField
                         margin="normal"
                         focused
+                        error={error}
                         fullWidth
                         id="password"
                         type="password"
@@ -99,7 +101,6 @@ const LoginPage: React.FC = () => {
                     {/*        </Link>*/}
                     {/*    </Grid>*/}
                     {/*</Grid>*/}
-                    {error ? (<Typography color={"white"}>{errorText}</Typography>) : undefined}
                     <Grid container justifyContent={"right"}>
                         <Button onClick={() => navigate('/forgotPassword')}>Forgot
                             Password</Button>
