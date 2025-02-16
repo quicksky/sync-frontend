@@ -32,8 +32,8 @@ const LoginPage: React.FC = () => {
         const formJson = Object.fromEntries((formData as any).entries());
         const email = formJson.email.toLowerCase();
         const password = formJson.password;
-        setError(false)
         dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
+            setError(false)
             navigate("/home")
         }).catch(e => {
             setError(true)
@@ -94,13 +94,6 @@ const LoginPage: React.FC = () => {
                     >
                         Sign In
                     </Button>
-                    {/*<Grid container>*/}
-                    {/*    <Grid item xs>*/}
-                    {/*        <Link href="#" variant="body2">*/}
-                    {/*            Forgot password?*/}
-                    {/*        </Link>*/}
-                    {/*    </Grid>*/}
-                    {/*</Grid>*/}
                     <Grid container justifyContent={"right"}>
                         <Button onClick={() => navigate('/forgotPassword')}>Forgot
                             Password</Button>
