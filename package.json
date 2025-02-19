@@ -22,7 +22,7 @@
     "bun": "^1.2.2",
     "compress.js": "^1.2.2",
     "dayjs": "^1.11.10",
-    "pdfjs-dist": "^3.4.120",
+    "pdfjs-dist": "3.11.174",
     "plaid": "^17.0.0",
     "plaid-threads": "^14.5.0",
     "prettier": "^3.0.3",

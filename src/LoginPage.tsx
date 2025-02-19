@@ -13,11 +13,10 @@ const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
     const [error, setError] = useState<boolean>(false);
     const [errorText, setErrorText] = useState<string>("");
-    //error text
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
 
     const navigate = useNavigate();
-
-    //try to login
 
     useEffect(() => {
         getUserApi().then(() => {
@@ -26,13 +25,8 @@ const LoginPage: React.FC = () => {
         })
     }, [dispatch])
 
-    const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const formJson = Object.fromEntries((formData as any).entries());
-        const email = formJson.email.toLowerCase();
-        const password = formJson.password;
-        dispatch(loginUser({email: email, password: password})).unwrap().then(() => {
+    const handleLogin = () => {
+        dispatch(loginUser({email: email.toLowerCase(), password: password})).unwrap().then(() => {
             setError(false)
             navigate("/home")
         }).catch(e => {
@@ -63,14 +57,15 @@ const LoginPage: React.FC = () => {
                 <Typography component="h1" variant="h5" color={error ? 'error' : 'primary'}>
                     {error ? errorText : "Sign in"}
                 </Typography>
-                <Box component="form" onSubmit={handleLogin} noValidate sx={{mt: 1}}>
+                <Box sx={{mt: 1}}>
                     <TextField
                         margin="normal"
                         focused
                         error={error}
                         fullWidth
                         id="email"
-                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         label="Email"
                         autoCapitalize={'none'}
                         sx={{input: {color: '#FFFFFF'}}}
@@ -82,12 +77,13 @@ const LoginPage: React.FC = () => {
                         fullWidth
                         id="password"
                         type="password"
-                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         label="Password"
                         sx={{input: {color: '#FFFFFF'}}}
                     />
                     <Button
-                        type="submit"
+                        onClick={handleLogin}
                         fullWidth
                         variant="contained"
                         sx={{mt: 2, mb: 1}}
