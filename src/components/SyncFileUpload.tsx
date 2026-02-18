@@ -45,8 +45,15 @@ interface DropzoneDialogProps {
 const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) => {
     const compress = new Compress()
     const [fileToUpload, setFileToUpload] = useState<{ file: File, name: string } | undefined>(undefined)
+    const [fileError, setFileError] = useState<string | undefined>(undefined)
     const handleFileChange = (originalFile: File) => {
-        supportedFileTypes.includes(originalFile.type) && (originalFile.type != pdfFileType) ? compress.compress([originalFile], {
+        if (!supportedFileTypes.includes(originalFile.type)) {
+            setFileError("Unsupported file type. We only support PDF, JPEG, and PNG files.")
+            setFileToUpload(undefined)
+            return
+        }
+        setFileError(undefined)
+        originalFile.type != pdfFileType ? compress.compress([originalFile], {
             size: 0.5,
             quality: compressionValue,
             resize: true
@@ -80,6 +87,11 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
                         Drag a file here or click to select a file
                     </Typography>
                 </StyledDropzone>
+                {fileError && (
+                    <Typography variant="body2" sx={{mt: 2, color: 'error.main'}}>
+                        {fileError}
+                    </Typography>
+                )}
                 {fileToUpload && (
                     <Typography variant="body2" sx={{mt: 2}}>
                         {fileToUpload?.name}

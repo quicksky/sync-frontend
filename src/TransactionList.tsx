@@ -76,6 +76,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const [openTransactionId, setOpenTransactionId] = useState<string | null>(null);
     const [page, setPage] = useState(0);
     const [file, setFile] = useState<{ file: File, name: string } | null>(null)
+    const [fileError, setFileError] = useState<string | undefined>(undefined)
     const [memo, setMemo] = useState<string | null>(null);
     const [accountId, setAccountId] = useState<number | null>(null)
     const rowsPerPage = 50;
@@ -140,7 +141,14 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     //this HAS to be refactored into an outside function for use on the admin table but im going to the beach rn :)
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const originalFile = event.target.files ? event.target.files[0] : null
-        originalFile && supportedFileTypes.includes(originalFile.type) && (originalFile.type != pdfFileType) ? compress.compress([originalFile], {
+        if (!originalFile) return
+        if (!supportedFileTypes.includes(originalFile.type)) {
+            setFileError("Unsupported file type. We only support PDF, JPEG, and PNG files.")
+            setFile(null)
+            return
+        }
+        setFileError(undefined)
+        originalFile.type != pdfFileType ? compress.compress([originalFile], {
             size: 0.5,
             quality: compressionValue,
             resize: true
@@ -150,7 +158,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
             const imgExt = img.ext;
             const file = Compress.convertBase64ToFile(base64str, imgExt);
             setFile({file, name: originalFile.name})
-        }) : originalFile && setFile({file: originalFile, name: originalFile.name})
+        }) : setFile({file: originalFile, name: originalFile.name})
     };
     const handleRowClick = (transaction: Transaction) => {
         if (dataSaveLock) {
@@ -470,6 +478,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     {file ? (
                                                                         <Typography>
                                                                             Selected File: {file.name}
+                                                                        </Typography>
+                                                                    ) : undefined}
+                                                                    {fileError ? (
+                                                                        <Typography color="error">
+                                                                            {fileError}
                                                                         </Typography>
                                                                     ) : undefined}
                                                                 </Grid>
