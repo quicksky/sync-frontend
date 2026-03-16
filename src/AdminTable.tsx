@@ -63,6 +63,175 @@ import SyncFileUpload from "./components/SyncFileUpload";
 import Compress from "compress.js";
 import {compressionValue, pdfFileType, supportedFileTypes} from "./helpers/fileInfo";
 
+interface TableRowMemoProps {
+    transaction: Transaction;
+    isEditable: boolean;
+    editState: {accountId: number | null, memo: string | null} | undefined;
+    onMemoChange: (id: string, value: string) => void;
+    onAccountChange: (id: string, value: number | null) => void;
+    onSubmitEdit: (id: string) => void;
+    onCancelEdit: (id: string) => void;
+    onStartEdit: (id: string, memo: string | null, accountId: number | null) => void;
+    accounts: Account[];
+    users: {id: number, first_name: string, last_name: string, card_number: string}[];
+    onTransactionCheckboxClick: (checked: boolean, id: string) => void;
+    onLoadReceipt: (transaction: Transaction) => void;
+    onUploadClick: (transactionId: string) => void;
+    markCompletedLoading: string | false;
+}
+
+const TableRowMemo = memo(({
+    transaction,
+    isEditable,
+    editState,
+    onMemoChange,
+    onAccountChange,
+    onSubmitEdit,
+    onCancelEdit,
+    onStartEdit,
+    accounts,
+    users,
+    onTransactionCheckboxClick,
+    onLoadReceipt,
+    onUploadClick,
+    markCompletedLoading
+}: TableRowMemoProps) => {
+    const account = accounts.find((a) => a.id === transaction.internal_account);
+    const accountName = account ? account.name : "";
+    const card_number = transaction.account_owner.slice(-4);
+    const owner = users.find(user => user.card_number === card_number);
+    const splitDate = transaction.authorized_date.split('-');
+    const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
+
+    const handleMemoChangeLocal = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        onMemoChange(transaction.transaction_id, e.target.value);
+    }, [transaction.transaction_id, onMemoChange]);
+
+    const handleAccountChangeLocal = useCallback((e: SelectChangeEvent<string>) => {
+        onAccountChange(transaction.transaction_id, +e.target.value === -1 ? null : +e.target.value);
+    }, [transaction.transaction_id, onAccountChange]);
+
+    const handleSubmitLocal = useCallback(() => {
+        onSubmitEdit(transaction.transaction_id);
+    }, [transaction.transaction_id, onSubmitEdit]);
+
+    const handleCancelLocal = useCallback(() => {
+        onCancelEdit(transaction.transaction_id);
+    }, [transaction.transaction_id, onCancelEdit]);
+
+    const handleStartEditLocal = useCallback(() => {
+        onStartEdit(transaction.transaction_id, transaction.memo, transaction.internal_account);
+    }, [transaction.transaction_id, transaction.memo, transaction.internal_account, onStartEdit]);
+
+    return (
+        <TableRow key={transaction.transaction_id}
+                  sx={{
+                      "background-color": transaction.admin_approved ? "#acfcac" : "white",
+                  }}>
+            <TableCell align={"center"}
+                       sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                <Checkbox sx={{
+                    "&, & + .MuiFormControlLabel-label": {
+                        color: "secondary.main"
+                    }
+                }} color="secondary"
+                          checked={transaction.admin_approved}
+                          onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
+                       align="center">
+                {transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                    <Check/> : <Close/>}</TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                {dateString}
+            </TableCell>
+            <TableCell sx={{
+                marginX: '0px',
+                paddingX: '00px',
+                width: '9%'
+            }}>
+                {transaction.name} {transaction.alias ? (
+                <b>({transaction.alias})</b>) : undefined}
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
+                {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
+                    <TextField
+                        style={{
+                            wordBreak: 'normal', overflowWrap: 'break-word'
+                        }}
+                        size="medium"
+                        focused
+                        fullWidth
+                        multiline
+                        rows={4}
+                        color='warning'
+                        value={editState?.memo || ''}
+                        onChange={handleMemoChangeLocal}/>
+                ) : <Typography variant="body2"
+                                style={{
+                                    wordBreak: 'normal', overflowWrap: 'break-word'
+                                }}>{transaction.memo}</Typography>} </div>}
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
+                       align="center">
+                {isEditable ? (
+                    <FormControl variant="outlined" focused fullWidth
+                                 color="warning">
+                        <Select labelId="label-for-account"
+                                value={editState?.accountId ? String(editState.accountId) : "-1"}
+                                onChange={handleAccountChangeLocal}>
+                            <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
+                            {accounts.map(account => (
+                                <MenuItem key={account.id}
+                                          value={account.id}>{account.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                ) : accountName}
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}}
+                       align="right">
+                {owner ? `${owner.first_name} ${owner.last_name} (${owner.card_number})` : transaction.account_owner}
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
+                       align="right">
+                {formatUSD(transaction.amount)}
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
+                       align="center">
+                {transaction.receipt_key &&
+                    <Tooltip title={"View Receipt"}>
+                        <IconButton
+                            onClick={() => onLoadReceipt(transaction)}><Receipt/></IconButton>
+                    </Tooltip>}
+            </TableCell>
+            <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}}
+                       align="center">
+                {isEditable ? (
+                    <>
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
+                            <IconButton sx={{margin: '0px', padding: '0px'}}
+                                        onClick={handleSubmitLocal}><Check/></IconButton>
+                            <IconButton sx={{margin: '0px', padding: '0px'}}
+                                        onClick={handleCancelLocal}><Close/></IconButton>
+                        </div>
+                    </>
+                ) : (
+                    <Tooltip title={"Edit Transaction"}>
+                        <IconButton onClick={handleStartEditLocal}><Edit/></IconButton></Tooltip>
+                )}
+            </TableCell>
+            <TableCell>
+                <Tooltip title={"Upload Receipt"}>
+                    <IconButton onClick={() => onUploadClick(transaction.transaction_id)}>
+                        <UploadFile/>
+                    </IconButton>
+                </Tooltip>
+            </TableCell>
+        </TableRow>
+    );
+});
+
 interface AdminTableProps {
     transactions: Transaction[];
     accounts: Account[];
@@ -225,7 +394,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
         }))
     }
 
-    const handleLoadReceipt = (transaction: Transaction) => {
+    const handleLoadReceipt = useCallback((transaction: Transaction) => {
         if (transaction && transaction.receipt_key) {
             getTransactionImage(transaction.transaction_id).then((file) => {
                 setReceiptUrl(file)
@@ -237,7 +406,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
         } else {
             setReceiptUrl("")
         }
-    }
+    }, []);
     const handleSubmitEdit = (transactionId: string) => {
         const editState = editingStates[transactionId];
         if (editState) {
@@ -281,170 +450,17 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
         dispatch(fetchAndClearAdminTransactions(transactionRequest)).finally(callback)
     }
 
-    const onTransactionCheckboxClick = (checked: boolean, transaction_id: string) => {
+    const onTransactionCheckboxClick = useCallback((checked: boolean, transaction_id: string) => {
         setMarkCompletedLoading(transaction_id)
         checked ?
             approveTransaction(transaction_id).then(() => refreshTransactions(() => setMarkCompletedLoading(false))) :
             unapproveTransaction(transaction_id).then(() => refreshTransactions(() => setMarkCompletedLoading(false)))
-    }
+    }, [refreshTransactions]);
 
-    const TableRowMemo = memo(({ 
-        transaction, 
-        isEditable, 
-        editState,
-        onMemoChange, 
-        onAccountChange, 
-        onSubmitEdit, 
-        onCancelEdit, 
-        onStartEdit 
-    }: {
-        transaction: Transaction,
-        isEditable: boolean,
-        editState: {accountId: number | null, memo: string | null} | undefined,
-        onMemoChange: (id: string, value: string) => void,
-        onAccountChange: (id: string, value: number | null) => void,
-        onSubmitEdit: (id: string) => void,
-        onCancelEdit: (id: string) => void,
-        onStartEdit: (id: string, memo: string | null, accountId: number | null) => void
-    }) => {
-        const account = accounts.find((a) => a.id === transaction.internal_account);
-        const accountName = account ? account.name : "";
-        const card_number = transaction.account_owner.slice(-4);
-        const owner = users.find(user => user.card_number === card_number);
-        const splitDate = transaction.authorized_date.split('-');
-        const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
-
-        const handleMemoChangeLocal = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-            onMemoChange(transaction.transaction_id, e.target.value);
-        }, [transaction.transaction_id, onMemoChange]);
-
-        const handleAccountChangeLocal = useCallback((e: SelectChangeEvent<string>) => {
-            onAccountChange(transaction.transaction_id, +e.target.value === -1 ? null : +e.target.value);
-        }, [transaction.transaction_id, onAccountChange]);
-
-        const handleSubmitLocal = useCallback(() => {
-            onSubmitEdit(transaction.transaction_id);
-        }, [transaction.transaction_id, onSubmitEdit]);
-
-        const handleCancelLocal = useCallback(() => {
-            onCancelEdit(transaction.transaction_id);
-        }, [transaction.transaction_id, onCancelEdit]);
-
-        const handleStartEditLocal = useCallback(() => {
-            onStartEdit(transaction.transaction_id, transaction.memo, transaction.internal_account);
-        }, [transaction.transaction_id, transaction.memo, transaction.internal_account, onStartEdit]);
-
-        return (
-            <TableRow key={transaction.transaction_id}
-                      sx={{
-                          "background-color": transaction.admin_approved ? "#acfcac" : "white",
-                      }}>
-                <TableCell align={"center"}
-                           sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                    <Checkbox sx={{
-                        "&, & + .MuiFormControlLabel-label": {
-                            color: "secondary.main"
-                        }
-                    }} color="secondary"
-                              checked={transaction.admin_approved}
-                              onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
-                           align="center">
-                    {transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                        <Check/> : <Close/>}</TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                    {dateString}
-                </TableCell>
-                <TableCell sx={{
-                    marginX: '0px',
-                    paddingX: '00px',
-                    width: '9%'
-                }}>
-                    {transaction.name} {transaction.alias ? (
-                    <b>({transaction.alias})</b>) : undefined}
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
-                    {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
-                        <TextField
-                            style={{
-                                wordBreak: 'normal', overflowWrap: 'break-word'
-                            }}
-                            size="medium"
-                            focused
-                            fullWidth
-                            multiline
-                            rows={4}
-                            color='warning'
-                            value={editState?.memo || ''}
-                            onChange={handleMemoChangeLocal}/>
-                    ) : <Typography variant="body2"
-                                    style={{
-                                        wordBreak: 'normal', overflowWrap: 'break-word'
-                                    }}>{transaction.memo}</Typography>} </div>}
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
-                           align="center">
-                    {isEditable ? (
-                        <FormControl variant="outlined" focused fullWidth
-                                     color="warning">
-                            <Select labelId="label-for-account"
-                                    value={editState?.accountId ? String(editState.accountId) : "-1"}
-                                    onChange={handleAccountChangeLocal}>
-                                <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
-                                {accounts.map(account => (
-                                    <MenuItem key={account.id}
-                                              value={account.id}>{account.name}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    ) : accountName}
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '10%'}}
-                           align="right">
-                    {owner ? `${owner.first_name} ${owner.last_name} (${owner.card_number})` : transaction.account_owner}
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
-                           align="right">
-                    {formatUSD(transaction.amount)}
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '9%'}}
-                           align="center">
-                    {transaction.receipt_key &&
-                        <Tooltip title={"View Receipt"}>
-                            <IconButton
-                                onClick={() => handleLoadReceipt(transaction)}><Receipt/></IconButton>
-                        </Tooltip>}
-                </TableCell>
-                <TableCell sx={{marginX: '0px', paddingX: '0px', width: '6%'}}
-                           align="center">
-                    {isEditable ? (
-                        <>
-                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                <IconButton sx={{margin: '0px', padding: '0px'}}
-                                            onClick={handleSubmitLocal}><Check/></IconButton>
-                                <IconButton sx={{margin: '0px', padding: '0px'}}
-                                            onClick={handleCancelLocal}><Close/></IconButton>
-                            </div>
-                        </>
-                    ) : (
-                        <Tooltip title={"Edit Transaction"}>
-                            <IconButton onClick={handleStartEditLocal}><Edit/></IconButton></Tooltip>
-                    )}
-                </TableCell>
-                <TableCell>
-                    <Tooltip title={"Upload Receipt"}>
-                        <IconButton onClick={() => {
-                            setUploadTransactionId(transaction.transaction_id)
-                            setUploadFileDialogOpen(true)
-                        }}>
-                            <UploadFile/>
-                        </IconButton>
-                    </Tooltip>
-                </TableCell>
-            </TableRow>
-        );
-    });
+    const handleUploadClick = useCallback((transactionId: string) => {
+        setUploadTransactionId(transactionId);
+        setUploadFileDialogOpen(true);
+    }, []);
 
     const handleMemoChange = useCallback((id: string, value: string) => {
         setEditingStates(prev => ({
@@ -614,6 +630,12 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                                 onSubmitEdit={handleSubmitEditCallback}
                                                 onCancelEdit={handleCancelEdit}
                                                 onStartEdit={handleStartEdit}
+                                                accounts={accounts}
+                                                users={users}
+                                                onTransactionCheckboxClick={onTransactionCheckboxClick}
+                                                onLoadReceipt={handleLoadReceipt}
+                                                onUploadClick={handleUploadClick}
+                                                markCompletedLoading={markCompletedLoading}
                                             />
                                         );
                                     })}
