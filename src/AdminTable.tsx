@@ -51,7 +51,7 @@ import {defaultLayoutPlugin, ToolbarProps} from "@react-pdf-viewer/default-layou
 import {getAWSPresignedFileExtension} from "./helpers/getAWSPresignedFileExtension";
 import {useMediaQuery} from "react-responsive"
 import {fetchUserList, selectActiveUsers} from "./redux/clientSlice";
-import {selectUser} from "./redux/userSlice";
+import {selectUser, User} from "./redux/userSlice";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {theme} from "./App";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
@@ -73,7 +73,7 @@ interface TableRowMemoProps {
     onCancelEdit: (id: string) => void;
     onStartEdit: (id: string, memo: string | null, accountId: number | null) => void;
     accounts: Account[];
-    users: {id: number, first_name: string, last_name: string, card_number: string}[];
+    users: User[];
     onTransactionCheckboxClick: (checked: boolean, id: string) => void;
     onLoadReceipt: (transaction: Transaction) => void;
     onUploadClick: (transactionId: string) => void;
