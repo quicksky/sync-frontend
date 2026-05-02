@@ -98,7 +98,7 @@ const TableRowMemo = memo(({
 }: TableRowMemoProps) => {
     const account = accounts.find((a) => a.id === transaction.internal_account);
     const accountName = account ? account.name : "";
-    const card_number = transaction.account_owner.slice(-4);
+    const card_number = transaction.account_owner?.slice(-4);
     const owner = users.find(user => user.card_number === card_number);
     const splitDate = transaction.authorized_date.split('-');
     const dateString = splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
