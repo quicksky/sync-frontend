@@ -29,7 +29,7 @@ import {Add, PlusOne} from "@mui/icons-material";
 import Box from "@mui/material/Box"; // Adapt these imports to your project structure
 
 
-const Exports: React.FC = () => {
+const ExportsPanel: React.FC = () => {
     const imageStyle = {
         width: '200px',
         height: '200px',
@@ -46,7 +46,7 @@ const Exports: React.FC = () => {
     );
 };
 
-export default Exports;
+export default ExportsPanel;
 //
 //
 // import React, {useState} from 'react';

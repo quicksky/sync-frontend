@@ -4,52 +4,27 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {
-    Account,
     fetchClientAccounts,
     selectClientAccounts,
 } from "./redux/accountSlice";
-import Link from "./Link";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
-import EditIcon from '@mui/icons-material/Edit';
 import {
     fetchClientExcelMapping,
     fetchUserList,
     fetchVendorList,
-    selectActiveUsers, selectExcelMapping,
-    selectPendingUsers
+    selectExcelMapping
 } from "./redux/clientSlice";
 import {
-    addClientAccounts,
-    createUser,
-    deleteClientAccount,
-    getUserAccounts,
-    grantAccount, reInviteUser,
-    revokeAccount
-} from "./Backend";
-import {
-    Button, Checkbox, Chip,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle, Drawer, FormControlLabel, List, ListItem, Tooltip,
-    TableContainer,
-    TextField,
+    Drawer,
     Typography
 } from "@mui/material";
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
 import {useLocation, useNavigate} from "react-router-dom";
 import {AccountBalance, ArrowBack, MailOutline, People, Storefront, Link as LinkIcon} from "@mui/icons-material";
-import Vendors from "./SettingsComponents/Vendors";
-import Exports from "./SettingsComponents/Exports";
-import {SyncConfirmationDialog} from './components/SyncConfirmationDialog';
-
+import AccountsPanel from "./SettingsComponents/Accounts"
+import VendorsPanel from "./SettingsComponents/Vendors";
+import UsersPanel from "./SettingsComponents/Users";
+import ExportsPanel from "./SettingsComponents/Exports";
+import PlaidPanel from "./SettingsComponents/Plaid";
 
 const drawerWidth = 240
 
@@ -82,18 +57,8 @@ function TabPanel(props: TabPanelProps) {
 const SettingsPage: React.FC = () => {
     const [value, setValue] = React.useState(0);
     const dispatch = useAppDispatch()
-    const accounts = useAppSelector(selectClientAccounts)
-    const activeUsers = useAppSelector(selectActiveUsers)
-    const pendingUsers = useAppSelector(selectPendingUsers)
-    const [checkboxDialogUserId, setCheckboxDialogUserId] = useState<string>("")
-    const [addAccountText, setAddAccountText] = useState("")
-    const [inviteUserAdmin, setInviteUserAdmin] = useState<boolean>(false)
-    const [userAccounts, setUserAccounts] = useState<Account[]>([])
     const navigate = useNavigate();
     const location = useLocation();
-    const [resendUserInviteDialogOpen, setResendUserInviteDialogOpen] = useState<boolean>(false)
-    const [userId, setUserId] = useState<string>("")
-    const excelMapping = useAppSelector(selectExcelMapping);
 
     const getTabValue = () => {
         const searchParams = new URLSearchParams(location.search);
@@ -120,54 +85,6 @@ const SettingsPage: React.FC = () => {
         navigate(`?tab=${tabParam}`);
     };
 
-    const handleDelete = (id: number) => {
-        deleteClientAccount(id).then(() => {
-            dispatch(fetchClientAccounts())
-        })
-    }
-
-    const handleAddAccounts = () => {
-        addClientAccounts(addAccountText).then(() => {
-            dispatch(fetchClientAccounts())
-            handleClose()
-        })
-    }
-
-    const onAccountCheckboxClick = (checked: boolean, account_id: number, user_id: string) => {
-        checked ? grantAccount({user_id: user_id, account_id: account_id}).then(() => {
-            getUserAccounts({user_id: user_id}).then(r => {
-                setUserAccounts(r)
-            })
-        }) : revokeAccount({user_id: user_id, account_id: account_id}).then(() => {
-            getUserAccounts({user_id: user_id}).then(r => {
-                setUserAccounts(r)
-            })
-        })
-    }
-
-    const [open, setOpen] = React.useState(false);
-    const [openCheckboxDialog, setOpenCheckboxDialog] = React.useState(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleOpenCheckboxDialog = (user_id: string) => {
-        setCheckboxDialogUserId(user_id)
-        getUserAccounts({user_id: user_id}).then(r => {
-            setUserAccounts(r)
-            setOpenCheckboxDialog(true)
-        })
-    }
-
-    const handleCloseCheckboxDialog = () => {
-        setOpenCheckboxDialog(false)
-    }
-
     useEffect(() => {
         dispatch(fetchClientAccounts())
         dispatch(fetchUserList())
@@ -178,34 +95,6 @@ const SettingsPage: React.FC = () => {
     useEffect(() => {
         setValue(getTabValue());
     }, [location.search]);
-
-    const onUserInviteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        const formData = new FormData(event.currentTarget)
-        const formJson = Object.fromEntries((formData as any).entries())
-        const firstName = formJson.first_name
-        const lastName = formJson.last_name
-        const email = formJson.email
-        const cardNumber = formJson.card_number
-        createUser({
-            role: inviteUserAdmin ? 2 : 1,
-            first_name: firstName,
-            last_name: lastName,
-            email: email,
-            card_number: cardNumber
-        }).then(r => {
-            dispatch(fetchUserList())
-            handleClose();
-        }).catch(e => {
-            // if (e.code == "ERR_BAD_REQUEST") {
-            //     setExportError(true)
-            //     setExportErrorTest("Dates are not in the correct format")
-            // } else {
-            //     setExportError(true)
-            //     setExportErrorTest("Server error")
-            // }
-        })
-    }
 
     return (
         <Box sx={{display: 'flex'}}>
@@ -270,70 +159,12 @@ const SettingsPage: React.FC = () => {
 
                 {/*ACCOUNT PANEL*/}
                 <TabPanel value={value} index={0}>
-                    <Box sx={{width: "65%", mx: 'auto'}}>
-                        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
-                            <Typography variant="h6" fontWeight={700}>Available Accounts</Typography>
-                            <Button variant="contained" color="primary" startIcon={<AddIcon/>}
-                                    onClick={handleClickOpen}>
-                                Add Accounts
-                            </Button>
-                            <Dialog
-                                open={open}
-                                onClose={handleClose}
-                                PaperProps={{
-                                    component: 'form',
-                                }}
-                            >
-                                <DialogTitle color="primary">Add Accounts</DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        onChange={(e) => setAddAccountText(e.target.value)}
-                                        color="primary"
-                                        required
-                                        margin="dense"
-                                        label="Enter account names"
-                                        multiline
-                                        rows={3}
-                                        fullWidth
-                                    />
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={handleClose}>Cancel</Button>
-                                    <Button onClick={handleAddAccounts} variant="contained"
-                                            color="secondary">Add</Button>
-                                </DialogActions>
-                            </Dialog>
-                        </Box>
-                        <TableContainer component={Paper} elevation={1} sx={{maxHeight: '75vh'}}>
-                            <Table aria-label="simple table" stickyHeader>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="left" width="90%">Name</TableCell>
-                                        <TableCell align="right" width="10%"/>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {accounts.map((account) => (
-                                        <TableRow key={account.id} hover>
-                                            <TableCell align="left" width="90%">
-                                                {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
-                                            </TableCell>
-                                            <TableCell align="right" width="10%">
-                                                <IconButton onClick={() => handleDelete(account.id)}
-                                                            aria-label="delete" color="error">
-                                                    <RemoveIcon fontSize="small"/>
-                                                </IconButton>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Box>
+                    <AccountsPanel/>
                 </TabPanel>
+
                 {/*VENDOR PANEL*/}
                 <TabPanel value={value} index={1}>
-                    <Vendors/>
+                    <VendorsPanel/>
                 </TabPanel>
 
                 {/* EXPORT PANEL*/}
@@ -344,198 +175,12 @@ const SettingsPage: React.FC = () => {
 
                 {/*USERS PANEL*/}
                 <TabPanel value={value} index={2}>
-                    <SyncConfirmationDialog open={resendUserInviteDialogOpen}
-                                            onClose={() => setResendUserInviteDialogOpen(false)}
-                                            message={"Re-invite this user?"}
-                                            title={"Resend Invite"}
-                                            confirmButtonName={"Send"}
-                                            onConfirm={() => {
-                                                //TODO: Use error dialogs
-                                                reInviteUser(userId).then(() => {
-                                                    setUserId("")
-                                                    setResendUserInviteDialogOpen(false);
-                                                })
-                                            }}/>
-                    <Box sx={{width: "75%", mx: 'auto'}}>
-                        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
-                            <Typography variant="h6" fontWeight={700}>Users</Typography>
-                            <Button variant="contained" onClick={handleClickOpen}>
-                                Invite User
-                            </Button>
-                        </Box>
-                        <TableContainer component={Paper} elevation={1}>
-                            <Table aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="left">First Name</TableCell>
-                                        <TableCell align="right">Last Name</TableCell>
-                                        <TableCell align="right">Email</TableCell>
-                                        <TableCell align="center">Card Number</TableCell>
-                                        <TableCell align="right">Role</TableCell>
-                                        <TableCell align="center">Status</TableCell>
-                                        <TableCell align="center">Accounts</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {activeUsers.concat(pendingUsers).map((user) => (
-                                        <TableRow key={user.id} hover>
-                                            <TableCell align="left">{user.first_name}</TableCell>
-                                            <TableCell align="right">{user.last_name}</TableCell>
-                                            <TableCell align="right">{user.email}</TableCell>
-                                            <TableCell align="center">{user.card_number}</TableCell>
-                                            <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
-                                            <TableCell
-                                                align="center"
-                                            >{pendingUsers.map((user) => user.id).includes(user.id) ? (
-                                                <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5}}>
-                                                    <Chip label="Pending" size="small" color="warning" variant="outlined"/>
-                                                    <Tooltip title="Resend invite">
-                                                        <IconButton onClick={() => {
-                                                            setUserId(user.id)
-                                                            setResendUserInviteDialogOpen(true)
-                                                        }} size="small"><MailOutline fontSize="small"/></IconButton>
-                                                    </Tooltip>
-                                                </Box>) : <Chip label="Active" size="small" color="success" variant="outlined"/>}</TableCell>
-                                            <TableCell align="center">
-                                                {user.role > 1 ?
-                                                    <IconButton disabled={true}>
-                                                        <EditIcon fontSize="small"/>
-                                                    </IconButton>
-                                                    :
-                                                    <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
-                                                        <EditIcon fontSize="small"/>
-                                                    </IconButton>
-                                                }
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Box>
-
-
-                    {/*Invite Users Dialog*/}
-                    <Dialog
-                        open={open}
-                        onClose={handleClose}
-                        PaperProps={{
-                            component: 'form',
-                            onSubmit: onUserInviteSubmit,
-                        }}
-                    >
-                        <DialogTitle color="primary">Enter User Information</DialogTitle>
-                        <DialogContent>
-                            <TextField
-                                color="primary"
-                                required
-                                margin="dense"
-                                label="First Name"
-                                name="first_name"
-                                id="first_name"
-                                fullWidth
-                                variant="standard"
-                            />
-                            <TextField
-                                required
-                                color="primary"
-                                margin="dense"
-                                label="Last Name"
-                                name="last_name"
-                                id="last_name"
-                                fullWidth
-                                variant="standard"
-                            />
-                            <TextField
-                                color="primary"
-                                required
-                                margin="dense"
-                                label="Email"
-                                name="email"
-                                id="email"
-                                fullWidth
-                                variant="standard"
-                            />
-                            <TextField
-                                color="primary"
-                                required
-                                margin="dense"
-                                label="Card Number"
-                                name="card_number"
-                                id="card_number"
-                                fullWidth
-                                variant="standard"
-                            />
-                            <FormControlLabel
-                                control={<Checkbox sx={{
-                                    "&, & + .MuiFormControlLabel-label": {
-                                        color: "secondary.main"
-                                    }
-                                }} color="secondary" checked={inviteUserAdmin}
-                                                   onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
-                                label="Admin"
-                                name="is_admin"
-                                id="is_admin"
-                            />
-                        </DialogContent>
-                        {/*{exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}*/}
-                        <DialogActions>
-                            <Button onClick={handleClose}>Cancel</Button>
-                            <Button type="submit" variant="contained" color="secondary">Invite User</Button>
-                        </DialogActions>
-                    </Dialog>
-
-
-                    {/*User Accounts Checkbox Dialog*/}
-                    <Dialog
-                        open={openCheckboxDialog}
-                        onClose={handleCloseCheckboxDialog}
-                        PaperProps={{
-                            component: 'form',
-                        }}
-                    >
-                        <DialogTitle color="primary">Edit User Accounts</DialogTitle>
-                        <DialogContent>
-                            <List dense sx={{minWidth: 300, maxWidth: 800, height: '65vh'}}>
-                                {accounts.map((account) => (
-                                    <ListItem key={account.id}>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox sx={{
-                                                    "&, & + .MuiFormControlLabel-label": {
-                                                        color: "secondary.main"
-                                                    }
-                                                }} color="secondary"
-                                                          checked={userAccounts.map(a => a.id).includes(account.id)}
-                                                          onChange={(evt) => onAccountCheckboxClick(evt.target.checked, account.id, checkboxDialogUserId)}/>
-                                            }
-                                            label={<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
-                                            name="is_admin"
-                                            id="is_admin"
-                                        />
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleCloseCheckboxDialog}>Close</Button>
-                        </DialogActions>
-                    </Dialog>
-
+                    <UsersPanel/>
                 </TabPanel>
 
                 {/*PLAID PANEL*/}
                 <TabPanel value={value} index={3}>
-                    <Paper elevation={1} sx={{width: "75%", maxWidth: 600, mx: 'auto', p: 3}}>
-                        <Typography variant="h6" fontWeight={700} sx={{mb: 0.5}}>Plaid Link</Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{mb: 3}}>
-                            Connect or reauthorize the card account used to sync transactions.
-                        </Typography>
-                        <Box sx={{display: 'flex', gap: 2}}>
-                            <Link repair={false}/>
-                            <Link repair={true}/>
-                        </Box>
-                    </Paper>
+                    <PlaidPanel/>
                 </TabPanel>
             </Box>
         </Box>

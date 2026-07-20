@@ -6,10 +6,6 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     Table,
     TableBody,
     TableCell,
@@ -25,7 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppDispatch, useAppSelector} from "../redux/store";
 import {fetchVendorList, selectVendors} from "../redux/clientSlice";
 import {addVendor, addVendorAlias, deleteVendor, deleteVendorAlias} from "../Backend";
-import {Add, PlusOne} from "@mui/icons-material";
+import {Add} from "@mui/icons-material";
 import Box from "@mui/material/Box"; // Adapt these imports to your project structure
 
 
@@ -177,12 +173,11 @@ const ErrorDialog: React.FC<{
     </Dialog>
 );
 
-const Vendors: React.FC = () => {
+const VendorsPanel: React.FC = () => {
     const vendors = useAppSelector(selectVendors);
     const [addAliasDialogOpen, setAddAliasDialogOpen] = useState(false);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-    const [confirmDialogAction, setConfirmDialogAction] = useState<() => void>(() => () => {
-    });
+    const [confirmDialogAction, setConfirmDialogAction] = useState<() => void>(() => () => {});
     const [errorDialogOpen, setErrorDialogOpen] = useState<boolean>(false)
     const dispatch = useAppDispatch()
     const [addVendorDialogOpen, setAddVendorDialogOpen] = useState(false);
@@ -291,5 +286,4 @@ const Vendors: React.FC = () => {
     );
 };
 
-export default Vendors;
-
+export default VendorsPanel;
