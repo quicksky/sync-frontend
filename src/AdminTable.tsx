@@ -266,6 +266,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
             MuiTextField: {
                 defaultProps: {
                     size: "small",
+                    color: "secondary",
                 }
             }
         }
