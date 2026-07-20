@@ -19,7 +19,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, FormControl, ListItemIcon, Select, SelectChangeEvent,
+    DialogTitle, FormControl, InputLabel, ListItemIcon, Select, SelectChangeEvent,
     TextField
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "./redux/store";
@@ -42,7 +42,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     const user = useAppSelector(selectUser)
     const isAdmin = useAppSelector(selectIsAdmin)
     const dispatch = useAppDispatch()
-    const isMobile = useMediaQuery({maxWidth: 500})
+    const isMobile = useMediaQuery({maxWidth: 600})
     const users = useAppSelector(selectActiveUsers)
     const [exportCardNumber, setExportCardNumber] = useState<string | undefined>("")
 
@@ -210,38 +210,35 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                             }}
                         >
                             <DialogTitle>Export Transactions to Excel</DialogTitle>
-                            <DialogContent>
+                            <DialogContent sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                                minWidth: {xs: 280, sm: 360},
+                            }}>
                                 <DialogContentText>
                                     Enter date range
                                 </DialogContentText>
-                                {/*<TextField*/}
-                                {/*    autoFocus*/}
-                                {/*    required*/}
-                                {/*    margin="dense"*/}
-                                {/*    label="Start Date"*/}
-                                {/*    name="start_date"*/}
-                                {/*    id="start_date"*/}
-                                {/*    fullWidth*/}
-                                {/*    variant="standard"*/}
-                                {/*/>*/}
-                                <DatePicker
-                                    label="Start Date"
-                                    name="start_date"
-                                    format={"YYYY-MM-DD"}
-                                ></DatePicker>
+                                <Box sx={{display: 'flex', gap: 2}}>
+                                    <DatePicker
+                                        label="Start Date"
+                                        name="start_date"
+                                        format={"YYYY-MM-DD"}
+                                        sx={{flex: 1}}
+                                    />
+                                    <DatePicker
+                                        label="End Date"
+                                        name="end_date"
+                                        format={"YYYY-MM-DD"}
+                                        sx={{flex: 1}}
+                                    />
+                                </Box>
 
-                                <DatePicker
-                                    sx={{ml: 2}}
-                                    label="End Date"
-                                    name="end_date"
-                                    format={"YYYY-MM-DD"}></DatePicker>
-
-                                <FormControl sx={{maxWidth: "40%", minWidth: "40%"}} focused color="primary"
-                                             variant="outlined"
-                                             margin="normal">
+                                <FormControl fullWidth color="primary" variant="outlined">
+                                    <InputLabel id="label-for-account">Account</InputLabel>
                                     <Select
-                                        sx={{maxWidth: "75%", minWidth: "75%"}}
                                         labelId="label-for-account"
+                                        label="Account"
                                         defaultValue={""}
                                         onChange={(e: SelectChangeEvent<string | undefined>) => setExportCardNumber(e.target.value)}>
                                         <MenuItem key={-1} value={undefined}>{"<none>"}</MenuItem>
@@ -268,11 +265,11 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                         </IconButton>
                     </Tooltip>
                     <Menu
-                        sx={{mt: '45px'}}
+                        sx={{mt: 1}}
                         id="menu-appbar"
                         anchorEl={anchorElUser}
                         anchorOrigin={{
-                            vertical: 'top',
+                            vertical: 'bottom',
                             horizontal: 'right',
                         }}
                         keepMounted

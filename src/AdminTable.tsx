@@ -244,7 +244,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const dispatch = useAppDispatch();
     const [page, setPage] = useState(0);
     const rowsPerPage = 50;
-    const isMobile = useMediaQuery({maxWidth: 500})
+    const isMobile = useMediaQuery({maxWidth: 600})
     const [activeTransactionId, setActiveTransactionId] = useState<string>("");
     const [editingStates, setEditingStates] = useState<Record<string, {accountId: number | null, memo: string | null}>>({});
     const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
@@ -514,12 +514,18 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                 }} onSave={onFileUpload}/>
                     <Paper
                         elevation={1}
-                        sx={{
+                        sx={isMobile ? {
+                            p: 1.5,
+                            mt: 2.5,
+                            mb: 2.5,
+                            overflowX: 'auto',
+                            width: '100%',
+                        } : {
                             p: 3,
                             mt: 3,
                             mb: 3,
                             overflowX: 'auto',
-                            width: '80%'
+                            width: '80%',
                         }}>
                         <Box sx={{mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0}}>
                             <TextField

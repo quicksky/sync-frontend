@@ -59,7 +59,7 @@ const AddAliasDialog: React.FC<AddAliasDialogProps> = ({open, onClose, vendorId,
                 <FormControlLabel
                     control={<Checkbox sx={{
                         "&, & + .MuiFormControlLabel-label": {
-                            color: "secondary.main"
+                            color: "primary.main"
                         }
                     }} color="secondary" checked={startsWith}
                                        onChange={(evt) => setStartsWith(evt.target.checked)}/>}
@@ -210,7 +210,7 @@ const Vendors: React.FC = () => {
 
     return (
         <>
-            <Box sx={{width: "90%", maxWidth: 1100, mx: 'auto'}}>
+            <Box sx={{width: "65%", mx: 'auto'}}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
                     <Typography variant="h6" fontWeight={700}>Vendors</Typography>
                     <Button variant="contained" color="primary" onClick={() => setAddVendorDialogOpen(true)}>
@@ -224,7 +224,7 @@ const Vendors: React.FC = () => {
                             <TableRow>
                                 <TableCell>Vendor Name</TableCell>
                                 <TableCell>Aliases</TableCell>
-                                <TableCell align="right">Actions</TableCell>
+                                <TableCell align="center">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -233,16 +233,16 @@ const Vendors: React.FC = () => {
                                     <TableCell>{vendor.vendor_name}</TableCell>
                                     <TableCell>
                                         {vendor.aliases.map((alias, index) => (
-                                            <div key={index} style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                                                <Typography variant="body2">{alias.starts_with ? "(starts with)* " + alias.vendor_alias : alias.vendor_alias}</Typography>
+                                            <div key={index} style={{display: 'flex', alignItems: 'center'}}>
                                                 <IconButton size="small"
                                                     onClick={() => openConfirmDialog(() => handleDeleteAlias(vendor.id, alias.vendor_alias), "Confirm Delete", `Are you sure you want to delete alias "${alias.vendor_alias}"?`)}>
                                                     <DeleteIcon fontSize="small"/>
                                                 </IconButton>
+                                                <Typography variant="body2">{alias.starts_with ? "(starts with)* " + alias.vendor_alias : alias.vendor_alias}</Typography>
                                             </div>
                                         ))}
                                     </TableCell>
-                                    <TableCell align="right">
+                                    <TableCell align="center">
                                         <Tooltip title="Add alias">
                                             <IconButton
                                                 onClick={() => handleOpenAddAliasDialog(vendor.id)}><Add fontSize="small"/></IconButton>
@@ -265,7 +265,6 @@ const Vendors: React.FC = () => {
                     open={addAliasDialogOpen}
                     onClose={() => {
                         setAddAliasDialogOpen(false)
-
                     }}
                     vendorId={currentVendorId}
                     setErrorDialog={setErrorDialogOpen}

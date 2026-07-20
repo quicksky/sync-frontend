@@ -238,22 +238,21 @@ const SettingsPage: React.FC = () => {
                     sx={{
                         px: 1.5,
                         "& .MuiTab-root": {
-                            alignItems: 'flex-start',
+                            alignItems: 'center',
                             justifyContent: 'flex-start',
                             textAlign: 'left',
                             minHeight: 44,
                             borderRadius: 2,
                             mb: 0.5,
                             pl: 1.5,
-                            borderLeft: '3px solid transparent',
                             color: 'text.secondary',
                             fontWeight: 600,
                         },
                         "& .MuiTab-iconWrapper": {marginRight: 1.5},
                         "& .Mui-selected": {
-                            backgroundColor: 'rgba(21, 42, 74, 0.06)',
+                            backgroundColor: 'secondary.light',
                             color: 'primary.main',
-                            borderLeftColor: 'secondary.dark',
+                            fontWeight: 700,
                         },
                     }}
                 >
@@ -271,7 +270,7 @@ const SettingsPage: React.FC = () => {
 
                 {/*ACCOUNT PANEL*/}
                 <TabPanel value={value} index={0}>
-                    <Box sx={{width: "75%", maxWidth: 900, mx: 'auto'}}>
+                    <Box sx={{width: "65%", mx: 'auto'}}>
                         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
                             <Typography variant="h6" fontWeight={700}>Available Accounts</Typography>
                             <Button variant="contained" color="primary" startIcon={<AddIcon/>}
@@ -294,7 +293,7 @@ const SettingsPage: React.FC = () => {
                                         margin="dense"
                                         label="Enter account names"
                                         multiline
-                                        rows={4}
+                                        rows={3}
                                         fullWidth
                                     />
                                 </DialogContent>
@@ -357,7 +356,7 @@ const SettingsPage: React.FC = () => {
                                                     setResendUserInviteDialogOpen(false);
                                                 })
                                             }}/>
-                    <Box sx={{width: "90%", maxWidth: 1100, mx: 'auto'}}>
+                    <Box sx={{width: "75%", mx: 'auto'}}>
                         <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
                             <Typography variant="h6" fontWeight={700}>Users</Typography>
                             <Button variant="contained" onClick={handleClickOpen}>
@@ -371,7 +370,7 @@ const SettingsPage: React.FC = () => {
                                         <TableCell align="left">First Name</TableCell>
                                         <TableCell align="right">Last Name</TableCell>
                                         <TableCell align="right">Email</TableCell>
-                                        <TableCell align="right">Card Number</TableCell>
+                                        <TableCell align="center">Card Number</TableCell>
                                         <TableCell align="right">Role</TableCell>
                                         <TableCell align="center">Status</TableCell>
                                         <TableCell align="center">Accounts</TableCell>
@@ -380,12 +379,10 @@ const SettingsPage: React.FC = () => {
                                 <TableBody>
                                     {activeUsers.concat(pendingUsers).map((user) => (
                                         <TableRow key={user.id} hover>
-                                            <TableCell component="th" scope="row">
-                                                {user.first_name}
-                                            </TableCell>
+                                            <TableCell align="left">{user.first_name}</TableCell>
                                             <TableCell align="right">{user.last_name}</TableCell>
                                             <TableCell align="right">{user.email}</TableCell>
-                                            <TableCell align="right">{user.card_number}</TableCell>
+                                            <TableCell align="center">{user.card_number}</TableCell>
                                             <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
                                             <TableCell
                                                 align="center"

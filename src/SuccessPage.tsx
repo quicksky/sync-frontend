@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {
     Box,
-    CircularProgress,
 } from '@mui/material';
 
 import TransactionList from "./TransactionList";
+import SyncLoadingSpinner from "./components/SyncLoadingSpinner";
 import MainAppBar from "./MainAppBar";
 import {useAppDispatch, useAppSelector} from "./redux/store";
 import {fetchClientAccounts, fetchOwnAccounts, selectClientAccounts, selectOwnAccounts} from "./redux/accountSlice";
@@ -59,7 +59,7 @@ const SuccessPage: React.FC = () => {
             <MainAppBar adminViewState={adminViewState}/>
 
             {isLoading ? (
-                    <CircularProgress/>
+                    <SyncLoadingSpinner/>
                 ) :
                 adminViewState[0] ? (
                         <AdminTable transactions={adminTransactions} accounts={adminAccounts} count={adminCount}/>) :

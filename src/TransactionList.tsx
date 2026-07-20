@@ -85,7 +85,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     const [receiptUrl, setReceiptUrl] = useState<string>("");
     const [receiptIsPDF, setReceiptIsPDF] = useState<boolean>(false);
     const uploadReceiptInput = useRef<HTMLInputElement>(null);
-    const isMobile = useMediaQuery({maxWidth: 500})
+    const isMobile = useMediaQuery({maxWidth: 600})
     const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false)
     const [dataSaveLock, setDataSaveLock] = useState<boolean>(false)
     const fontSize: number = isMobile ? 13 : 14
@@ -277,7 +277,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             overflowX: 'auto',
                             width: '100%'
                         } :
-                        {p: 3, mt: 3, mb: 3, overflowX: 'auto', width: '45%', minWidth: 560}}>
+                        {p: 3, mt: 3, mb: 3, overflowX: 'auto', width: '39.17%'}}>
                         {isMobile ? undefined :
                             <Typography variant="h6" fontWeight={700} sx={{mb: 2.5}}>
                                 Transaction History
@@ -290,16 +290,21 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                             marginRight: '0px',
                                             paddingLeft: '5px',
                                             paddingRight: '0px'
-                                        }}
-                                                   align="center">Status</TableCell>
-                                        <TableCell sx={isMobile ? {} :
-                                            {marginX: '0px', paddingX: '10px'}}>Date</TableCell>
-                                        <TableCell sx={{
+                                        }} align="center">Status</TableCell>
+                                        <TableCell sx={
+                                            isMobile ? {} : {
                                             marginX: '0px',
                                             paddingX: '0px'
+                                        }}>Date</TableCell>
+                                        <TableCell sx={
+                                            isMobile ? {} : {
+                                            marginX: '0px',
+                                            paddingX: '5px'
                                         }}>Description</TableCell>
-                                        <TableCell sx={{marginLeft: '0px', paddingLeft: '0px'}}
-                                                   align="right">Amount</TableCell>
+                                        <TableCell sx={{
+                                            marginLeft: '0px',
+                                            paddingLeft: '0px'
+                                        }} align="right">Amount</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -320,35 +325,40 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
                                                         <CheckCircle sx={{color: 'success.main'}} fontSize="small"/> :
                                                         <RadioButtonUnchecked sx={{color: 'text.disabled'}} fontSize="small"/>}</TableCell>
-                                                    <TableCell
-                                                        sx={isMobile ? {
-                                                                marginRight: '0px',
-                                                                paddingRight: '0px',
-                                                                width: '20%'
-                                                            } :
-                                                            {
-                                                                marginX: '0px',
-                                                                paddingX: '5px',
-                                                                width: '15%'
-                                                            }}><Typography
-                                                        fontSize={fontSize}>{dateString}</Typography></TableCell>
-                                                    <TableCell
-                                                        sx={isMobile ? {marginX: '0px', paddingX: '0px', width: '55%'} :
-                                                            {
-                                                                marginX: '0px',
-                                                                paddingX: '0px',
-                                                                width: '60%'
-                                                            }}><Typography
-                                                        fontSize={fontSize}>{transaction.name}</Typography></TableCell>
-                                                    <TableCell
-                                                        sx={isMobile ? {
-                                                                marginLeft: '0px',
-                                                                paddingLeft: '0px',
-                                                                width: '15%'
-                                                            } :
-                                                            {marginLeft: '0px', paddingLeft: '0px', width: '15%'}}
-                                                        align="right"><Typography
-                                                        fontSize={fontSize}>{formatUSD(transaction.amount)}</Typography></TableCell>
+                                                    <TableCell sx={
+                                                        isMobile ? {
+                                                            marginRight: '0px',
+                                                            paddingRight: '0px',
+                                                            width: '20%'
+                                                        } :
+                                                        {
+                                                            marginX: '0px',
+                                                            paddingX: '5px',
+                                                            width: '15%'
+                                                        }}><Typography fontSize={fontSize}>{dateString}</Typography></TableCell>
+                                                    <TableCell sx={
+                                                        isMobile ? {
+                                                            marginX: '0px',
+                                                            paddingX: '0px',
+                                                            width: '55%'
+                                                        } :
+                                                        {
+                                                            marginX: '0px',
+                                                            paddingX: '5px',
+                                                            width: '60%'
+                                                        }}><Typography fontSize={fontSize}>{transaction.name}</Typography></TableCell>
+                                                    <TableCell sx={
+                                                        isMobile ? {
+                                                            marginLeft: '0px',
+                                                            paddingLeft: '0px',
+                                                            width: '15%'
+                                                        } :
+                                                        {
+                                                            marginLeft: '0px',
+                                                            paddingLeft: '0px',
+                                                            width: '15%'
+                                                        }} align="right">
+                                                        <Typography fontSize={fontSize}>{formatUSD(transaction.amount)}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
@@ -395,37 +405,84 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     fullWidth margin="normal"
                                                                     onChange={(e) => setMemo(e.target.value)}/>
 
-                                                                <Grid container>
-                                                                    <Grid item>
-                                                                        <Button variant="contained" component="label"
-                                                                                color="primary"
-                                                                                size={isMobile ? "small" : undefined}>
-                                                                            Upload Receipt
-                                                                            <input type="file" hidden
-                                                                                   onChange={handleFileChange}/>
-                                                                        </Button>
-                                                                    </Grid>
-                                                                    {isMobile ?
-                                                                        <Grid item xs>
-                                                                            <Grid container direction="row-reverse">
+                                                                {isMobile ? (
+                                                                    <>
+                                                                        <Grid container justifyContent="space-between"
+                                                                              alignItems="center">
+                                                                            <Grid item>
+                                                                                <Button variant="contained"
+                                                                                        component="label"
+                                                                                        color="primary" size="small">
+                                                                                    Upload Receipt
+                                                                                    <input type="file" hidden
+                                                                                           onChange={handleFileChange}/>
+                                                                                </Button>
+                                                                            </Grid>
+                                                                            <Grid item>
                                                                                 {receiptUrl.length ? (
-                                                                                    <><Button sx={{ml: 2}} size="small"
-                                                                                              variant="contained"
-                                                                                              color="primary"
-                                                                                              onClick={openReceipt}>
+                                                                                    <Button size="small"
+                                                                                            variant="contained"
+                                                                                            color="primary"
+                                                                                            onClick={openReceipt}>
                                                                                         View Receipt
                                                                                     </Button>
-                                                                                        {<Tooltip
-                                                                                            title={"Delete Receipt"}>
-                                                                                            <IconButton
-                                                                                                color="error"
-                                                                                                sx={{ml: 2}}
-                                                                                                onClick={() => setConfirmDialogOpen(true)}>
-                                                                                                <Delete></Delete>
-                                                                                            </IconButton></Tooltip>}</>) : undefined}
+                                                                                ) : (
+                                                                                    dataSaveLock ?
+                                                                                        <CircularProgress
+                                                                                            color={"primary"}/>
+                                                                                        :
+                                                                                        <Button
+                                                                                            size="small"
+                                                                                            variant="contained"
+                                                                                            color="secondary"
+                                                                                            onClick={() => handleSave(transaction)}>
+                                                                                            Save
+                                                                                        </Button>
+                                                                                )}
                                                                             </Grid>
                                                                         </Grid>
-                                                                        :
+                                                                        {receiptUrl.length ? (
+                                                                            <Grid container
+                                                                                  justifyContent="space-between"
+                                                                                  alignItems="center" sx={{mt: 1}}>
+                                                                                <Grid item>
+                                                                                    <Tooltip title={"Delete Receipt"}>
+                                                                                        <IconButton
+                                                                                            color="error"
+                                                                                            size="small"
+                                                                                            onClick={() => setConfirmDialogOpen(true)}>
+                                                                                            <Delete
+                                                                                                fontSize="small"></Delete>
+                                                                                        </IconButton></Tooltip>
+                                                                                </Grid>
+                                                                                <Grid item>
+                                                                                    {dataSaveLock ?
+                                                                                        <CircularProgress
+                                                                                            color={"primary"}/>
+                                                                                        :
+                                                                                        <Button
+                                                                                            size="small"
+                                                                                            variant="contained"
+                                                                                            color="secondary"
+                                                                                            onClick={() => handleSave(transaction)}>
+                                                                                            Save
+                                                                                        </Button>
+                                                                                    }
+                                                                                </Grid>
+                                                                            </Grid>
+                                                                        ) : undefined}
+                                                                    </>
+                                                                ) : (
+                                                                    <Grid container>
+                                                                        <Grid item>
+                                                                            <Button variant="contained"
+                                                                                    component="label"
+                                                                                    color="primary">
+                                                                                Upload Receipt
+                                                                                <input type="file" hidden
+                                                                                       onChange={handleFileChange}/>
+                                                                            </Button>
+                                                                        </Grid>
                                                                         <Grid item>
                                                                             {receiptUrl.length ? (
                                                                                 <><Button sx={{ml: 2}}
@@ -440,24 +497,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                                     onClick={() => setConfirmDialogOpen(true)}>
                                                                                             <Delete></Delete>
                                                                                         </IconButton></Tooltip>}</>) : undefined}
-                                                                        </Grid>}
-                                                                    {/*not good */}
-                                                                    {isMobile ?
-                                                                        <Grid container justifyContent="right"
-                                                                              sx={{marginTop: '5px'}}>
-                                                                            {dataSaveLock ?
-                                                                                <CircularProgress color={"primary"}/>
-                                                                                :
-                                                                                <Button
-                                                                                    size={isMobile ? "small" : undefined}
-                                                                                    variant="contained"
-                                                                                    color="secondary"
-                                                                                    onClick={() => handleSave(transaction)}>
-                                                                                    Save
-                                                                                </Button>
-                                                                            }
                                                                         </Grid>
-                                                                        :
                                                                         <Grid item xs>
                                                                             <Grid container direction="row-reverse">
                                                                                 {dataSaveLock ?
@@ -471,8 +511,9 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                     </Button>
                                                                                 }
                                                                             </Grid>
-                                                                        </Grid>}
-                                                                </Grid>
+                                                                        </Grid>
+                                                                    </Grid>
+                                                                )}
                                                                 <Grid sx={{marginTop: '2px'}}>
                                                                     {file ? (
                                                                         <Typography>
