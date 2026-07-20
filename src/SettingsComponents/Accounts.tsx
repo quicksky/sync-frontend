@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {
     Button,
     Dialog,
@@ -8,7 +8,6 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
     TextField,
@@ -34,6 +33,15 @@ const AccountsPanel: React.FC = () => {
     const [addAccountText, setAddAccountText] = useState("")
     const accounts = useAppSelector(selectClientAccounts)
     const dispatch = useAppDispatch()
+    const tableBodyRef = useRef<HTMLDivElement>(null)
+    const [scrollbarWidth, setScrollbarWidth] = useState(0)
+
+    useLayoutEffect(() => {
+        const el = tableBodyRef.current
+        if (el) {
+            setScrollbarWidth(el.offsetWidth - el.clientWidth)
+        }
+    }, [accounts])
 
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {
@@ -68,6 +76,8 @@ const AccountsPanel: React.FC = () => {
                     <Dialog
                         open={open}
                         onClose={handleClose}
+                        fullWidth
+                        maxWidth="sm"
                         PaperProps={{
                             component: 'form',
                         }}
@@ -81,7 +91,7 @@ const AccountsPanel: React.FC = () => {
                                 margin="dense"
                                 label="Enter account names"
                                 multiline
-                                rows={3}
+                                rows={4}
                                 fullWidth
                             />
                         </DialogContent>
@@ -92,31 +102,35 @@ const AccountsPanel: React.FC = () => {
                         </DialogActions>
                     </Dialog>
                 </Box>
-                <TableContainer component={Paper} elevation={1} sx={{maxHeight: '75vh'}}>
-                    <Table aria-label="simple table" stickyHeader>
+                <Paper elevation={1}>
+                    <Table aria-label="simple table" sx={{tableLayout: 'fixed'}}>
                         <TableHead>
                             <TableRow>
                                 <TableCell align="left" width="90%">Name</TableCell>
-                                <TableCell align="right" width="10%"/>
+                                <TableCell align="right" width="10%" sx={{paddingRight: `${scrollbarWidth}px`}}/>
                             </TableRow>
                         </TableHead>
-                        <TableBody>
-                            {accounts.map((account) => (
-                                <TableRow key={account.id} hover>
-                                    <TableCell align="left" width="90%">
-                                        {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
-                                    </TableCell>
-                                    <TableCell align="right" width="10%">
-                                        <IconButton onClick={() => handleDelete(account.id)}
-                                                    aria-label="delete" color="error">
-                                            <RemoveIcon fontSize="small"/>
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
                     </Table>
-                </TableContainer>
+                    <Box ref={tableBodyRef} sx={{maxHeight: '75vh', overflowY: 'auto'}}>
+                        <Table aria-label="simple table" sx={{tableLayout: 'fixed'}}>
+                            <TableBody>
+                                {accounts.map((account) => (
+                                    <TableRow key={account.id} hover>
+                                        <TableCell align="left" width="90%">
+                                            {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
+                                        </TableCell>
+                                        <TableCell align="right" width="10%">
+                                            <IconButton onClick={() => handleDelete(account.id)}
+                                                        aria-label="delete" color="error">
+                                                <RemoveIcon fontSize="small"/>
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Box>
+                </Paper>
             </Box>
         </>
     );
