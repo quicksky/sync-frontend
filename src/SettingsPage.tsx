@@ -33,20 +33,19 @@ import {
     revokeAccount
 } from "./Backend";
 import {
-    Button, Checkbox, CssBaseline,
+    Button, Checkbox, Chip,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle, Drawer, FormControlLabel, List, ListItem,
+    DialogTitle, Drawer, FormControlLabel, List, ListItem, Tooltip,
     TableContainer,
     TextField,
     Typography
 } from "@mui/material";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import AppBar from "@mui/material/AppBar";
 import {useLocation, useNavigate} from "react-router-dom";
-import {ArrowBack, MailOutline} from "@mui/icons-material";
+import {AccountBalance, ArrowBack, MailOutline, People, Storefront, Link as LinkIcon} from "@mui/icons-material";
 import Vendors from "./SettingsComponents/Vendors";
 import Exports from "./SettingsComponents/Exports";
 import {SyncConfirmationDialog} from './components/SyncConfirmationDialog';
@@ -210,12 +209,6 @@ const SettingsPage: React.FC = () => {
 
     return (
         <Box sx={{display: 'flex'}}>
-            <CssBaseline/>
-            <AppBar
-                position="fixed"
-                sx={{width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`}}
-            >
-            </AppBar>
             <Drawer
                 sx={{
                     width: drawerWidth,
@@ -224,31 +217,50 @@ const SettingsPage: React.FC = () => {
                         width: drawerWidth,
                         boxSizing: 'border-box',
                         overflowX: 'hidden',
+                        backgroundColor: 'background.paper',
                     },
                 }}
                 variant="permanent"
                 anchor="left"
             >
-                {/*<Toolbar />*/}
-                {/*<Divider />*/}
-                <IconButton onClick={() => navigate("/home")}><ArrowBack/></IconButton>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 2.5}}>
+                    <IconButton onClick={() => navigate("/home")} size="small">
+                        <ArrowBack fontSize="small"/>
+                    </IconButton>
+                    <Typography variant="subtitle1" fontWeight={700}>Settings</Typography>
+                </Box>
 
                 <Tabs
-                    textColor="primary"
-                    indicatorColor="primary"
                     orientation="vertical"
                     value={value}
                     onChange={handleChange}
+                    TabIndicatorProps={{sx: {display: 'none'}}}
                     sx={{
-                        width: drawerWidth,
-                        "& button.Mui-selected": {backgroundColor: "secondary.main"},
+                        px: 1.5,
+                        "& .MuiTab-root": {
+                            alignItems: 'flex-start',
+                            justifyContent: 'flex-start',
+                            textAlign: 'left',
+                            minHeight: 44,
+                            borderRadius: 2,
+                            mb: 0.5,
+                            pl: 1.5,
+                            borderLeft: '3px solid transparent',
+                            color: 'text.secondary',
+                            fontWeight: 600,
+                        },
+                        "& .MuiTab-iconWrapper": {marginRight: 1.5},
+                        "& .Mui-selected": {
+                            backgroundColor: 'rgba(21, 42, 74, 0.06)',
+                            color: 'primary.main',
+                            borderLeftColor: 'secondary.main',
+                        },
                     }}
                 >
-                    <Tab label="Accounts"/>
-                    <Tab label="Vendors"/>
-                    {/*<Tab label="Exports"/>*/}
-                    <Tab label="Users"/>
-                    <Tab label="Plaid Link"/>
+                    <Tab icon={<AccountBalance fontSize="small"/>} iconPosition="start" label="Accounts"/>
+                    <Tab icon={<Storefront fontSize="small"/>} iconPosition="start" label="Vendors"/>
+                    <Tab icon={<People fontSize="small"/>} iconPosition="start" label="Users"/>
+                    <Tab icon={<LinkIcon fontSize="small"/>} iconPosition="start" label="Plaid Link"/>
                 </Tabs>
 
             </Drawer>
@@ -259,73 +271,66 @@ const SettingsPage: React.FC = () => {
 
                 {/*ACCOUNT PANEL*/}
                 <TabPanel value={value} index={0}>
-                    <TableContainer component={Paper}
-                                    sx={{width: "50%", justifyContent: 'center', mx: 'auto', height: '85vh'}}>
-                        <Table sx={{
-                            width: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            mx: 'auto'
-                        }} aria-label="simple table">
-                            <TableHead>
-                                <TableRow sx={{borderBottom: '2px solid'}}>
-                                    <TableCell align="left" width="90%" sx={{fontWeight: 'bold'}}>Available
-                                        Accounts</TableCell>
-                                    <TableCell align="right" width="10%">
-                                        <IconButton aria-label="add" size="large" color="success"
-                                                    onClick={handleClickOpen}>
-                                            <AddIcon fontSize="inherit"/>
-                                        </IconButton>
-                                        <Dialog
-                                            open={open}
-                                            onClose={handleClose}
-                                            PaperProps={{
-                                                component: 'form',
-                                            }}
-                                        >
-                                            <DialogTitle color="secondary">Add Accounts</DialogTitle>
-                                            <DialogContent>
-                                                <TextField
-                                                    onChange={(e) => setAddAccountText(e.target.value)}
-                                                    color="secondary"
-                                                    focused
-                                                    required
-                                                    margin="dense"
-                                                    label="Enter account names"
-                                                    multiline
-                                                    rows={4}
-                                                />
-                                            </DialogContent>
-                                            <DialogActions>
-                                                <Button onClick={handleClose} color="secondary">Cancel</Button>
-                                                <Button onClick={handleAddAccounts} variant="contained"
-                                                        color="secondary">Add</Button>
-                                            </DialogActions>
-                                        </Dialog>
-                                    </TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {accounts.map((account) => (
-                                    <TableRow
-                                        key={account.id}
-                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                                    >
-                                        <TableCell align="left" width="90%">
-                                            {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
-                                        </TableCell>
-                                        <TableCell align="right" width="10%">
-                                            <IconButton onClick={() => handleDelete(account.id)} aria-label="delete"
-                                                        size="large" color="error">
-                                                <RemoveIcon fontSize="inherit"/>
-                                            </IconButton>
-                                        </TableCell>
+                    <Box sx={{width: "75%", maxWidth: 900, mx: 'auto'}}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
+                            <Typography variant="h6" fontWeight={700}>Available Accounts</Typography>
+                            <Button variant="contained" color="primary" startIcon={<AddIcon/>}
+                                    onClick={handleClickOpen}>
+                                Add Accounts
+                            </Button>
+                            <Dialog
+                                open={open}
+                                onClose={handleClose}
+                                PaperProps={{
+                                    component: 'form',
+                                }}
+                            >
+                                <DialogTitle color="secondary">Add Accounts</DialogTitle>
+                                <DialogContent>
+                                    <TextField
+                                        onChange={(e) => setAddAccountText(e.target.value)}
+                                        color="secondary"
+                                        required
+                                        margin="dense"
+                                        label="Enter account names"
+                                        multiline
+                                        rows={4}
+                                        fullWidth
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleClose}>Cancel</Button>
+                                    <Button onClick={handleAddAccounts} variant="contained"
+                                            color="secondary">Add</Button>
+                                </DialogActions>
+                            </Dialog>
+                        </Box>
+                        <TableContainer component={Paper} elevation={1} sx={{maxHeight: '75vh'}}>
+                            <Table aria-label="simple table" stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="left" width="90%">Name</TableCell>
+                                        <TableCell align="right" width="10%"/>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </TableHead>
+                                <TableBody>
+                                    {accounts.map((account) => (
+                                        <TableRow key={account.id} hover>
+                                            <TableCell align="left" width="90%">
+                                                {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
+                                            </TableCell>
+                                            <TableCell align="right" width="10%">
+                                                <IconButton onClick={() => handleDelete(account.id)}
+                                                            aria-label="delete" color="error">
+                                                    <RemoveIcon fontSize="small"/>
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
                 </TabPanel>
                 {/*VENDOR PANEL*/}
                 <TabPanel value={value} index={1}>
@@ -352,70 +357,65 @@ const SettingsPage: React.FC = () => {
                                                     setResendUserInviteDialogOpen(false);
                                                 })
                                             }}/>
-                    {/*{activeUsers.map((user) => (*/}
-                    {/*    <Typography>*/}
-                    {/*        {user.first_name}*/}
-                    {/*    </Typography>*/}
-                    {/*))}*/}
-                    <Box display="flex" justifyContent="flex-end">
-                        <Button variant="contained" sx={{mb: 1}} onClick={handleClickOpen}
-                        >
-                            Invite User
-                        </Button>
-                    </Box>
-                    <TableContainer component={Paper}>
-                        <Table sx={{minWidth: 250}} aria-label="simple table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell align="left">First Name</TableCell>
-                                    <TableCell align="right">Last Name</TableCell>
-                                    <TableCell align="right">Email</TableCell>
-                                    <TableCell align="right">Card Number</TableCell>
-                                    <TableCell align="right">Role</TableCell>
-                                    <TableCell align="center">Status</TableCell>
-                                    <TableCell align="center">Accounts</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {activeUsers.concat(pendingUsers).map((user) => (
-                                    <TableRow
-                                        key={user.id}
-                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                                    >
-                                        <TableCell component="th" scope="row">
-                                            {user.first_name}
-                                        </TableCell>
-                                        <TableCell align="right">{user.last_name}</TableCell>
-                                        <TableCell align="right">{user.email}</TableCell>
-                                        <TableCell align="right">{user.card_number}</TableCell>
-                                        <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
-                                        <TableCell
-                                            align="center"
-                                        >{pendingUsers.map((user) => user.id).includes(user.id) ? (
-                                            <>
-                                                <Typography justifySelf={"center"} fontSize={14}
-                                                >Pending</Typography>
-                                                <IconButton onClick={() => {
-                                                    setUserId(user.id)
-                                                    setResendUserInviteDialogOpen(true)
-                                                }} size={'large'}><MailOutline/></IconButton>
-                                            </>) : "Active"}</TableCell>
-                                        <TableCell align="center">
-                                            {user.role > 1 ?
-                                                <IconButton disabled={true}>
-                                                    <EditIcon/>
-                                                </IconButton>
-                                                :
-                                                <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
-                                                    <EditIcon/>
-                                                </IconButton>
-                                            }
-                                        </TableCell>
+                    <Box sx={{width: "90%", maxWidth: 1100, mx: 'auto'}}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
+                            <Typography variant="h6" fontWeight={700}>Users</Typography>
+                            <Button variant="contained" onClick={handleClickOpen}>
+                                Invite User
+                            </Button>
+                        </Box>
+                        <TableContainer component={Paper} elevation={1}>
+                            <Table aria-label="simple table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell align="left">First Name</TableCell>
+                                        <TableCell align="right">Last Name</TableCell>
+                                        <TableCell align="right">Email</TableCell>
+                                        <TableCell align="right">Card Number</TableCell>
+                                        <TableCell align="right">Role</TableCell>
+                                        <TableCell align="center">Status</TableCell>
+                                        <TableCell align="center">Accounts</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </TableHead>
+                                <TableBody>
+                                    {activeUsers.concat(pendingUsers).map((user) => (
+                                        <TableRow key={user.id} hover>
+                                            <TableCell component="th" scope="row">
+                                                {user.first_name}
+                                            </TableCell>
+                                            <TableCell align="right">{user.last_name}</TableCell>
+                                            <TableCell align="right">{user.email}</TableCell>
+                                            <TableCell align="right">{user.card_number}</TableCell>
+                                            <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
+                                            <TableCell
+                                                align="center"
+                                            >{pendingUsers.map((user) => user.id).includes(user.id) ? (
+                                                <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5}}>
+                                                    <Chip label="Pending" size="small" color="warning" variant="outlined"/>
+                                                    <Tooltip title="Resend invite">
+                                                        <IconButton onClick={() => {
+                                                            setUserId(user.id)
+                                                            setResendUserInviteDialogOpen(true)
+                                                        }} size="small"><MailOutline fontSize="small"/></IconButton>
+                                                    </Tooltip>
+                                                </Box>) : <Chip label="Active" size="small" color="success" variant="outlined"/>}</TableCell>
+                                            <TableCell align="center">
+                                                {user.role > 1 ?
+                                                    <IconButton disabled={true}>
+                                                        <EditIcon fontSize="small"/>
+                                                    </IconButton>
+                                                    :
+                                                    <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
+                                                        <EditIcon fontSize="small"/>
+                                                    </IconButton>
+                                                }
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
 
 
                     {/*Invite Users Dialog*/}
@@ -430,7 +430,6 @@ const SettingsPage: React.FC = () => {
                         <DialogTitle color="secondary">Enter User Information</DialogTitle>
                         <DialogContent>
                             <TextField
-                                focused
                                 color="secondary"
                                 required
                                 margin="dense"
@@ -442,7 +441,6 @@ const SettingsPage: React.FC = () => {
                             />
                             <TextField
                                 required
-                                focused
                                 color="secondary"
                                 margin="dense"
                                 label="Last Name"
@@ -452,7 +450,6 @@ const SettingsPage: React.FC = () => {
                                 variant="standard"
                             />
                             <TextField
-                                focused
                                 color="secondary"
                                 required
                                 margin="dense"
@@ -463,7 +460,6 @@ const SettingsPage: React.FC = () => {
                                 variant="standard"
                             />
                             <TextField
-                                focused
                                 color="secondary"
                                 required
                                 margin="dense"
@@ -533,8 +529,16 @@ const SettingsPage: React.FC = () => {
 
                 {/*PLAID PANEL*/}
                 <TabPanel value={value} index={3}>
-                    <Link repair={false}/>
-                    <Link repair={true}/>
+                    <Paper elevation={1} sx={{width: "75%", maxWidth: 600, mx: 'auto', p: 3}}>
+                        <Typography variant="h6" fontWeight={700} sx={{mb: 0.5}}>Plaid Link</Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{mb: 3}}>
+                            Connect or reauthorize the card account used to sync transactions.
+                        </Typography>
+                        <Box sx={{display: 'flex', gap: 2}}>
+                            <Link repair={false}/>
+                            <Link repair={true}/>
+                        </Box>
+                    </Paper>
                 </TabPanel>
             </Box>
         </Box>

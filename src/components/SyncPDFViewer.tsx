@@ -30,11 +30,12 @@ const SyncPDFViewer: React.FC<SyncPDFViewerProps> = ({fileUrl, onClose}) => {
     //fix sizing
     return (
         <div style={{
-            borderColor: '#20202e',
-            backgroundColor: 'inherit',
-            margin: 'auto',
+            backgroundColor: '#fff',
+            margin: '20px auto',
             padding: 20,
-            border: '1px solid #888',
+            borderRadius: 12,
+            border: '1px solid rgba(21, 34, 56, 0.12)',
+            boxShadow: '0 1px 2px rgba(21, 34, 56, 0.04), 0 1px 8px rgba(21, 34, 56, 0.06)',
             width: isMobile() ? '100%' : "80%",
             maxHeight: isMobile() ? '10vh' : '90vh',
             overflowY: 'auto',

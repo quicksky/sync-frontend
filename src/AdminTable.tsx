@@ -21,7 +21,7 @@ import {
     Checkbox,
     CircularProgress,
     FormControlLabel,
-    InputAdornment, createTheme, ThemeProvider, Tooltip
+    InputAdornment, createTheme, ThemeProvider, Tooltip, alpha
 } from '@mui/material';
 import {
     approveTransaction,
@@ -126,7 +126,8 @@ const TableRowMemo = memo(({
     return (
         <TableRow key={transaction.transaction_id}
                   sx={{
-                      "background-color": transaction.admin_approved ? "#acfcac" : "white",
+                      backgroundColor: transaction.admin_approved ? alpha('#22C55E', 0.1) : 'transparent',
+                      '&:hover': {backgroundColor: transaction.admin_approved ? alpha('#22C55E', 0.16) : 'rgba(21, 42, 74, 0.04)'},
                   }}>
             <TableCell align={"center"}
                        sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
@@ -160,7 +161,6 @@ const TableRowMemo = memo(({
                             wordBreak: 'normal', overflowWrap: 'break-word'
                         }}
                         size="medium"
-                        focused
                         fullWidth
                         multiline
                         rows={4}
@@ -175,7 +175,7 @@ const TableRowMemo = memo(({
             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
                        align="center">
                 {isEditable ? (
-                    <FormControl variant="outlined" focused fullWidth
+                    <FormControl variant="outlined" fullWidth
                                  color="warning">
                         <Select labelId="label-for-account"
                                 value={editState?.accountId ? String(editState.accountId) : "-1"}
@@ -267,6 +267,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const newTheme = () => createTheme({
         ...theme,
         components: {
+            ...theme.components,
             MuiTextField: {
                 defaultProps: {
                     size: "small",
@@ -512,17 +513,15 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                     setUploadTransactionId("")
                 }} onSave={onFileUpload}/>
                     <Paper
-                        style={{
-                            padding: '20px',
-                            marginTop: '20px',
-                            marginBottom: '20px',
+                        elevation={1}
+                        sx={{
+                            p: 3,
+                            mt: 3,
+                            mb: 3,
                             overflowX: 'auto',
                             width: '80%'
                         }}>
-                        {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
-                        {/*    Admin View*/}
-                        {/*</Typography>*/}
-                        <Box sx={{mb: 2}}>
+                        <Box sx={{mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0}}>
                             <TextField
                                 sx={{mr: 2}}
                                 color={"secondary"}
@@ -575,42 +574,39 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             {startDate || endDate ?
                                 <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
                         </Box>
-                        <TableContainer component={Paper}>
+                        <TableContainer component={Paper} elevation={0} sx={{border: '1px solid', borderColor: 'divider'}}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Reviewed</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Status</TableCell>
                                         <TableCell
                                             sx={{
-                                                color: "primary.main",
                                                 marginX: '0px',
                                                 paddingX: '20px'
                                             }}>Date</TableCell>
                                         <TableCell sx={{
-                                            color: "primary.main",
                                             marginX: '0px',
                                             paddingX: '0px'
                                         }}>Description</TableCell>
                                         <TableCell
                                             sx={{
-                                                color: "primary.main",
                                                 marginX: '0px',
                                                 paddingX: '0px'
                                             }}>Memo</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Account</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="right">Owner</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="right">Amount</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Receipt</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align='center'>Edit</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '10px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '10px'}}
                                                    align='center'>Upload</TableCell>
                                     </TableRow>
                                 </TableHead>

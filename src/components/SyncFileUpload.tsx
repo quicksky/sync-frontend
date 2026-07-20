@@ -7,30 +7,36 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
+import {CloudUpload} from '@mui/icons-material';
 import {compressionValue, pdfFileType, supportedFileTypes} from "../helpers/fileInfo";
 import Compress from "compress.js";
 
-const getColor = (props: { isDragAccept: boolean; isDragReject: boolean; isDragActive: boolean }) => {
+const getColor = (theme: any, props: { isDragAccept: boolean; isDragReject: boolean; isDragActive: boolean }) => {
     if (props.isDragAccept) {
-        return '#00e676';
+        return theme.palette.success.main;
     }
     if (props.isDragReject) {
-        return '#ff1744';
+        return theme.palette.error.main;
     }
     if (props.isDragActive) {
-        return '#2196f3';
+        return theme.palette.secondary.main;
     }
-    return '#eeeeee';
+    return theme.palette.divider;
 };
 
 // @ts-ignore
 const StyledDropzone = styled('div')(
     ({theme, ...props}) => ({
-        border: '2px dashed #00e676',
-        borderRadius: '5px',
-        padding: theme.spacing(2),
+        border: `2px dashed ${getColor(theme, props as any)}`,
+        borderRadius: theme.shape.borderRadius,
+        padding: theme.spacing(3),
         textAlign: 'center',
-        transition: 'border .3s ease-in-out',
+        backgroundColor: '#F8FAFC',
+        transition: 'border-color .2s ease-in-out, background-color .2s ease-in-out',
+        cursor: 'pointer',
+        '&:hover': {
+            backgroundColor: '#F1F5FB',
+        },
     }),
 );
 
@@ -83,7 +89,8 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
             <DialogContent>
                 <StyledDropzone {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
                     <input {...getInputProps()} />
-                    <Typography>
+                    <CloudUpload sx={{color: 'text.secondary', fontSize: 32, mb: 1}}/>
+                    <Typography color="text.secondary">
                         Drag a file here or click to select a file
                     </Typography>
                 </StyledDropzone>
@@ -103,7 +110,7 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
                     onClose()
                     setFileToUpload(undefined)
                 }}>Cancel</Button>
-                <Button color={'secondary'} onClick={() => {
+                <Button variant="contained" color={'secondary'} onClick={() => {
                     onClose()
                     if (fileToUpload) {
                         onSave(fileToUpload.file)

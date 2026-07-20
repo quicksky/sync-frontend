@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Button, TextField, Container, Typography, Grid} from '@mui/material';
+import {Button, TextField, Typography, Paper} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
-import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import {getUserApi} from "./Backend";
 
 const LoginPage: React.FC = () => {
@@ -36,31 +33,39 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <Container component="main" maxWidth="xs" sx={{
+        <Box sx={{
+            minHeight: '100vh',
+            width: '100%',
             display: 'flex',
-            flexDirection: 'column',
+            alignItems: 'center',
             justifyContent: 'center',
-            height: '80vh'
+            background: 'radial-gradient(circle at 20% 20%, #EEF3FC 0%, #F4F6F9 45%, #F4F6F9 100%)',
+            px: 2,
         }}>
-            <CssBaseline/>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                }}
-            >
-                <Avatar sx={{m: 1, bgcolor: '#FFFFFF'}}>
-                    <LockOutlinedIcon/>
-                </Avatar>
-                <Typography component="h1" variant="h5" color={error ? 'error' : 'primary'}>
-                    {error ? errorText : "Sign in"}
-                </Typography>
-                <Box sx={{mt: 1}}>
+            <Paper elevation={1} sx={{
+                width: '100%',
+                maxWidth: 400,
+                p: {xs: 3, sm: 5},
+                borderRadius: 4,
+            }}>
+                <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1}}>
+                    <Box component="img" src="/logo192.png" alt="Sync"
+                         sx={{width: 56, height: 56, borderRadius: '14px', mb: 2}}/>
+                    <Typography component="h1" variant="h5" fontWeight={700}>
+                        Welcome back
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{mt: 0.5}}>
+                        Sign in to your Sync account
+                    </Typography>
+                </Box>
+                {error && (
+                    <Typography color="error" variant="body2" textAlign="center" sx={{mt: 2}}>
+                        {errorText}
+                    </Typography>
+                )}
+                <Box sx={{mt: 3}}>
                     <TextField
                         margin="normal"
-                        focused
                         error={error}
                         fullWidth
                         id="email"
@@ -68,11 +73,9 @@ const LoginPage: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         label="Email"
                         autoCapitalize={'none'}
-                        sx={{input: {color: '#FFFFFF'}}}
                     />
                     <TextField
                         margin="normal"
-                        focused
                         error={error}
                         fullWidth
                         id="password"
@@ -80,23 +83,25 @@ const LoginPage: React.FC = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         label="Password"
-                        sx={{input: {color: '#FFFFFF'}}}
                     />
                     <Button
                         onClick={handleLogin}
                         fullWidth
                         variant="contained"
-                        sx={{mt: 2, mb: 1}}
+                        color="secondary"
+                        size="large"
+                        sx={{mt: 3, mb: 1}}
                     >
                         Sign In
                     </Button>
-                    <Grid container justifyContent={"right"}>
-                        <Button onClick={() => navigate('/forgotPassword')}>Forgot
-                            Password</Button>
-                    </Grid>
+                    <Box sx={{display: 'flex', justifyContent: 'center', mt: 1}}>
+                        <Button size="small" onClick={() => navigate('/forgotPassword')}>
+                            Forgot password?
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
-        </Container>
+            </Paper>
+        </Box>
     )
 }
 export default LoginPage

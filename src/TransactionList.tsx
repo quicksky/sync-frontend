@@ -44,7 +44,7 @@ import {
     selectTransactions,
     Transaction
 } from "./redux/transactionSlice";
-import {Check, Close, Delete, Receipt, Remove, Upload} from "@mui/icons-material";
+import {CheckCircle, Close, Delete, RadioButtonUnchecked, Receipt, Upload} from "@mui/icons-material";
 import {formatUSD} from "./helpers/formatUSD";
 import Compress from 'compress.js'
 import {Viewer} from '@react-pdf-viewer/core';
@@ -263,46 +263,42 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                         <Typography>Are you sure you want to delete this receipt?</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant={'contained'} onClick={() => {
+                        <Button onClick={() => {
                             setConfirmDialogOpen(false)
                         }}>Cancel</Button>
-                        <Button variant={'contained'} color={'secondary'}
-                                onClick={() => handleDelete(openTransactionId ? openTransactionId : "")}>Ok</Button>
+                        <Button variant={'contained'} color={'error'}
+                                onClick={() => handleDelete(openTransactionId ? openTransactionId : "")}>Delete</Button>
                     </DialogActions>
                 </Dialog>
-                    <Paper style={isMobile ? {
-                            padding: '10px',
-                            marginTop: '20px',
-                            marginBottom: '20px',
+                    <Paper elevation={1} sx={isMobile ? {
+                            p: 1.5,
+                            mt: 2.5,
+                            mb: 2.5,
                             overflowX: 'auto',
                             width: '100%'
                         } :
-                        {padding: '20px', marginTop: '20px', marginBottom: '20px', overflowX: 'auto', width: '45%'}}>
+                        {p: 3, mt: 3, mb: 3, overflowX: 'auto', width: '45%', minWidth: 560}}>
                         {isMobile ? undefined :
-                            <Typography variant="h6" style={{marginBottom: '20px'}}>
+                            <Typography variant="h6" fontWeight={700} sx={{mb: 2.5}}>
                                 Transaction History
                             </Typography>}
-                        <TableContainer component={Paper}>
+                        <TableContainer component={Paper} elevation={0} sx={{border: '1px solid', borderColor: 'divider'}}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell sx={{
-                                            color: "primary.main",
                                             marginRight: '0px',
                                             paddingLeft: '5px',
                                             paddingRight: '0px'
                                         }}
                                                    align="center">Status</TableCell>
-                                        <TableCell sx={isMobile ? {
-                                                color: "primary.main"
-                                            } :
-                                            {color: "primary.main", marginX: '0px', paddingX: '10px'}}>Date</TableCell>
+                                        <TableCell sx={isMobile ? {} :
+                                            {marginX: '0px', paddingX: '10px'}}>Date</TableCell>
                                         <TableCell sx={{
-                                            color: "primary.main",
                                             marginX: '0px',
                                             paddingX: '0px'
                                         }}>Description</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginLeft: '0px', paddingLeft: '0px'}}
+                                        <TableCell sx={{marginLeft: '0px', paddingLeft: '0px'}}
                                                    align="right">Amount</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -315,11 +311,15 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                             <>
                                                 <TableRow key={transaction.transaction_id}
                                                           onClick={() => handleRowClick(transaction)}
-                                                          style={{cursor: 'pointer'}}>
+                                                          sx={{
+                                                              cursor: 'pointer',
+                                                              '&:hover': {backgroundColor: 'rgba(21, 42, 74, 0.04)'},
+                                                          }}>
 
                                                     <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
                                                                align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
-                                                        <Check/> : <Remove/>}</TableCell>
+                                                        <CheckCircle sx={{color: 'success.main'}} fontSize="small"/> :
+                                                        <RadioButtonUnchecked sx={{color: 'text.disabled'}} fontSize="small"/>}</TableCell>
                                                     <TableCell
                                                         sx={isMobile ? {
                                                                 marginRight: '0px',
@@ -355,22 +355,23 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                         <Collapse in={openTransactionId === transaction.transaction_id}
                                                                   timeout="auto"
                                                                   unmountOnExit>
-                                                            <Box margin={1}>
-                                                                <Grid container>
-                                                                    <Grid item>
-                                                                        <Typography variant="h6" gutterBottom
-                                                                                    component="div">
-                                                                            Edit Transaction
-                                                                        </Typography>
-                                                                    </Grid>
-
-                                                                </Grid>
-                                                                <FormControl focused color="secondary"
+                                                            <Box sx={{
+                                                                m: 1,
+                                                                p: 2,
+                                                                borderRadius: 2,
+                                                                backgroundColor: '#F8FAFC',
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                            }}>
+                                                                <Typography variant="subtitle1" fontWeight={700}
+                                                                            sx={{mb: 1}}>
+                                                                    Edit Transaction
+                                                                </Typography>
+                                                                <FormControl color="secondary"
                                                                              variant="outlined"
                                                                              fullWidth
                                                                              margin="normal">
-                                                                    <InputLabel color="secondary"
-                                                                                sx={{input: {color: 'secondary.main'}}}>Account</InputLabel>
+                                                                    <InputLabel color="secondary">Account</InputLabel>
                                                                     <Select
                                                                         labelId="label-for-account" label="Account"
                                                                         defaultValue={accountId ? +accountId : ""}
@@ -388,9 +389,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     </Select>
                                                                 </FormControl>
                                                                 <TextField
-                                                                    focused
                                                                     color="secondary"
-                                                                    sx={{input: {color: 'secondary.main'}}}
                                                                     value={memo}
                                                                     label="Memo"
                                                                     fullWidth margin="normal"
@@ -419,7 +418,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                         {<Tooltip
                                                                                             title={"Delete Receipt"}>
                                                                                             <IconButton
-                                                                                                color="secondary"
+                                                                                                color="error"
                                                                                                 sx={{ml: 2}}
                                                                                                 onClick={() => setConfirmDialogOpen(true)}>
                                                                                                 <Delete></Delete>
@@ -436,7 +435,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                                     View Receipt
                                                                                 </Button>
                                                                                     {<Tooltip title={"Delete Receipt"}>
-                                                                                        <IconButton color="secondary"
+                                                                                        <IconButton color="error"
                                                                                                     sx={{ml: 2}}
                                                                                                     onClick={() => setConfirmDialogOpen(true)}>
                                                                                             <Delete></Delete>

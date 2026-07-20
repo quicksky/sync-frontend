@@ -5,12 +5,11 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
-import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import {Sync} from "@mui/icons-material";
+import {Logout, Settings, Sync} from "@mui/icons-material";
 import {generateExport, logoutUserApi, syncTransactions} from "./Backend";
 import triggerDownload from "./helpers/triggerDownload";
 import {
@@ -20,7 +19,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, Drawer, FormControl, FormControlLabel, Grid, Select, SelectChangeEvent, Switch,
+    DialogTitle, FormControl, ListItemIcon, Select, SelectChangeEvent,
     TextField
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "./redux/store";
@@ -112,27 +111,34 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     const [exportError, setExportError] = useState<boolean>(false)
     const [exportErrorText, setExportErrorText] = useState<string>("")
 
+    const initials = `${user?.first_name?.[0] ?? ""}${user?.last_name?.[0] ?? ""}`.toUpperCase()
 
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column'}}>
-            <Drawer
-                variant="permanent"
-                sx={{
-                    width: '100%',
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: '100%',
-                        boxSizing: 'border-box',
-                        backgroundColor: '#20202e',
-                        color: '#fff',
-                    },
-                }}
-                anchor="top"
-            >
-                <Container maxWidth="xl"
-                           sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 1}}>
-                    <Box sx={{display: 'flex', alignItems: 'center', maxHeight: 2, marginY: '5px'}}>
-                        {!syncTransactionsLoading ? (<IconButton onClick={() => {
+        <AppBar position="static" color="primary">
+            <Toolbar sx={{
+                justifyContent: 'space-between',
+                paddingY: 1,
+                gap: 2,
+                maxWidth: 'xl',
+                width: '100%',
+                mx: 'auto',
+            }}>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: userIsAdmin && !isMobile ? 1.5 : 0}}>
+                    <Box component="img" src="/logo192.png" alt=""
+                         sx={{
+                             width: 32,
+                             height: 32,
+                             borderRadius: '9px',
+                             mr: 1.25,
+                             border: '1px solid rgba(255, 255, 255, 0.18)',
+                         }}/>
+                    <Typography variant={isMobile ? "h5" : "h6"} noWrap component="div"
+                                sx={{fontWeight: 800, letterSpacing: '0.02em', mr: 1.5, color: 'common.white'}}>
+                        Sync
+                    </Typography>
+                    {!syncTransactionsLoading ? (
+                        <Tooltip title="Sync transactions">
+                            <IconButton sx={{color: 'common.white'}} onClick={() => {
                                 setSyncTransactionsLoading(true)
                                 syncTransactions().then(() => {
                                     dispatch(fetchAndClearTransactions({
@@ -146,31 +152,33 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                     setSyncTransactionsLoading(false)
                                 })
                             }}>
-                                <Sync sx={{color: 'primary.main'}}/>
-                            </IconButton>) :
-                            <CircularProgress sx={{transform: 'scaleX(-1) rotate(-90deg)'}} size={'30px'}/>}
-                        <Typography variant={isMobile ? "h4" : "h6"} noWrap component="div">
-                            SYNC
-                        </Typography>
-                        {userIsAdmin && !isMobile ?
-                            <Button
-                                onClick={handleClickOpen}
-                                sx={{my: 2, color: 'white', display: 'block', marginX: '15px'}}
-                            >
-                                Export
-                            </Button> : undefined}
+                                <Sync/>
+                            </IconButton>
+                        </Tooltip>) :
+                        <CircularProgress size={'22px'} sx={{mx: 1, color: 'common.white'}}/>}
+                    {userIsAdmin && !isMobile ?
+                        <Button
+                            onClick={handleClickOpen}
+                            color="inherit"
+                        >
+                            Export
+                        </Button> : undefined}
 
-                        {userIsAdmin && !isMobile ? (
-                                <Button variant={props.adminViewState[0] ? "contained" : "outlined"}
-                                        onClick={handleAdminViewChange}>
-                                    Admin View
-                                </Button>)
-
-                            // <FormControlLabel
-                            // control={<Switch checked={props.adminViewState[0]} onChange={handleAdminViewChange}/>}
-                            // label="Admin View"/>)
-
-                            : undefined}
+                    {userIsAdmin && !isMobile ? (
+                            <Button variant={props.adminViewState[0] ? "contained" : "outlined"}
+                                    onClick={handleAdminViewChange}
+                                    sx={{
+                                        color: props.adminViewState[0] ? 'primary.main' : 'common.white',
+                                        bgcolor: props.adminViewState[0] ? 'common.white' : 'transparent',
+                                        borderColor: 'common.white',
+                                        '&:hover': {
+                                            bgcolor: props.adminViewState[0] ? 'grey.100' : 'rgba(255, 255, 255, 0.08)',
+                                            borderColor: 'common.white',
+                                        },
+                                    }}>
+                                Admin View
+                            </Button>)
+                        : undefined}
 
                         <Dialog
                             open={syncErrorAlertOpen}
@@ -250,57 +258,56 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                 <Button type="submit" variant="contained" color="secondary">Export</Button>
                             </DialogActions>
                         </Dialog>
-                    </Box>
-                    <Box sx={{display: 'flex', alignItems: 'left', marginY: '5px'}}>
-                        <Tooltip title="Open settings">
-                            <IconButton onClick={handleOpenUserMenu} sx={{p: 0, marginLeft: 2}}>
-                                <Avatar alt={user?.first_name} src="/static/images/avatar/2.jpg"/>
-                            </IconButton>
-                        </Tooltip>
-                        <Menu
-                            sx={{mt: '45px'}}
-                            id="menu-appbar"
-                            anchorEl={anchorElUser}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
+                </Box>
+                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                    <Tooltip title="Account">
+                        <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
+                            <Avatar sx={{bgcolor: 'common.white', color: 'primary.main', fontWeight: 700, width: 36, height: 36, fontSize: 14}}>
+                                {initials || undefined}
+                            </Avatar>
+                        </IconButton>
+                    </Tooltip>
+                    <Menu
+                        sx={{mt: '45px'}}
+                        id="menu-appbar"
+                        anchorEl={anchorElUser}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={Boolean(anchorElUser)}
+                        onClose={handleCloseUserMenu}
+                    >
+                        {isAdmin && (
+                            <MenuItem onClick={() => {
+                                handleCloseUserMenu()
+                                navigate("/settings")
+                            }}>
+                                <ListItemIcon><Settings fontSize="small"/></ListItemIcon>
+                                Settings
+                            </MenuItem>
+                        )}
+                        <MenuItem
+                            onClick={() => {
+                                logoutUserApi().then(() => {
+                                    navigate("/");
+                                }).catch(() => {
+                                    handleCloseUserMenu();
+                                });
                             }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorElUser)}
-                            onClose={handleCloseUserMenu}
                         >
-                            {isAdmin && (
-                                <Button
-                                    onClick={() => navigate("/settings")}
-                                    sx={{color: 'black', display: 'block'}}
-                                >
-                                    Settings
-                                </Button>
-                            )}
-                            <Button
-                                onClick={() => {
-                                    logoutUserApi().then(() => {
-                                        navigate("/");
-                                    }).catch(() => {
-                                        handleCloseUserMenu();
-                                    });
-                                }}
-                                sx={{color: 'black', display: 'block'}}
-                            >
-                                Logout
-                            </Button>
-                        </Menu>
-                    </Box>
-                </Container>
-            </Drawer>
-            <Box component="main" sx={{flexGrow: 1, p: 3}}>
-
-            </Box>
-        </Box>
+                            <ListItemIcon><Logout fontSize="small"/></ListItemIcon>
+                            Logout
+                        </MenuItem>
+                    </Menu>
+                </Box>
+            </Toolbar>
+        </AppBar>
     );
 }
 

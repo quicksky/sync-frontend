@@ -16,7 +16,7 @@ export const SyncConfirmationDialog: React.FC<{
             <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-            <Button variant='contained' onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Cancel</Button>
             <Button onClick={onConfirm} color="secondary" variant='contained'>
                 {confirmButtonName ? confirmButtonName : "Confirm"}
             </Button>
