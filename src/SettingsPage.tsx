@@ -253,7 +253,7 @@ const SettingsPage: React.FC = () => {
                         "& .Mui-selected": {
                             backgroundColor: 'rgba(21, 42, 74, 0.06)',
                             color: 'primary.main',
-                            borderLeftColor: 'secondary.main',
+                            borderLeftColor: 'secondary.dark',
                         },
                     }}
                 >
@@ -285,11 +285,11 @@ const SettingsPage: React.FC = () => {
                                     component: 'form',
                                 }}
                             >
-                                <DialogTitle color="secondary">Add Accounts</DialogTitle>
+                                <DialogTitle color="primary">Add Accounts</DialogTitle>
                                 <DialogContent>
                                     <TextField
                                         onChange={(e) => setAddAccountText(e.target.value)}
-                                        color="secondary"
+                                        color="primary"
                                         required
                                         margin="dense"
                                         label="Enter account names"
@@ -427,10 +427,10 @@ const SettingsPage: React.FC = () => {
                             onSubmit: onUserInviteSubmit,
                         }}
                     >
-                        <DialogTitle color="secondary">Enter User Information</DialogTitle>
+                        <DialogTitle color="primary">Enter User Information</DialogTitle>
                         <DialogContent>
                             <TextField
-                                color="secondary"
+                                color="primary"
                                 required
                                 margin="dense"
                                 label="First Name"
@@ -441,7 +441,7 @@ const SettingsPage: React.FC = () => {
                             />
                             <TextField
                                 required
-                                color="secondary"
+                                color="primary"
                                 margin="dense"
                                 label="Last Name"
                                 name="last_name"
@@ -450,7 +450,7 @@ const SettingsPage: React.FC = () => {
                                 variant="standard"
                             />
                             <TextField
-                                color="secondary"
+                                color="primary"
                                 required
                                 margin="dense"
                                 label="Email"
@@ -460,7 +460,7 @@ const SettingsPage: React.FC = () => {
                                 variant="standard"
                             />
                             <TextField
-                                color="secondary"
+                                color="primary"
                                 required
                                 margin="dense"
                                 label="Card Number"
@@ -483,7 +483,7 @@ const SettingsPage: React.FC = () => {
                         </DialogContent>
                         {/*{exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}*/}
                         <DialogActions>
-                            <Button onClick={handleClose} color="secondary">Cancel</Button>
+                            <Button onClick={handleClose}>Cancel</Button>
                             <Button type="submit" variant="contained" color="secondary">Invite User</Button>
                         </DialogActions>
                     </Dialog>
@@ -497,7 +497,7 @@ const SettingsPage: React.FC = () => {
                             component: 'form',
                         }}
                     >
-                        <DialogTitle color="secondary">Edit User Accounts</DialogTitle>
+                        <DialogTitle color="primary">Edit User Accounts</DialogTitle>
                         <DialogContent>
                             <List dense sx={{minWidth: 300, maxWidth: 800, height: '65vh'}}>
                                 {accounts.map((account) => (
@@ -521,7 +521,7 @@ const SettingsPage: React.FC = () => {
                             </List>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={handleCloseCheckboxDialog} color="secondary">Close</Button>
+                            <Button onClick={handleCloseCheckboxDialog}>Close</Button>
                         </DialogActions>
                     </Dialog>
 

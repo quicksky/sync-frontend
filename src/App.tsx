@@ -13,8 +13,7 @@ import ResetPassword from "./ResetPassword";
 import PasswordResetForm from "./PasswordResetForm";
 
 
-const NAVY = "#152A4A";
-const BLUE = "#2F6FED";
+const NAVY = "#20202E";
 const BORDER = "rgba(21, 34, 56, 0.08)";
 
 export const theme = createTheme({
@@ -31,10 +30,10 @@ export const theme = createTheme({
             contrastText: "#FFFFFF",
         },
         secondary: {
-            main: BLUE,
-            light: "#5D8FF2",
-            dark: "#1D4FC4",
-            contrastText: "#FFFFFF",
+            main: "#D9BF95",
+            light: "#EDDFC4",
+            dark: "#A67C42",
+            contrastText: NAVY,
         },
         text: {
             primary: "#152238",

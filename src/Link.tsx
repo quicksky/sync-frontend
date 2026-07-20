@@ -39,7 +39,7 @@ const Link: React.FC<LinkProps> = (props: LinkProps) => {
     const {open, ready} = usePlaidLink(config);
     return (
         <Button onClick={() => open()} disabled={!ready} variant={props.repair ? "outlined" : "contained"}
-                color="secondary">
+                color={props.repair ? "primary" : "secondary"}>
             {!props.repair ? "Connect" : "Reauthorize"}
         </Button>
     )

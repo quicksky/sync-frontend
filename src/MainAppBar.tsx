@@ -236,7 +236,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                     name="end_date"
                                     format={"YYYY-MM-DD"}></DatePicker>
 
-                                <FormControl sx={{maxWidth: "40%", minWidth: "40%"}} focused color="secondary"
+                                <FormControl sx={{maxWidth: "40%", minWidth: "40%"}} focused color="primary"
                                              variant="outlined"
                                              margin="normal">
                                     <Select
@@ -254,7 +254,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                             </DialogContent>
                             {exportError ? <Alert severity="error">{exportErrorText}</Alert> : undefined}
                             <DialogActions>
-                                <Button onClick={handleClose} color="secondary">Cancel</Button>
+                                <Button onClick={handleClose}>Cancel</Button>
                                 <Button type="submit" variant="contained" color="secondary">Export</Button>
                             </DialogActions>
                         </Dialog>

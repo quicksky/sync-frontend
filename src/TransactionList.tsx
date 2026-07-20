@@ -367,11 +367,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                             sx={{mb: 1}}>
                                                                     Edit Transaction
                                                                 </Typography>
-                                                                <FormControl color="secondary"
+                                                                <FormControl color="primary"
                                                                              variant="outlined"
                                                                              fullWidth
                                                                              margin="normal">
-                                                                    <InputLabel color="secondary">Account</InputLabel>
+                                                                    <InputLabel color="primary">Account</InputLabel>
                                                                     <Select
                                                                         labelId="label-for-account" label="Account"
                                                                         defaultValue={accountId ? +accountId : ""}
@@ -389,7 +389,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     </Select>
                                                                 </FormControl>
                                                                 <TextField
-                                                                    color="secondary"
+                                                                    color="primary"
                                                                     value={memo}
                                                                     label="Memo"
                                                                     fullWidth margin="normal"
@@ -446,7 +446,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                         <Grid container justifyContent="right"
                                                                               sx={{marginTop: '5px'}}>
                                                                             {dataSaveLock ?
-                                                                                <CircularProgress color={"secondary"}/>
+                                                                                <CircularProgress color={"primary"}/>
                                                                                 :
                                                                                 <Button
                                                                                     size={isMobile ? "small" : undefined}
@@ -462,7 +462,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                             <Grid container direction="row-reverse">
                                                                                 {dataSaveLock ?
                                                                                     <CircularProgress
-                                                                                        color={"secondary"}/>
+                                                                                        color={"primary"}/>
                                                                                     :
                                                                                     <Button variant="contained"
                                                                                             color="secondary"

@@ -19,7 +19,7 @@ const getColor = (theme: any, props: { isDragAccept: boolean; isDragReject: bool
         return theme.palette.error.main;
     }
     if (props.isDragActive) {
-        return theme.palette.secondary.main;
+        return theme.palette.secondary.dark;
     }
     return theme.palette.divider;
 };

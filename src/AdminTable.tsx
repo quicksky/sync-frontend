@@ -524,7 +524,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         <Box sx={{mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0}}>
                             <TextField
                                 sx={{mr: 2}}
-                                color={"secondary"}
+                                color={"primary"}
                                 placeholder={"Search Transactions"}
                                 size="small"
                                 value={searchString}
@@ -542,7 +542,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                 {!transactionRequest.filters?.user_card_number ?
                                     <InputLabel>User</InputLabel> : undefined}
                                 <Select
-                                    color={"secondary"}
+                                    color={"primary"}
                                     size={"small"}
                                     value={userSelectBoxValue}
                                     onChange={handleUserFilter}>
