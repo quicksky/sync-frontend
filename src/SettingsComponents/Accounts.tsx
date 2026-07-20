@@ -86,7 +86,7 @@ const AccountsPanel: React.FC = () => {
                         <DialogContent>
                             <TextField
                                 onChange={(e) => setAddAccountText(e.target.value)}
-                                color="primary"
+                                color="secondary"
                                 required
                                 margin="dense"
                                 label="Enter account names"

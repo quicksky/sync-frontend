@@ -377,11 +377,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                             sx={{mb: 1}}>
                                                                     Edit Transaction
                                                                 </Typography>
-                                                                <FormControl color="primary"
+                                                                <FormControl color="secondary"
                                                                              variant="outlined"
                                                                              fullWidth
                                                                              margin="normal">
-                                                                    <InputLabel color="primary">Account</InputLabel>
+                                                                    <InputLabel color="secondary">Account</InputLabel>
                                                                     <Select
                                                                         labelId="label-for-account" label="Account"
                                                                         defaultValue={accountId ? +accountId : ""}
@@ -399,7 +399,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     </Select>
                                                                 </FormControl>
                                                                 <TextField
-                                                                    color="primary"
+                                                                    color="secondary"
                                                                     value={memo}
                                                                     label="Memo"
                                                                     fullWidth margin="normal"

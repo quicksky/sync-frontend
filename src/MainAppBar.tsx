@@ -234,7 +234,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                     />
                                 </Box>
 
-                                <FormControl fullWidth color="primary" variant="outlined">
+                                <FormControl fullWidth color="secondary" variant="outlined">
                                     <InputLabel id="label-for-account">Account</InputLabel>
                                     <Select
                                         labelId="label-for-account"

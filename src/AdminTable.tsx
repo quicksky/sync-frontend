@@ -158,8 +158,8 @@ const TableRowMemo = memo(({
                         size="medium"
                         fullWidth
                         multiline
-                        rows={4}
-                        color='warning'
+                        minRows={1}
+                        color='secondary'
                         value={editState?.memo || ''}
                         onChange={handleMemoChangeLocal}/>
                 ) : <Typography variant="body2"
@@ -171,7 +171,7 @@ const TableRowMemo = memo(({
                        align="center">
                 {isEditable ? (
                     <FormControl variant="outlined" fullWidth
-                                 color="warning">
+                                 color="secondary">
                         <Select labelId="label-for-account"
                                 value={editState?.accountId ? String(editState.accountId) : "-1"}
                                 onChange={handleAccountChangeLocal}>
@@ -205,9 +205,9 @@ const TableRowMemo = memo(({
                 {isEditable ? (
                     <>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <IconButton sx={{margin: '0px', padding: '0px'}}
+                            <IconButton sx={{margin: '0px', padding: '0px'}} color="success"
                                         onClick={handleSubmitLocal}><Check/></IconButton>
-                            <IconButton sx={{margin: '0px', padding: '0px'}}
+                            <IconButton sx={{margin: '0px', padding: '0px'}} color="error"
                                         onClick={handleCancelLocal}><Close/></IconButton>
                         </div>
                     </>
@@ -525,7 +525,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         <Box sx={{mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0}}>
                             <TextField
                                 sx={{mr: 2}}
-                                color={"primary"}
+                                color={"secondary"}
                                 placeholder={"Search Transactions"}
                                 size="small"
                                 value={searchString}
@@ -541,9 +541,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                 }}/>
                             <FormControl sx={{minWidth: "20%"}} size={"small"}>
                                 {!transactionRequest.filters?.user_card_number ?
-                                    <InputLabel>User</InputLabel> : undefined}
+                                    <InputLabel id="label-for-user">User</InputLabel> : undefined}
                                 <Select
-                                    color={"primary"}
+                                    labelId="label-for-user"
+                                    label={!transactionRequest.filters?.user_card_number ? "User" : undefined}
+                                    color={"secondary"}
                                     size={"small"}
                                     value={userSelectBoxValue}
                                     onChange={handleUserFilter}>
@@ -595,7 +597,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                         <TableCell
                                             sx={{
                                                 marginX: '0px',
-                                                paddingX: '0px'
+                                                paddingX: '10px'
                                             }}>Memo</TableCell>
                                         <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Account</TableCell>

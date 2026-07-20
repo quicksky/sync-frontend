@@ -71,7 +71,7 @@ const AddAliasDialog: React.FC<AddAliasDialogProps> = ({open, onClose, vendorId,
                     type="text"
                     fullWidth
                     variant="standard"
-                    color="primary"
+                    color="secondary"
                     value={alias}
                     onChange={(e) => setAlias(e.target.value)}
                 />
@@ -112,7 +112,7 @@ const AddVendorDialog: React.FC<AddVendorDialogProps> = ({open, onClose, setErro
             <DialogTitle>Add New Vendor</DialogTitle>
             <DialogContent>
                 <TextField
-                    color="primary"
+                    color="secondary"
                     required
                     margin="dense"
                     label="Vendor Name"

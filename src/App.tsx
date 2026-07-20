@@ -167,6 +167,16 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiTextField: {
+            defaultProps: {
+                color: "secondary",
+            },
+        },
+        MuiFormControl: {
+            defaultProps: {
+                color: "secondary",
+            },
+        },
         MuiDialog: {
             styleOverrides: {
                 paper: {

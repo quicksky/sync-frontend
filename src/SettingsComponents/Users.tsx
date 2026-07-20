@@ -196,7 +196,7 @@ const UsersPanel: React.FC = () => {
                 <DialogTitle color="primary">Enter User Information</DialogTitle>
                 <DialogContent>
                     <TextField
-                        color="primary"
+                        color="secondary"
                         required
                         margin="dense"
                         label="First Name"
@@ -207,7 +207,7 @@ const UsersPanel: React.FC = () => {
                     />
                     <TextField
                         required
-                        color="primary"
+                        color="secondary"
                         margin="dense"
                         label="Last Name"
                         name="last_name"
@@ -216,7 +216,7 @@ const UsersPanel: React.FC = () => {
                         variant="standard"
                     />
                     <TextField
-                        color="primary"
+                        color="secondary"
                         required
                         margin="dense"
                         label="Email"
@@ -226,7 +226,7 @@ const UsersPanel: React.FC = () => {
                         variant="standard"
                     />
                     <TextField
-                        color="primary"
+                        color="secondary"
                         required
                         margin="dense"
                         label="Card Number"
