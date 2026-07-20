@@ -85,8 +85,12 @@ export const theme = createTheme({
     components: {
         MuiCssBaseline: {
             styleOverrides: {
+                html: {
+                    overscrollBehaviorY: "none",
+                },
                 body: {
                     backgroundColor: "#F4F6F9",
+                    overscrollBehaviorY: "none",
                 },
             },
         },

@@ -114,7 +114,7 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     const initials = `${user?.first_name?.[0] ?? ""}${user?.last_name?.[0] ?? ""}`.toUpperCase()
 
     return (
-        <AppBar position="static" color="primary">
+        <AppBar position="sticky" color="primary">
             <Toolbar sx={{
                 justifyContent: 'space-between',
                 paddingY: 1,
