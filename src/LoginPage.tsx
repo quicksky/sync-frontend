@@ -45,25 +45,35 @@ const LoginPage: React.FC = () => {
             <Paper elevation={1} sx={{
                 width: '100%',
                 maxWidth: 400,
-                p: {xs: 3, sm: 5},
                 borderRadius: 4,
+                overflow: 'hidden',
             }}>
-                <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 1}}>
-                    <Box component="img" src="/logo192.png" alt="Sync"
-                         sx={{width: 56, height: 56, borderRadius: '14px', mb: 2}}/>
-                    <Typography component="h1" variant="h5" fontWeight={700}>
-                        Welcome back
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{mt: 0.5}}>
-                        Sign in to your Sync account
+                <Box sx={{
+                    background: 'linear-gradient(160deg, #1B2A47 0%, #0B1729 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    px: 3,
+                    pt: 5,
+                    pb: 4,
+                }}>
+                    <Box component="img" src="/logo512.png" alt="Sync"
+                         sx={{
+                             width: 150,
+                             height: 150,
+                             borderRadius: '24px',
+                             boxShadow: '0 12px 28px rgba(11, 23, 41, 0.5)',
+                         }}/>
+                    <Typography component="h1" variant="h5" fontWeight={700} sx={{color: '#FFFFFF', mt: 3}}>
+                        Sign in to Sync
                     </Typography>
                 </Box>
-                {error && (
-                    <Typography color="error" variant="body2" textAlign="center" sx={{mt: 2}}>
-                        {errorText}
-                    </Typography>
-                )}
-                <Box sx={{mt: 3}}>
+                <Box sx={{p: {xs: 3, sm: 5}}}>
+                    {error && (
+                        <Typography color="error" variant="body2" textAlign="center" sx={{mb: 2}}>
+                            {errorText}
+                        </Typography>
+                    )}
                     <TextField
                         margin="normal"
                         error={error}
