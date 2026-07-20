@@ -237,10 +237,10 @@ const UsersPanel: React.FC = () => {
                     />
                     <FormControlLabel
                         control={<Checkbox sx={{
-                            "&, & + .MuiFormControlLabel-label": {
+                            "& + .MuiFormControlLabel-label": {
                                 color: "secondary.main"
                             }
-                        }} color="secondary" checked={inviteUserAdmin}
+                        }} checked={inviteUserAdmin}
                                             onChange={(evt) => setInviteUserAdmin(evt.target.checked)}/>}
                         label="Admin"
                         name="is_admin"
@@ -271,10 +271,10 @@ const UsersPanel: React.FC = () => {
                                 <FormControlLabel
                                     control={
                                         <Checkbox sx={{
-                                            "&, & + .MuiFormControlLabel-label": {
+                                            "& + .MuiFormControlLabel-label": {
                                                 color: "primary.main"
                                             }
-                                        }} color="secondary"
+                                        }}
                                                     checked={userAccounts.map(a => a.id).includes(account.id)}
                                                     onChange={(evt) => onAccountCheckboxClick(evt.target.checked, account.id, checkboxDialogUserId)}/>
                                     }

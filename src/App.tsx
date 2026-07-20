@@ -15,6 +15,18 @@ import PasswordResetForm from "./PasswordResetForm";
 
 const NAVY = "#20202E";
 const BORDER = "rgba(21, 34, 56, 0.08)";
+const SECONDARY_DARK = "#A67C42";
+const GREEN_MAIN = "#22C55E";
+
+declare module "@mui/material/styles" {
+    interface Palette {
+        green: Palette["primary"];
+    }
+
+    interface PaletteOptions {
+        green?: PaletteOptions["primary"];
+    }
+}
 
 export const theme = createTheme({
     palette: {
@@ -32,8 +44,14 @@ export const theme = createTheme({
         secondary: {
             main: "#D9BF95",
             light: "#EDDFC4",
-            dark: "#A67C42",
+            dark: SECONDARY_DARK,
             contrastText: NAVY,
+        },
+        green: {
+            main: GREEN_MAIN,
+            light: "#4ADE80",
+            dark: "#15803D",
+            contrastText: "#FFFFFF",
         },
         text: {
             primary: "#152238",
@@ -161,6 +179,16 @@ export const theme = createTheme({
                 root: {
                     borderRadius: 8,
                     fontWeight: 600,
+                },
+            },
+        },
+        MuiCheckbox: {
+            styleOverrides: {
+                root: {
+                    color: SECONDARY_DARK,
+                    "&.Mui-checked": {
+                        color: GREEN_MAIN,
+                    },
                 },
             },
         },

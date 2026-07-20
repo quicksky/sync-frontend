@@ -131,12 +131,7 @@ const TableRowMemo = memo(({
                   }}>
             <TableCell align={"center"}
                        sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                <Checkbox sx={{
-                    "&, & + .MuiFormControlLabel-label": {
-                        color: "secondary.main"
-                    }
-                }} color="secondary"
-                          checked={transaction.admin_approved}
+                <Checkbox checked={transaction.admin_approved}
                           onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
             </TableCell>
             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
@@ -620,7 +615,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
                                         const isEditable = activeTransactionId === transaction.transaction_id;
                                         const editState = editingStates[transaction.transaction_id];
-                                        
+
                                         return (
                                             <TableRowMemo
                                                 key={transaction.transaction_id}

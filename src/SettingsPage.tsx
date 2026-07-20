@@ -59,6 +59,7 @@ const SettingsPage: React.FC = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate();
     const location = useLocation();
+    const excelMapping = useAppSelector(selectExcelMapping);
 
     const getTabValue = () => {
         const searchParams = new URLSearchParams(location.search);
@@ -169,8 +170,8 @@ const SettingsPage: React.FC = () => {
 
                 {/* EXPORT PANEL*/}
                 {/*<TabPanel index={2} value={value}>*/}
-                {/*    /!*<Exports mapping={excelMapping}/>*!/*/}
-                {/*    <Exports/>*/}
+                {/*    /!*<ExportsPanel mapping={excelMapping}/>*!/*/}
+                {/*    <ExportsPanel/>*/}
                 {/*</TabPanel>*/}
 
                 {/*USERS PANEL*/}

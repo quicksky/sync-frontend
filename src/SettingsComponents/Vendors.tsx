@@ -54,10 +54,10 @@ const AddAliasDialog: React.FC<AddAliasDialogProps> = ({open, onClose, vendorId,
             <DialogContent>
                 <FormControlLabel
                     control={<Checkbox sx={{
-                        "&, & + .MuiFormControlLabel-label": {
+                        "& + .MuiFormControlLabel-label": {
                             color: "primary.main"
                         }
-                    }} color="secondary" checked={startsWith}
+                    }} checked={startsWith}
                                        onChange={(evt) => setStartsWith(evt.target.checked)}/>}
                     label="Starts with"
                     name="starts_with"
@@ -108,7 +108,7 @@ const AddVendorDialog: React.FC<AddVendorDialogProps> = ({open, onClose, setErro
     };
 
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>Add New Vendor</DialogTitle>
             <DialogContent>
                 <TextField
