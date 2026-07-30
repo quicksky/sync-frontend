@@ -113,7 +113,16 @@ const SettingsPage: React.FC = () => {
                 variant="permanent"
                 anchor="left"
             >
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 2.5}}>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: 2,
+                    py: 2.5,
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    mb: 1,
+                }}>
                     <IconButton onClick={() => navigate("/home")} size="small">
                         <ArrowBack fontSize="small"/>
                     </IconButton>
@@ -132,17 +141,25 @@ const SettingsPage: React.FC = () => {
                             justifyContent: 'flex-start',
                             textAlign: 'left',
                             minHeight: 44,
-                            borderRadius: 2,
+                            borderRadius: 2.5,
                             mb: 0.5,
                             pl: 1.5,
                             color: 'text.secondary',
                             fontWeight: 600,
+                            transition: 'background-color 0.15s ease, color 0.15s ease',
+                            "&:hover": {
+                                backgroundColor: 'rgba(32, 32, 46, 0.04)',
+                            },
                         },
                         "& .MuiTab-iconWrapper": {marginRight: 1.5},
                         "& .Mui-selected": {
-                            backgroundColor: 'secondary.light',
+                            backgroundImage: 'linear-gradient(135deg, #EDDFC4 0%, #D9BF95 100%)',
                             color: 'primary.main',
                             fontWeight: 700,
+                            boxShadow: '0 2px 8px rgba(166, 124, 66, 0.25)',
+                        },
+                        "& .Mui-selected:hover": {
+                            backgroundImage: 'linear-gradient(135deg, #EDDFC4 0%, #D9BF95 100%)',
                         },
                     }}
                 >

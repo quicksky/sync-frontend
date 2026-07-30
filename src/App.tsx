@@ -4,7 +4,7 @@ import LoginPage from './LoginPage';
 import SuccessPage from './SuccessPage';
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
-import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import {alpha, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import SettingsPage from "./SettingsPage";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -14,9 +14,26 @@ import PasswordResetForm from "./PasswordResetForm";
 
 
 const NAVY = "#20202E";
+const NAVY_DEEP = "#0B1729";
+const NAVY_MID = "#1B2A47";
 const BORDER = "rgba(21, 34, 56, 0.08)";
+const GOLD = "#D9BF95";
+const GOLD_LIGHT = "#EDDFC4";
 const SECONDARY_DARK = "#A67C42";
 const GREEN_MAIN = "#22C55E";
+
+// Shared gradient / elevation tokens so pages/components can reuse the same
+// depth language instead of inventing one-off shadows and gradients.
+export const GRADIENT_NAVY = `linear-gradient(160deg, ${NAVY_MID} 0%, ${NAVY_DEEP} 100%)`;
+export const GRADIENT_NAVY_SOFT = `linear-gradient(135deg, ${NAVY} 0%, ${NAVY_MID} 100%)`;
+export const GRADIENT_GOLD = `linear-gradient(135deg, ${GOLD_LIGHT} 0%, ${GOLD} 55%, ${SECONDARY_DARK} 100%)`;
+export const SHADOW_SM = "0 1px 2px rgba(11, 23, 41, 0.06), 0 1px 3px rgba(11, 23, 41, 0.08)";
+export const SHADOW_MD = "0 6px 16px rgba(11, 23, 41, 0.08), 0 2px 6px rgba(11, 23, 41, 0.05)";
+export const SHADOW_LG = "0 20px 45px rgba(11, 23, 41, 0.18), 0 8px 18px rgba(11, 23, 41, 0.10)";
+export const SHADOW_GOLD = "0 10px 24px rgba(166, 124, 66, 0.28)";
+export const PAGE_BACKGROUND =
+    "radial-gradient(circle at 12% -10%, rgba(217, 191, 149, 0.12) 0%, rgba(217, 191, 149, 0) 45%), " +
+    "radial-gradient(circle at 100% 0%, rgba(32, 32, 46, 0.06) 0%, rgba(32, 32, 46, 0) 40%), #F4F6F9";
 
 declare module "@mui/material/styles" {
     interface Palette {
@@ -60,7 +77,7 @@ export const theme = createTheme({
         divider: BORDER,
     },
     shape: {
-        borderRadius: 10,
+        borderRadius: 12,
     },
     typography: {
         fontFamily: [
@@ -89,8 +106,31 @@ export const theme = createTheme({
                     overscrollBehaviorY: "none",
                 },
                 body: {
-                    backgroundColor: "#F4F6F9",
+                    background: PAGE_BACKGROUND,
+                    backgroundAttachment: "fixed",
                     overscrollBehaviorY: "none",
+                },
+                "*::selection": {
+                    backgroundColor: alpha(GOLD, 0.45),
+                    color: NAVY_DEEP,
+                },
+                "*": {
+                    scrollbarWidth: "thin",
+                    scrollbarColor: `${alpha(NAVY, 0.22)} transparent`,
+                },
+                "*::-webkit-scrollbar": {
+                    width: 8,
+                    height: 8,
+                },
+                "*::-webkit-scrollbar-track": {
+                    background: "transparent",
+                },
+                "*::-webkit-scrollbar-thumb": {
+                    backgroundColor: alpha(NAVY, 0.18),
+                    borderRadius: 8,
+                },
+                "*::-webkit-scrollbar-thumb:hover": {
+                    backgroundColor: alpha(NAVY, 0.32),
                 },
             },
         },
@@ -100,12 +140,65 @@ export const theme = createTheme({
             },
             styleOverrides: {
                 root: {
-                    borderRadius: 8,
+                    borderRadius: 10,
                     paddingLeft: 16,
                     paddingRight: 16,
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    transition: "transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease",
+                    "&:active": {
+                        transform: "translateY(0)",
+                    },
                 },
                 contained: {
-                    boxShadow: "none",
+                    boxShadow: SHADOW_SM,
+                    "&:hover": {
+                        boxShadow: SHADOW_MD,
+                        transform: "translateY(-1px)",
+                    },
+                    "&.Mui-disabled": {
+                        boxShadow: "none",
+                    },
+                },
+                containedPrimary: {
+                    backgroundImage: GRADIENT_NAVY_SOFT,
+                    "&:hover": {
+                        backgroundImage: GRADIENT_NAVY,
+                    },
+                    "&.Mui-disabled": {
+                        backgroundImage: "none",
+                    },
+                },
+                containedSecondary: {
+                    backgroundImage: GRADIENT_GOLD,
+                    color: NAVY,
+                    boxShadow: SHADOW_GOLD,
+                    "&:hover": {
+                        backgroundImage: GRADIENT_GOLD,
+                        filter: "brightness(0.97)",
+                        boxShadow: SHADOW_GOLD,
+                    },
+                    "&.Mui-disabled": {
+                        backgroundImage: "none",
+                    },
+                },
+                outlined: {
+                    borderWidth: 1.5,
+                    "&:hover": {
+                        borderWidth: 1.5,
+                    },
+                },
+                text: {
+                    "&:hover": {
+                        backgroundColor: alpha(NAVY, 0.05),
+                    },
+                },
+            },
+        },
+        MuiIconButton: {
+            styleOverrides: {
+                root: {
+                    transition: "background-color 0.15s ease, transform 0.15s ease",
                 },
             },
         },
@@ -115,8 +208,8 @@ export const theme = createTheme({
                     backgroundImage: "none",
                 },
                 elevation1: {
-                    boxShadow:
-                        "0 1px 2px rgba(21, 34, 56, 0.04), 0 1px 8px rgba(21, 34, 56, 0.06)",
+                    border: `1px solid ${BORDER}`,
+                    boxShadow: SHADOW_MD,
                 },
             },
         },
@@ -126,9 +219,20 @@ export const theme = createTheme({
             },
             styleOverrides: {
                 colorPrimary: {
-                    backgroundColor: NAVY,
+                    backgroundImage: GRADIENT_NAVY,
                     color: "#FFFFFF",
-                    boxShadow: "0 1px 3px rgba(11, 23, 41, 0.24)",
+                    boxShadow: SHADOW_LG,
+                    position: "relative",
+                    "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: 2,
+                        backgroundImage: GRADIENT_GOLD,
+                        opacity: 0.9,
+                    },
                 },
             },
         },
@@ -146,18 +250,20 @@ export const theme = createTheme({
                     borderBottom: `1px solid ${BORDER}`,
                 },
                 head: {
-                    backgroundColor: "#F8FAFC",
+                    backgroundImage: "linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)",
                     color: "#64748B",
                     fontWeight: 700,
                     fontSize: "0.72rem",
                     textTransform: "uppercase",
                     letterSpacing: "0.04em",
+                    borderBottom: `1px solid ${BORDER}`,
                 },
             },
         },
         MuiTableRow: {
             styleOverrides: {
                 root: {
+                    transition: "background-color 0.12s ease",
                     "&:last-child td": {
                         borderBottom: 0,
                     },
@@ -167,7 +273,29 @@ export const theme = createTheme({
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {
-                    borderRadius: 8,
+                    borderRadius: 10,
+                    transition: "box-shadow 0.15s ease, border-color 0.15s ease",
+                    // A spread ring (0 0 0 Npx) is not notched like the outline is, so it
+                    // draws straight through the floating label. Use a soft drop glow instead.
+                    "&.Mui-focused": {
+                        boxShadow: `0 4px 14px ${alpha(SECONDARY_DARK, 0.20)}`,
+                    },
+                    "&.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline": {
+                        borderColor: SECONDARY_DARK,
+                        borderWidth: 1.5,
+                    },
+                    "&:hover:not(.Mui-focused):not(.Mui-error):not(.Mui-disabled) .MuiOutlinedInput-notchedOutline": {
+                        borderColor: alpha(NAVY, 0.28),
+                    },
+                },
+            },
+        },
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    "&.Mui-focused:not(.Mui-error)": {
+                        color: SECONDARY_DARK,
+                    },
                 },
             },
         },
@@ -184,7 +312,23 @@ export const theme = createTheme({
         MuiDialog: {
             styleOverrides: {
                 paper: {
-                    borderRadius: 16,
+                    borderRadius: 20,
+                    boxShadow: SHADOW_LG,
+                },
+            },
+        },
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: {
+                    backgroundColor: NAVY_DEEP,
+                    borderRadius: 8,
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    padding: "6px 10px",
+                    boxShadow: SHADOW_MD,
+                },
+                arrow: {
+                    color: NAVY_DEEP,
                 },
             },
         },

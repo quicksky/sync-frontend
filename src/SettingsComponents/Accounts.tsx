@@ -68,7 +68,15 @@ const AccountsPanel: React.FC = () => {
         <>
             <Box sx={{width: "65%", mx: 'auto'}}>
                 <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
-                    <Typography variant="h6" fontWeight={700}>Available Accounts</Typography>
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25}}>
+                        <Box sx={{
+                            width: 4,
+                            height: 22,
+                            borderRadius: 2,
+                            backgroundImage: 'linear-gradient(180deg, #D9BF95 0%, #A67C42 100%)',
+                        }}/>
+                        <Typography variant="h6" fontWeight={700}>Available Accounts</Typography>
+                    </Box>
                     <Button variant="contained" color="primary" startIcon={<AddIcon/>}
                             onClick={handleClickOpen}>
                         Add Accounts

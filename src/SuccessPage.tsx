@@ -55,6 +55,9 @@ const SuccessPage: React.FC = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
+            width: '100%',
+            minHeight: '100vh',
+            pb: 4,
         }}>
             <MainAppBar adminViewState={adminViewState}/>
 

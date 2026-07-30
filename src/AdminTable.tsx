@@ -126,8 +126,9 @@ const TableRowMemo = memo(({
     return (
         <TableRow key={transaction.transaction_id}
                   sx={{
-                      backgroundColor: transaction.admin_approved ? alpha('#22C55E', 0.1) : 'transparent',
-                      '&:hover': {backgroundColor: transaction.admin_approved ? alpha('#22C55E', 0.16) : 'rgba(21, 42, 74, 0.04)'},
+                      backgroundColor: isEditable ? alpha('#A67C42', 0.08) : transaction.admin_approved ? alpha('#22C55E', 0.1) : 'transparent',
+                      borderLeft: transaction.admin_approved ? '3px solid #22C55E' : '3px solid transparent',
+                      '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#22C55E', 0.16) : 'rgba(21, 42, 74, 0.04)'},
                   }}>
             <TableCell align={"center"}
                        sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
@@ -523,7 +524,30 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             overflowX: 'auto',
                             width: '80%',
                         }}>
-                        <Box sx={{mb: 2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0}}>
+                        {isMobile ? undefined :
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5}}>
+                                <Box sx={{
+                                    width: 4,
+                                    height: 22,
+                                    borderRadius: 2,
+                                    backgroundImage: 'linear-gradient(180deg, #D9BF95 0%, #A67C42 100%)',
+                                }}/>
+                                <Typography variant="h6" fontWeight={700}>
+                                    Transactions
+                                </Typography>
+                            </Box>}
+                        <Box sx={{
+                            mb: 2.5,
+                            p: 1.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 0,
+                            borderRadius: 2.5,
+                            backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                        }}>
                             <TextField
                                 sx={{mr: 2}}
                                 color={"secondary"}

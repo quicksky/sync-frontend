@@ -34,6 +34,18 @@ import {useMediaQuery} from "react-responsive"
 import {selectActiveUsers} from "./redux/clientSlice";
 
 /*import {DatePicker} from '@mui/x-date-pickers/DatePicker';*/
+
+// Shared treatment for the outlined actions sitting on the navy app bar, so
+// Export and an unselected Admin View read with the same weight.
+const appBarOutlinedButtonSx = {
+    color: 'common.white',
+    borderColor: 'common.white',
+    '&:hover': {
+        bgcolor: 'rgba(255, 255, 255, 0.08)',
+        borderColor: 'common.white',
+    },
+};
+
 interface MainAppBarProps {
     adminViewState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 }
@@ -131,51 +143,58 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                              borderRadius: '9px',
                              mr: 1.25,
                              border: '1px solid rgba(255, 255, 255, 0.18)',
+                             boxShadow: '0 4px 10px rgba(11, 23, 41, 0.35)',
                          }}/>
                     <Typography variant={isMobile ? "h5" : "h6"} noWrap component="div"
                                 sx={{fontWeight: 800, letterSpacing: '0.02em', mr: 1.5, color: 'common.white'}}>
                         Sync
                     </Typography>
-                    {!syncTransactionsLoading ? (
-                        <Tooltip title="Sync transactions">
-                            <IconButton sx={{color: 'common.white'}} onClick={() => {
-                                setSyncTransactionsLoading(true)
-                                syncTransactions().then(() => {
-                                    dispatch(fetchAndClearTransactions({
-                                        limit: 50,
-                                        offset: 0,
-                                        filters: props.adminViewState[0] ? {} : {user_card_number: user?.card_number}
-                                    }))
-                                }).catch(() => {
-                                    handleSyncErrorOpen()
-                                }).finally(() => {
-                                    setSyncTransactionsLoading(false)
-                                })
-                            }}>
-                                <Sync/>
-                            </IconButton>
-                        </Tooltip>) :
-                        <CircularProgress size={'22px'} sx={{mx: 1, color: 'common.white'}}/>}
+                    {/* Fixed slot so swapping the icon button for the spinner does not
+                        reflow everything to its right. */}
+                    <Box sx={{
+                        width: 40,
+                        height: 40,
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        {!syncTransactionsLoading ? (
+                            <Tooltip title="Sync transactions">
+                                <IconButton sx={{color: 'common.white'}} onClick={() => {
+                                    setSyncTransactionsLoading(true)
+                                    syncTransactions().then(() => {
+                                        dispatch(fetchAndClearTransactions({
+                                            limit: 50,
+                                            offset: 0,
+                                            filters: props.adminViewState[0] ? {} : {user_card_number: user?.card_number}
+                                        }))
+                                    }).catch(() => {
+                                        handleSyncErrorOpen()
+                                    }).finally(() => {
+                                        setSyncTransactionsLoading(false)
+                                    })
+                                }}>
+                                    <Sync/>
+                                </IconButton>
+                            </Tooltip>) :
+                            <CircularProgress size={'22px'} sx={{color: 'common.white'}}/>}
+                    </Box>
                     {userIsAdmin && !isMobile ?
                         <Button
                             onClick={handleClickOpen}
                             color="inherit"
+                            variant="outlined"
+                            sx={appBarOutlinedButtonSx}
                         >
                             Export
                         </Button> : undefined}
 
                     {userIsAdmin && !isMobile ? (
                             <Button variant={props.adminViewState[0] ? "contained" : "outlined"}
+                                    color={props.adminViewState[0] ? "secondary" : "inherit"}
                                     onClick={handleAdminViewChange}
-                                    sx={{
-                                        color: props.adminViewState[0] ? 'primary.main' : 'common.white',
-                                        bgcolor: props.adminViewState[0] ? 'common.white' : 'transparent',
-                                        borderColor: 'common.white',
-                                        '&:hover': {
-                                            bgcolor: props.adminViewState[0] ? 'grey.100' : 'rgba(255, 255, 255, 0.08)',
-                                            borderColor: 'common.white',
-                                        },
-                                    }}>
+                                    sx={props.adminViewState[0] ? {} : appBarOutlinedButtonSx}>
                                 Admin View
                             </Button>)
                         : undefined}
@@ -258,8 +277,20 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                 </Box>
                 <Box sx={{display: 'flex', alignItems: 'center'}}>
                     <Tooltip title="Account">
-                        <IconButton onClick={handleOpenUserMenu} sx={{p: 0}}>
-                            <Avatar sx={{bgcolor: 'common.white', color: 'primary.main', fontWeight: 700, width: 36, height: 36, fontSize: 14}}>
+                        <IconButton onClick={handleOpenUserMenu} sx={{
+                            p: 0,
+                            transition: 'transform 0.15s ease',
+                            '&:hover': {transform: 'scale(1.05)'},
+                        }}>
+                            <Avatar sx={{
+                                bgcolor: 'common.white',
+                                color: 'primary.main',
+                                fontWeight: 700,
+                                width: 36,
+                                height: 36,
+                                fontSize: 14,
+                                boxShadow: '0 0 0 2px rgba(217, 191, 149, 0.55)',
+                            }}>
                                 {initials || undefined}
                             </Avatar>
                         </IconButton>

@@ -16,6 +16,8 @@ interface SyncLoadingSpinnerProps {
 }
 
 const SyncLoadingSpinner: React.FC<SyncLoadingSpinnerProps> = ({size = 64}) => {
+    const thickness = Math.max(4, size / 12);
+    const mask = `radial-gradient(farthest-side, transparent calc(100% - ${thickness}px), #000 calc(100% - ${thickness}px))`;
     return (
         <Box
             sx={{
@@ -31,9 +33,10 @@ const SyncLoadingSpinner: React.FC<SyncLoadingSpinnerProps> = ({size = 64}) => {
                     width: size,
                     height: size,
                     borderRadius: '50%',
-                    border: (theme) => `${Math.max(4, size / 12)}px solid ${theme.palette.secondary.light}`,
-                    borderTopColor: (theme) => theme.palette.primary.main,
-                    animation: `${spin} 0.9s linear infinite`,
+                    backgroundImage: 'conic-gradient(from 90deg, #D9BF95 0%, #A67C42 35%, #20202E 70%, #D9BF95 100%)',
+                    animation: `${spin} 0.85s linear infinite`,
+                    WebkitMask: mask,
+                    mask,
                 }}
             />
         </Box>

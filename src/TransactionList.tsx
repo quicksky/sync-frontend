@@ -279,9 +279,17 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                         } :
                         {p: 3, mt: 3, mb: 3, overflowX: 'auto', width: '39.17%'}}>
                         {isMobile ? undefined :
-                            <Typography variant="h6" fontWeight={700} sx={{mb: 2.5}}>
-                                Transaction History
-                            </Typography>}
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5}}>
+                                <Box sx={{
+                                    width: 4,
+                                    height: 22,
+                                    borderRadius: 2,
+                                    backgroundImage: 'linear-gradient(180deg, #D9BF95 0%, #A67C42 100%)',
+                                }}/>
+                                <Typography variant="h6" fontWeight={700}>
+                                    Transaction History
+                                </Typography>
+                            </Box>}
                         <TableContainer component={Paper} elevation={0} sx={{border: '1px solid', borderColor: 'divider'}}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
@@ -368,10 +376,13 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                             <Box sx={{
                                                                 m: 1,
                                                                 p: 2,
-                                                                borderRadius: 2,
-                                                                backgroundColor: '#F8FAFC',
+                                                                borderRadius: 2.5,
+                                                                backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
                                                                 border: '1px solid',
                                                                 borderColor: 'divider',
+                                                                borderLeftWidth: 3,
+                                                                borderLeftColor: '#A67C42',
+                                                                boxShadow: '0 2px 8px rgba(11, 23, 41, 0.05)',
                                                             }}>
                                                                 <Typography variant="subtitle1" fontWeight={700}
                                                                             sx={{mb: 1}}>

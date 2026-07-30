@@ -1,6 +1,7 @@
 import React, {ChangeEvent, useState} from 'react';
 import {useDropzone} from 'react-dropzone';
 import {styled} from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -31,11 +32,12 @@ const StyledDropzone = styled('div')(
         borderRadius: theme.shape.borderRadius,
         padding: theme.spacing(3),
         textAlign: 'center',
-        backgroundColor: '#F8FAFC',
-        transition: 'border-color .2s ease-in-out, background-color .2s ease-in-out',
+        backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
+        transition: 'border-color .2s ease-in-out, background-color .2s ease-in-out, transform .2s ease-in-out',
         cursor: 'pointer',
+        transform: (props as any).isDragActive ? 'scale(1.01)' : 'scale(1)',
         '&:hover': {
-            backgroundColor: '#F1F5FB',
+            backgroundImage: 'linear-gradient(180deg, #F5F7FB 0%, #EFF2F7 100%)',
         },
     }),
 );
@@ -89,7 +91,19 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
             <DialogContent>
                 <StyledDropzone {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
                     <input {...getInputProps()} />
-                    <CloudUpload sx={{color: 'text.secondary', fontSize: 32, mb: 1}}/>
+                    <Box sx={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        mx: 'auto',
+                        mb: 1.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundImage: 'linear-gradient(135deg, #EDDFC4 0%, #D9BF95 100%)',
+                    }}>
+                        <CloudUpload sx={{color: 'primary.main', fontSize: 28}}/>
+                    </Box>
                     <Typography color="text.secondary">
                         Drag a file here or click to select a file
                     </Typography>
