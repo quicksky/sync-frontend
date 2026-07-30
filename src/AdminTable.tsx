@@ -173,7 +173,9 @@ const TableRowMemo = memo(({
                 {isEditable ? (
                     <FormControl variant="outlined" fullWidth
                                  color="secondary">
-                        <Select labelId="label-for-account"
+                        <InputLabel id={`account-label-${transaction.transaction_id}`}>Account</InputLabel>
+                        <Select labelId={`account-label-${transaction.transaction_id}`}
+                                label="Account"
                                 value={editState?.accountId ? String(editState.accountId) : "-1"}
                                 onChange={handleAccountChangeLocal}>
                             <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
@@ -570,12 +572,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                         position={"end"}><IconButton
                                         onClick={() => clearSearch()}><Close/></IconButton></InputAdornment> : undefined
                                 }}/>
-                            <FormControl sx={{minWidth: "20%"}} size={"small"}>
-                                {!transactionRequest.filters?.user_card_number ?
-                                    <InputLabel id="label-for-user">User</InputLabel> : undefined}
+                            <FormControl sx={{minWidth: "20%"}} size={"small"} variant="outlined">
+                                <InputLabel id="user-filter-label">User</InputLabel>
                                 <Select
-                                    labelId="label-for-user"
-                                    label={!transactionRequest.filters?.user_card_number ? "User" : undefined}
+                                    labelId="user-filter-label"
+                                    label="User"
                                     color={"secondary"}
                                     size={"small"}
                                     value={userSelectBoxValue}

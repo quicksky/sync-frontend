@@ -330,6 +330,72 @@ export const theme = createTheme({
                 },
             },
         },
+        MuiSelect: {
+            styleOverrides: {
+                icon: {
+                    color: alpha(NAVY, 0.45),
+                    transition: "transform 0.2s ease, color 0.15s ease",
+                },
+                iconOpen: {
+                    color: SECONDARY_DARK,
+                },
+            },
+        },
+        // Menus render in a portal, so their surface can only be reached from the
+        // theme or a per-instance MenuProps — never from an `sx` on the field.
+        MuiMenu: {
+            defaultProps: {
+                elevation: 0,
+            },
+            styleOverrides: {
+                paper: {
+                    borderRadius: 12,
+                    border: `1px solid ${BORDER}`,
+                    boxShadow: SHADOW_LG,
+                    marginTop: 4,
+                    // MuiPaper's root override forces `backgroundImage: none`; the extra
+                    // class raises specificity so the gradient survives it.
+                    "&.MuiPaper-root": {
+                        backgroundImage: "linear-gradient(180deg, #FFFFFF 0%, #FBFCFE 100%)",
+                    },
+                },
+                list: {
+                    paddingTop: 6,
+                    paddingBottom: 6,
+                },
+            },
+        },
+        MuiMenuItem: {
+            styleOverrides: {
+                root: {
+                    marginLeft: 6,
+                    marginRight: 6,
+                    borderRadius: 8,
+                    paddingTop: 7,
+                    paddingBottom: 7,
+                    fontSize: "0.9rem",
+                    transition: "background-color 0.12s ease, color 0.12s ease",
+                    "& .MuiListItemIcon-root": {
+                        minWidth: 32,
+                        color: alpha(NAVY, 0.55),
+                    },
+                    "&:hover, &.Mui-focusVisible": {
+                        backgroundColor: alpha(NAVY, 0.05),
+                    },
+                    "&.Mui-selected": {
+                        backgroundColor: alpha(GOLD, 0.22),
+                        color: NAVY_DEEP,
+                        fontWeight: 600,
+                    },
+                    "&.Mui-selected:hover, &.Mui-selected.Mui-focusVisible": {
+                        backgroundColor: alpha(GOLD, 0.32),
+                    },
+                    "&.Mui-selected .MuiListItemIcon-root": {
+                        color: SECONDARY_DARK,
+                    },
+                },
+            },
+        },
         MuiTextField: {
             defaultProps: {
                 color: "secondary",

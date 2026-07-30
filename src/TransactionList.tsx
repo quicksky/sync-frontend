@@ -402,9 +402,11 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                              fullWidth
                                                                              margin="none"
                                                                              sx={{mt: 2}}>
-                                                                    <InputLabel color="secondary">Account</InputLabel>
+                                                                    <InputLabel color="secondary"
+                                                                                id={`account-label-${transaction.transaction_id}`}>Account</InputLabel>
                                                                     <Select
-                                                                        labelId="label-for-account" label="Account"
+                                                                        labelId={`account-label-${transaction.transaction_id}`}
+                                                                        label="Account"
                                                                         defaultValue={accountId ? +accountId : ""}
                                                                         onChange={(e) => setAccountId(+e.target.value === -1 ? null : +e.target.value)}>
                                                                         {[{
@@ -413,9 +415,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                         }].concat(accounts).map(account => (
                                                                             <MenuItem
                                                                                 key={account.id}
-                                                                                value={account.id}><Typography
-                                                                                sx={{paddingY: "0px"}}
-                                                                                fontSize={isMobile ? 14 : 16}>{account.name}</Typography></MenuItem>
+                                                                                value={account.id}>{account.name}</MenuItem>
                                                                         ))}
                                                                     </Select>
                                                                 </FormControl>
