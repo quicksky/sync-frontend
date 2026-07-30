@@ -30,6 +30,7 @@ import {fetchAndClearTransactions, fetchTransactions} from "./redux/transactionS
 import {LoadingSpinner} from "plaid-threads";
 import DateInput from "plaid-threads/DateInput";
 import {DatePicker} from "@mui/x-date-pickers";
+import {Dayjs} from "dayjs";
 import {useMediaQuery} from "react-responsive"
 import {selectActiveUsers} from "./redux/clientSlice";
 
@@ -78,10 +79,14 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
     };
 
     const [open, setOpen] = React.useState(false);
+    const [exportStartDate, setExportStartDate] = useState<Dayjs | null>(null)
+    const [exportEndDate, setExportEndDate] = useState<Dayjs | null>(null)
 
     const handleClickOpen = () => {
         setOpen(true);
         setExportError(false)
+        setExportStartDate(null)
+        setExportEndDate(null)
     };
 
     const handleClose = () => {
@@ -244,12 +249,18 @@ const MainAppBar: React.FC<MainAppBarProps> = (props) => {
                                         name="start_date"
                                         format={"YYYY-MM-DD"}
                                         sx={{flex: 1}}
+                                        value={exportStartDate}
+                                        onChange={setExportStartDate}
+                                        maxDate={exportEndDate ?? undefined}
                                     />
                                     <DatePicker
                                         label="End Date"
                                         name="end_date"
                                         format={"YYYY-MM-DD"}
                                         sx={{flex: 1}}
+                                        value={exportEndDate}
+                                        onChange={setExportEndDate}
+                                        minDate={exportStartDate ?? undefined}
                                     />
                                 </Box>
 

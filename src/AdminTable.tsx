@@ -593,7 +593,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     onChange={handleStartDateChange}
                                     name="start_date"
                                     format={"YYYY-MM-DD"}
-
+                                    maxDate={endDate ?? undefined}
                                 ></DatePicker>
                                 <DatePicker
                                     sx={{ml: 2, maxWidth: "15%"}}
@@ -601,7 +601,8 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     onChange={handleEndDateChange}
                                     label="End Date"
                                     name="end_date"
-                                    format={"YYYY-MM-DD"}></DatePicker>
+                                    format={"YYYY-MM-DD"}
+                                    minDate={startDate ?? undefined}></DatePicker>
                             </ThemeProvider>
                             {startDate || endDate ?
                                 <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
