@@ -22,7 +22,13 @@ import {fetchVendorList, selectVendors} from "../redux/clientSlice";
 import {addVendor, addVendorAlias, deleteVendor, deleteVendorAlias} from "../Backend";
 import {Add} from "@mui/icons-material";
 import Box from "@mui/material/Box"; // Adapt these imports to your project structure
-import {TABLE_FRAME_BODY_SX, TABLE_FRAME_HEAD_SX, TABLE_FRAME_SX} from "../App";
+import {
+    DIALOG_ACTIONS_SX,
+    DIALOG_CONTENT_SX,
+    TABLE_FRAME_BODY_SX,
+    TABLE_FRAME_HEAD_SX,
+    TABLE_FRAME_SX
+} from "../App";
 
 // Aliases are transaction descriptors — long and often space-free — and columns
 // are fixed, so wrap rather than overflow.
@@ -121,22 +127,20 @@ const AddVendorDialog: React.FC<AddVendorDialogProps> = ({open, onClose, setErro
     };
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>Add New Vendor</DialogTitle>
-            <DialogContent>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+            <DialogTitle sx={{pb: 0}}>Add New Vendor</DialogTitle>
+            <DialogContent sx={DIALOG_CONTENT_SX}>
                 <TextField
                     color="secondary"
                     required
-                    margin="dense"
                     label="Vendor Name"
                     name="vendor_name"
                     id="vendor_name"
                     fullWidth
-                    variant="standard"
                     onChange={(e) => setVendorName(e.target.value)}
                 />
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={DIALOG_ACTIONS_SX}>
                 <Button onClick={() => {
                     setVendorName('')
                     onClose()

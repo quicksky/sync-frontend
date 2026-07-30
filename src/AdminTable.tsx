@@ -53,7 +53,7 @@ import {useMediaQuery} from "react-responsive"
 import {fetchUserList, selectActiveUsers} from "./redux/clientSlice";
 import {selectUser, User} from "./redux/userSlice";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {theme} from "./App";
+import {CHECKBOX_APPROVED_SX, theme} from "./App";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import dayjs, {Dayjs} from "dayjs";
 import SyncPDFViewer from "./components/SyncPDFViewer";
@@ -133,6 +133,7 @@ const TableRowMemo = memo(({
             <TableCell align={"center"}
                        sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
                 <Checkbox checked={transaction.admin_approved}
+                          sx={CHECKBOX_APPROVED_SX}
                           onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
             </TableCell>
             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}

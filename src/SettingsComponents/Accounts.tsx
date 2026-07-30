@@ -27,7 +27,13 @@ import {
 } from "../redux/accountSlice";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
-import {TABLE_FRAME_BODY_SX, TABLE_FRAME_HEAD_SX, TABLE_FRAME_SX} from "../App";
+import {
+    DIALOG_ACTIONS_SX,
+    DIALOG_CONTENT_SX,
+    TABLE_FRAME_BODY_SX,
+    TABLE_FRAME_HEAD_SX,
+    TABLE_FRAME_SX
+} from "../App";
 
 const TABLE_SX = {tableLayout: 'fixed' as const};
 
@@ -91,20 +97,19 @@ const AccountsPanel: React.FC = () => {
                             component: 'form',
                         }}
                     >
-                        <DialogTitle color="primary">Add Accounts</DialogTitle>
-                        <DialogContent>
+                        <DialogTitle color="primary" sx={{pb: 0}}>Add Accounts</DialogTitle>
+                        <DialogContent sx={DIALOG_CONTENT_SX}>
                             <TextField
                                 onChange={(e) => setAddAccountText(e.target.value)}
                                 color="secondary"
                                 required
-                                margin="dense"
                                 label="Enter account names"
                                 multiline
                                 rows={4}
                                 fullWidth
                             />
                         </DialogContent>
-                        <DialogActions>
+                        <DialogActions sx={DIALOG_ACTIONS_SX}>
                             <Button onClick={handleClose}>Cancel</Button>
                             <Button onClick={handleAddAccounts} variant="contained"
                                     color="secondary">Add</Button>

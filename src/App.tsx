@@ -31,6 +31,32 @@ export const SHADOW_SM = "0 1px 2px rgba(11, 23, 41, 0.06), 0 1px 3px rgba(11, 2
 export const SHADOW_MD = "0 6px 16px rgba(11, 23, 41, 0.08), 0 2px 6px rgba(11, 23, 41, 0.05)";
 export const SHADOW_LG = "0 20px 45px rgba(11, 23, 41, 0.18), 0 8px 18px rgba(11, 23, 41, 0.10)";
 export const SHADOW_GOLD = "0 10px 24px rgba(166, 124, 66, 0.28)";
+// Spacing for a DialogContent that holds a form. Two MUI quirks to work around:
+// DialogContent clips its overflow, and MUI zeroes its top padding when it follows
+// a DialogTitle (`.MuiDialogTitle-root + &` — two classes, so the extra class here
+// is what outranks it). An outlined label rises ~9px above the input border once it
+// shrinks, so a topmost field needs that headroom back or its top gets clipped.
+// Units are required: bare numbers go through the spacing scale (14 would be 112px).
+// Pair with `pb: 0` on the DialogTitle — this is then the whole gap under the title.
+export const DIALOG_CONTENT_SX = {
+    "&.MuiDialogContent-root": {paddingTop: "14px", paddingBottom: "16px"},
+};
+
+// Aligns the action buttons with DialogContent's 24px side padding instead of
+// MUI's default 8px, and keeps the bottom from ballooning.
+export const DIALOG_ACTIONS_SX = {px: 3, pb: 2};
+
+// Checkboxes check to navy (see the MuiCheckbox override) so they stay on the
+// navy/gold palette. The admin table's transaction approval checkbox is the one
+// exception — there the checked state means "approved", so it keeps the green.
+export const CHECKBOX_APPROVED_SX: SxProps<Theme> = {
+    "&.Mui-checked": {
+        color: GREEN_MAIN,
+    },
+    "&.Mui-checked:hover": {
+        backgroundColor: alpha(GREEN_MAIN, 0.08),
+    },
+};
 // Scroll frame for the settings tables. The header row renders in its own
 // non-scrolling element so the scrollbar starts below it rather than running up
 // alongside it; both elements reserve a scrollbar gutter so their columns stay
@@ -442,7 +468,13 @@ export const theme = createTheme({
                 root: {
                     color: SECONDARY_DARK,
                     "&.Mui-checked": {
-                        color: GREEN_MAIN,
+                        color: NAVY_MID,
+                    },
+                    "&:hover": {
+                        backgroundColor: alpha(SECONDARY_DARK, 0.08),
+                    },
+                    "&.Mui-checked:hover": {
+                        backgroundColor: alpha(NAVY_MID, 0.08),
                     },
                 },
             },
