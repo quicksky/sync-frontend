@@ -4,7 +4,7 @@ import LoginPage from './LoginPage';
 import SuccessPage from './SuccessPage';
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
-import {alpha, createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import {alpha, createTheme, CssBaseline, SxProps, Theme, ThemeProvider} from "@mui/material";
 import SettingsPage from "./SettingsPage";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
@@ -31,6 +31,32 @@ export const SHADOW_SM = "0 1px 2px rgba(11, 23, 41, 0.06), 0 1px 3px rgba(11, 2
 export const SHADOW_MD = "0 6px 16px rgba(11, 23, 41, 0.08), 0 2px 6px rgba(11, 23, 41, 0.05)";
 export const SHADOW_LG = "0 20px 45px rgba(11, 23, 41, 0.18), 0 8px 18px rgba(11, 23, 41, 0.10)";
 export const SHADOW_GOLD = "0 10px 24px rgba(166, 124, 66, 0.28)";
+// Scroll frame for the settings tables. The header row renders in its own
+// non-scrolling element so the scrollbar starts below it rather than running up
+// alongside it; both elements reserve a scrollbar gutter so their columns stay
+// aligned without measuring scrollbar width in JS. Tables inside the frame need
+// `tableLayout: fixed` plus a shared <colgroup> to line up.
+export const TABLE_FRAME_SX: SxProps<Theme> = {
+    display: "flex",
+    flexDirection: "column",
+    flex: "0 1 auto",
+    minHeight: 0,
+    overflow: "hidden",
+};
+export const TABLE_FRAME_HEAD_SX: SxProps<Theme> = {
+    flexShrink: 0,
+    overflowX: "hidden",
+    overflowY: "auto",
+    scrollbarGutter: "stable",
+};
+export const TABLE_FRAME_BODY_SX: SxProps<Theme> = {
+    flex: "1 1 auto",
+    minHeight: 0,
+    overflowX: "hidden",
+    overflowY: "auto",
+    scrollbarGutter: "stable",
+};
+
 export const PAGE_BACKGROUND =
     "radial-gradient(circle at 12% -10%, rgba(217, 191, 149, 0.12) 0%, rgba(217, 191, 149, 0) 45%), " +
     "radial-gradient(circle at 100% 0%, rgba(32, 32, 46, 0.06) 0%, rgba(32, 32, 46, 0) 40%), #F4F6F9";
@@ -116,21 +142,26 @@ export const theme = createTheme({
                 },
                 "*": {
                     scrollbarWidth: "thin",
-                    scrollbarColor: `${alpha(NAVY, 0.22)} transparent`,
+                    scrollbarColor: `${alpha(NAVY, 0.24)} ${alpha(NAVY, 0.04)}`,
                 },
                 "*::-webkit-scrollbar": {
                     width: 8,
                     height: 8,
                 },
                 "*::-webkit-scrollbar-track": {
-                    background: "transparent",
-                },
-                "*::-webkit-scrollbar-thumb": {
-                    backgroundColor: alpha(NAVY, 0.18),
+                    backgroundColor: alpha(NAVY, 0.04),
                     borderRadius: 8,
                 },
+                "*::-webkit-scrollbar-thumb": {
+                    backgroundImage: `linear-gradient(180deg, ${alpha(NAVY, 0.26)} 0%, ${alpha(NAVY_MID, 0.20)} 100%)`,
+                    borderRadius: 8,
+                    transition: "background-image 0.15s ease",
+                },
                 "*::-webkit-scrollbar-thumb:hover": {
-                    backgroundColor: alpha(NAVY, 0.32),
+                    backgroundImage: `linear-gradient(180deg, ${GOLD} 0%, ${SECONDARY_DARK} 100%)`,
+                },
+                "*::-webkit-scrollbar-corner": {
+                    backgroundColor: "transparent",
                 },
             },
         },

@@ -8,7 +8,6 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
     TextField,
@@ -37,7 +36,31 @@ import {useAppDispatch, useAppSelector} from "../redux/store";
 import {selectActiveUsers, selectPendingUsers} from "../redux/clientSlice";
 import {fetchUserList} from "../redux/clientSlice";
 import {Account, selectClientAccounts} from "../redux/accountSlice";
+import {TABLE_FRAME_BODY_SX, TABLE_FRAME_HEAD_SX, TABLE_FRAME_SX} from "../App";
 
+// Widths and alignment live here so the header and body tables — which are
+// separate tables, to keep the scrollbar out of the header — stay in step. Body
+// cell alignment must match the `align` values below, in order.
+const COLUMNS: { label: string; width: string; align: 'left' | 'right' | 'center' }[] = [
+    {label: "First Name", width: "12%", align: "left"},
+    {label: "Last Name", width: "12%", align: "right"},
+    {label: "Email", width: "26%", align: "right"},
+    {label: "Card Number", width: "14%", align: "center"},
+    {label: "Role", width: "9%", align: "right"},
+    {label: "Status", width: "15%", align: "center"},
+    {label: "Accounts", width: "12%", align: "center"},
+];
+
+// Emails are long and columns are fixed, so wrap rather than overflow.
+const TABLE_SX = {tableLayout: 'fixed' as const, overflowWrap: 'anywhere' as const};
+
+const columnGroup = (
+    <colgroup>
+        {COLUMNS.map((column) => (
+            <col key={column.label} style={{width: column.width}}/>
+        ))}
+    </colgroup>
+);
 
 const UsersPanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -125,8 +148,8 @@ const UsersPanel: React.FC = () => {
                         setResendUserInviteDialogOpen(false);
                     })
                 }}/>
-            <Box sx={{width: "75%", mx: 'auto'}}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
+            <Box sx={{width: "75%", mx: 'auto', display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0}}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2, flexShrink: 0}}>
                     <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25}}>
                         <Box sx={{
                             width: 4,
@@ -140,55 +163,59 @@ const UsersPanel: React.FC = () => {
                         Invite User
                     </Button>
                 </Box>
-                <TableContainer component={Paper} elevation={1}>
-                    <Table aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="left">First Name</TableCell>
-                                <TableCell align="right">Last Name</TableCell>
-                                <TableCell align="right">Email</TableCell>
-                                <TableCell align="center">Card Number</TableCell>
-                                <TableCell align="right">Role</TableCell>
-                                <TableCell align="center">Status</TableCell>
-                                <TableCell align="center">Accounts</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {activeUsers.concat(pendingUsers).map((user) => (
-                                <TableRow key={user.id} hover>
-                                    <TableCell align="left">{user.first_name}</TableCell>
-                                    <TableCell align="right">{user.last_name}</TableCell>
-                                    <TableCell align="right">{user.email}</TableCell>
-                                    <TableCell align="center">{user.card_number}</TableCell>
-                                    <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
-                                    <TableCell
-                                        align="center"
-                                    >{pendingUsers.map((user) => user.id).includes(user.id) ? (
-                                        <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5}}>
-                                            <Chip label="Pending" size="small" color="warning" variant="outlined"/>
-                                            <Tooltip title="Resend invite">
-                                                <IconButton onClick={() => {
-                                                    setUserId(user.id)
-                                                    setResendUserInviteDialogOpen(true)
-                                                }} size="small"><MailOutline fontSize="small"/></IconButton>
-                                            </Tooltip>
-                                        </Box>) : <Chip label="Active" size="small" color="success" variant="outlined"/>}</TableCell>
-                                    <TableCell align="center">
-                                        {user.role > 1 ?
-                                            <IconButton disabled={true}>
-                                                <EditIcon fontSize="small"/>
-                                            </IconButton>
-                                            :
-                                            <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
-                                                <EditIcon fontSize="small"/>
-                                            </IconButton>
-                                        }
-                                    </TableCell>
+                <Paper elevation={1} sx={TABLE_FRAME_SX}>
+                    <Box sx={TABLE_FRAME_HEAD_SX}>
+                        <Table sx={TABLE_SX}>
+                            {columnGroup}
+                            <TableHead>
+                                <TableRow>
+                                    {COLUMNS.map((column) => (
+                                        <TableCell key={column.label} align={column.align}>{column.label}</TableCell>
+                                    ))}
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                            </TableHead>
+                        </Table>
+                    </Box>
+                    <Box tabIndex={0} sx={TABLE_FRAME_BODY_SX}>
+                        <Table aria-label="users table" sx={TABLE_SX}>
+                            {columnGroup}
+                            <TableBody>
+                                {activeUsers.concat(pendingUsers).map((user) => (
+                                    <TableRow key={user.id} hover>
+                                        <TableCell align="left">{user.first_name}</TableCell>
+                                        <TableCell align="right">{user.last_name}</TableCell>
+                                        <TableCell align="right">{user.email}</TableCell>
+                                        <TableCell align="center">{user.card_number}</TableCell>
+                                        <TableCell align="right">{user.role > 1 ? "Admin" : "User"}</TableCell>
+                                        <TableCell
+                                            align="center"
+                                        >{pendingUsers.map((user) => user.id).includes(user.id) ? (
+                                            <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5}}>
+                                                <Chip label="Pending" size="small" color="warning" variant="outlined"/>
+                                                <Tooltip title="Resend invite">
+                                                    <IconButton onClick={() => {
+                                                        setUserId(user.id)
+                                                        setResendUserInviteDialogOpen(true)
+                                                    }} size="small"><MailOutline fontSize="small"/></IconButton>
+                                                </Tooltip>
+                                            </Box>) : <Chip label="Active" size="small" color="success" variant="outlined"/>}</TableCell>
+                                        <TableCell align="center">
+                                            {user.role > 1 ?
+                                                <IconButton disabled={true}>
+                                                    <EditIcon fontSize="small"/>
+                                                </IconButton>
+                                                :
+                                                <IconButton onClick={() => handleOpenCheckboxDialog(user.id)}>
+                                                    <EditIcon fontSize="small"/>
+                                                </IconButton>
+                                            }
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Box>
+                </Paper>
             </Box>
 
 

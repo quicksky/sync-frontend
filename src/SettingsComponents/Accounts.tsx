@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {
     Button,
     Dialog,
@@ -27,21 +27,22 @@ import {
 } from "../redux/accountSlice";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
+import {TABLE_FRAME_BODY_SX, TABLE_FRAME_HEAD_SX, TABLE_FRAME_SX} from "../App";
 
+const TABLE_SX = {tableLayout: 'fixed' as const};
+
+// Shared by the header and body tables so their columns line up.
+const columnGroup = (
+    <colgroup>
+        <col style={{width: '90%'}}/>
+        <col style={{width: '10%'}}/>
+    </colgroup>
+);
 
 const AccountsPanel: React.FC = () => {
     const [addAccountText, setAddAccountText] = useState("")
     const accounts = useAppSelector(selectClientAccounts)
     const dispatch = useAppDispatch()
-    const tableBodyRef = useRef<HTMLDivElement>(null)
-    const [scrollbarWidth, setScrollbarWidth] = useState(0)
-
-    useLayoutEffect(() => {
-        const el = tableBodyRef.current
-        if (el) {
-            setScrollbarWidth(el.offsetWidth - el.clientWidth)
-        }
-    }, [accounts])
 
     const [open, setOpen] = React.useState(false);
     const handleClickOpen = () => {
@@ -66,8 +67,8 @@ const AccountsPanel: React.FC = () => {
 
     return (
         <>
-            <Box sx={{width: "65%", mx: 'auto'}}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2}}>
+            <Box sx={{width: "65%", mx: 'auto', display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0}}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2, flexShrink: 0}}>
                     <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25}}>
                         <Box sx={{
                             width: 4,
@@ -110,24 +111,28 @@ const AccountsPanel: React.FC = () => {
                         </DialogActions>
                     </Dialog>
                 </Box>
-                <Paper elevation={1}>
-                    <Table aria-label="simple table" sx={{tableLayout: 'fixed'}}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="left" width="90%">Name</TableCell>
-                                <TableCell align="right" width="10%" sx={{paddingRight: `${scrollbarWidth}px`}}/>
-                            </TableRow>
-                        </TableHead>
-                    </Table>
-                    <Box ref={tableBodyRef} sx={{maxHeight: '75vh', overflowY: 'auto'}}>
-                        <Table aria-label="simple table" sx={{tableLayout: 'fixed'}}>
+                <Paper elevation={1} sx={TABLE_FRAME_SX}>
+                    <Box sx={TABLE_FRAME_HEAD_SX}>
+                        <Table sx={TABLE_SX}>
+                            {columnGroup}
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="left">Name</TableCell>
+                                    <TableCell align="right"/>
+                                </TableRow>
+                            </TableHead>
+                        </Table>
+                    </Box>
+                    <Box tabIndex={0} sx={TABLE_FRAME_BODY_SX}>
+                        <Table aria-label="accounts table" sx={TABLE_SX}>
+                            {columnGroup}
                             <TableBody>
                                 {accounts.map((account) => (
                                     <TableRow key={account.id} hover>
-                                        <TableCell align="left" width="90%">
+                                        <TableCell align="left">
                                             {<div style={{wordBreak: 'break-all'}}>{account.name}</div>}
                                         </TableCell>
-                                        <TableCell align="right" width="10%">
+                                        <TableCell align="right">
                                             <IconButton onClick={() => handleDelete(account.id)}
                                                         aria-label="delete" color="error">
                                                 <RemoveIcon fontSize="small"/>

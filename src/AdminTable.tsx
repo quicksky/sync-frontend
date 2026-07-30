@@ -521,11 +521,14 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             p: 3,
                             mt: 3,
                             mb: 3,
-                            overflowX: 'auto',
                             width: '80%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flex: '0 1 auto',
+                            minHeight: 0,
                         }}>
                         {isMobile ? undefined :
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5}}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5, flexShrink: 0}}>
                                 <Box sx={{
                                     width: 4,
                                     height: 22,
@@ -539,6 +542,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         <Box sx={{
                             mb: 2.5,
                             p: 1.5,
+                            flexShrink: 0,
                             display: 'flex',
                             alignItems: 'center',
                             flexWrap: 'wrap',
@@ -602,7 +606,15 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             {startDate || endDate ?
                                 <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
                         </Box>
-                        <TableContainer component={Paper} elevation={0} sx={{border: '1px solid', borderColor: 'divider'}}>
+                        <TableContainer component={Paper} elevation={0}
+                                        tabIndex={isMobile ? undefined : 0}
+                                        sx={isMobile ? {border: '1px solid', borderColor: 'divider'} : {
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            flex: '0 1 auto',
+                                            minHeight: 0,
+                                            overflow: 'auto',
+                                        }}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
@@ -669,6 +681,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         {paginationLoading ?
                             (<CircularProgress/>) :
                             (<TablePagination
+                                sx={{flexShrink: 0}}
                                 rowsPerPageOptions={[50]}
                                 component="div"
                                 count={count}

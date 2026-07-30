@@ -9,7 +9,7 @@ import Link from "../Link";
 const PlaidPanel: React.FC = () => {
     return (
         <>
-            <Paper elevation={1} sx={{width: "75%", maxWidth: 600, mx: 'auto', p: 3}}>
+            <Paper elevation={1} sx={{width: "75%", maxWidth: 600, mx: 'auto', p: 3, flexShrink: 0}}>
                 <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.5}}>
                     <Box sx={{
                         width: 4,

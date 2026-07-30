@@ -11,7 +11,6 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
     TablePagination,
@@ -60,6 +59,7 @@ import {selectUser} from "./redux/userSlice";
 import SyncPDFViewer from "./components/SyncPDFViewer";
 import {useNavigate} from "react-router-dom";
 import {compressionValue, pdfFileType, supportedFileTypes} from "./helpers/fileInfo";
+import {TABLE_FRAME_BODY_SX, TABLE_FRAME_HEAD_SX} from "./App";
 
 
 interface TransactionListProps {
@@ -94,6 +94,26 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
     };
     const dispatch = useAppDispatch()
     const [paginationLoading, setPaginationLoading] = useState<boolean>(false);
+
+    // Width, alignment and padding for both the header and body tables, which are
+    // separate tables so the scrollbar stays out of the header row.
+    const columns: { label: string; align: 'left' | 'right' | 'center'; width: string; pl: string; pr: string }[] = [
+        // Fixed layout means these are exact, not hints: date and amount get enough
+        // room to stay on one line so only the description has to wrap. Amount is
+        // widened to absorb its larger right inset, which lifts it off the edge.
+        {label: "Status", align: "center", width: "12%", pl: '5px', pr: '5px'},
+        {label: "Date", align: "left", width: isMobile ? "16%" : "18%", pl: '5px', pr: '5px'},
+        {label: "Description", align: "left", width: isMobile ? "48%" : "52%", pl: '5px', pr: '5px'},
+        {label: "Amount", align: "right", width: isMobile ? "24%" : "18%", pl: '5px', pr: isMobile ? '10px' : '14px'},
+    ];
+    const columnGroup = (
+        <colgroup>
+            {columns.map((column) => (
+                <col key={column.label} style={{width: column.width}}/>
+            ))}
+        </colgroup>
+    );
+    const tableSx = {tableLayout: 'fixed' as const, overflowWrap: 'anywhere' as const};
 
     const compress = new Compress()
 
@@ -277,9 +297,18 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             overflowX: 'auto',
                             width: '100%'
                         } :
-                        {p: 3, mt: 3, mb: 3, overflowX: 'auto', width: '39.17%'}}>
+                        {
+                            p: 3,
+                            mt: 3,
+                            mb: 3,
+                            width: '39.17%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flex: '0 1 auto',
+                            minHeight: 0,
+                        }}>
                         {isMobile ? undefined :
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5}}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5, flexShrink: 0}}>
                                 <Box sx={{
                                     width: 4,
                                     height: 22,
@@ -290,86 +319,67 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                     Transaction History
                                 </Typography>
                             </Box>}
-                        <TableContainer component={Paper} elevation={0} sx={{border: '1px solid', borderColor: 'divider'}}>
-                            <Table stickyHeader aria-label="sticky table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell sx={{
-                                            marginRight: '0px',
-                                            paddingLeft: '5px',
-                                            paddingRight: '0px'
-                                        }} align="center">Status</TableCell>
-                                        <TableCell sx={
-                                            isMobile ? {} : {
-                                            marginX: '0px',
-                                            paddingX: '0px'
-                                        }}>Date</TableCell>
-                                        <TableCell sx={
-                                            isMobile ? {} : {
-                                            marginX: '0px',
-                                            paddingX: '5px'
-                                        }}>Description</TableCell>
-                                        <TableCell sx={{
-                                            marginLeft: '0px',
-                                            paddingLeft: '0px'
-                                        }} align="right">Amount</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
+                        <Paper elevation={0} sx={isMobile
+                            ? {border: '1px solid', borderColor: 'divider'}
+                            : {
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                flex: '0 1 auto',
+                                minHeight: 0,
+                                overflow: 'hidden',
+                            }}>
+                            <Box sx={isMobile ? {} : TABLE_FRAME_HEAD_SX}>
+                                <Table sx={tableSx}>
+                                    {columnGroup}
+                                    <TableHead>
+                                        <TableRow>
+                                            {columns.map((column) => (
+                                                <TableCell key={column.label} align={column.align}
+                                                           sx={{
+                                                               paddingLeft: column.pl,
+                                                               paddingRight: column.pr,
+                                                           }}>{column.label}</TableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                </Table>
+                            </Box>
+                            <Box tabIndex={isMobile ? undefined : 0}
+                                 sx={isMobile ? {} : TABLE_FRAME_BODY_SX}>
+                                <Table aria-label="transaction history" sx={tableSx}>
+                                    {columnGroup}
+                                    <TableBody>
                                     {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
                                         const splitDate = transaction.authorized_date.split('-');
                                         const dateString = isMobile ? splitDate[1] + '-' + splitDate[2] : splitDate[1] + '-' + splitDate[2] + '-' + splitDate[0];
 
                                         return (
-                                            <>
-                                                <TableRow key={transaction.transaction_id}
-                                                          onClick={() => handleRowClick(transaction)}
+                                            <React.Fragment key={transaction.transaction_id}>
+                                                <TableRow onClick={() => handleRowClick(transaction)}
                                                           sx={{
                                                               cursor: 'pointer',
                                                               '&:hover': {backgroundColor: 'rgba(21, 42, 74, 0.04)'},
                                                           }}>
 
-                                                    <TableCell sx={{marginX: '0px', paddingX: '0px', width: '15%'}}
-                                                               align="center">{transaction.memo && transaction.receipt_key && transaction.internal_account ?
+                                                    <TableCell sx={{paddingLeft: columns[0].pl, paddingRight: columns[0].pr}}
+                                                               align={columns[0].align}>{transaction.memo && transaction.receipt_key && transaction.internal_account ?
                                                         <CheckCircle sx={{color: 'success.main'}} fontSize="small"/> :
                                                         <RadioButtonUnchecked sx={{color: 'text.disabled'}} fontSize="small"/>}</TableCell>
-                                                    <TableCell sx={
-                                                        isMobile ? {
-                                                            marginRight: '0px',
-                                                            paddingRight: '0px',
-                                                            width: '20%'
-                                                        } :
-                                                        {
-                                                            marginX: '0px',
-                                                            paddingX: '5px',
-                                                            width: '15%'
-                                                        }}><Typography fontSize={fontSize}>{dateString}</Typography></TableCell>
-                                                    <TableCell sx={
-                                                        isMobile ? {
-                                                            marginX: '0px',
-                                                            paddingX: '0px',
-                                                            width: '55%'
-                                                        } :
-                                                        {
-                                                            marginX: '0px',
-                                                            paddingX: '5px',
-                                                            width: '60%'
-                                                        }}><Typography fontSize={fontSize}>{transaction.name}</Typography></TableCell>
-                                                    <TableCell sx={
-                                                        isMobile ? {
-                                                            marginLeft: '0px',
-                                                            paddingLeft: '0px',
-                                                            width: '15%'
-                                                        } :
-                                                        {
-                                                            marginLeft: '0px',
-                                                            paddingLeft: '0px',
-                                                            width: '15%'
-                                                        }} align="right">
+                                                    <TableCell sx={{paddingLeft: columns[1].pl, paddingRight: columns[1].pr}}
+                                                               align={columns[1].align}><Typography
+                                                        fontSize={fontSize}>{dateString}</Typography></TableCell>
+                                                    <TableCell sx={{paddingLeft: columns[2].pl, paddingRight: columns[2].pr}}
+                                                               align={columns[2].align}><Typography
+                                                        fontSize={fontSize}>{transaction.name}</Typography></TableCell>
+                                                    <TableCell sx={{paddingLeft: columns[3].pl, paddingRight: columns[3].pr}}
+                                                               align={columns[3].align}>
                                                         <Typography fontSize={fontSize}>{formatUSD(transaction.amount)}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell style={{paddingBottom: 0, paddingTop: 0}} colSpan={6}>
+                                                    <TableCell style={{paddingBottom: 0, paddingTop: 0}}
+                                                               colSpan={columns.length}>
                                                         <Collapse in={openTransactionId === transaction.transaction_id}
                                                                   timeout="auto"
                                                                   unmountOnExit>
@@ -541,15 +551,17 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                         </Collapse>
                                                     </TableCell>
                                                 </TableRow>
-                                            </>
+                                            </React.Fragment>
                                         );
                                     })}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                    </TableBody>
+                                </Table>
+                            </Box>
+                        </Paper>
                         {paginationLoading ?
                             (<CircularProgress/>) :
                             (<TablePagination
+                                sx={{flexShrink: 0}}
                                 rowsPerPageOptions={[50]}
                                 component="div"
                                 count={count}

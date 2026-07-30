@@ -36,21 +36,30 @@ interface TabPanelProps {
 
 function TabPanel(props: TabPanelProps) {
     const {children, value, index, ...other} = props;
+    const selected = value === index;
 
     return (
-        <div
+        <Box
             role="tabpanel"
-            hidden={value !== index}
+            hidden={!selected}
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
+            // Only style the selected panel: an explicit `display` would override
+            // the `hidden` attribute and leave empty panels taking up space.
+            sx={selected ? {
+                p: 3,
+                flexGrow: 1,
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                // Fallback for short viewports: panels shrink first, so this only
+                // engages when non-shrinking content (a panel header) can't fit.
+                overflow: 'auto',
+            } : undefined}
             {...other}
         >
-            {value === index && (
-                <Box sx={{p: 3}}>
-                    {children}
-                </Box>
-            )}
-        </div>
+            {selected && children}
+        </Box>
     );
 }
 
@@ -98,7 +107,7 @@ const SettingsPage: React.FC = () => {
     }, [location.search]);
 
     return (
-        <Box sx={{display: 'flex'}}>
+        <Box sx={{display: 'flex', height: '100vh', overflow: 'hidden'}}>
             <Drawer
                 sx={{
                     width: drawerWidth,
@@ -172,7 +181,15 @@ const SettingsPage: React.FC = () => {
             </Drawer>
             <Box
                 component="main"
-                sx={{flexGrow: 1, bgcolor: 'background.default', p: 3}}
+                sx={{
+                    flexGrow: 1,
+                    bgcolor: 'background.default',
+                    p: 3,
+                    // The panels own their scrolling, so this pane never scrolls itself.
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: 0,
+                }}
             >
 
                 {/*ACCOUNT PANEL*/}
