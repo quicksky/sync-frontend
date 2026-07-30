@@ -547,7 +547,9 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             alignItems: 'center',
                             flexWrap: 'wrap',
                             gap: 0,
-                            borderRadius: 2.5,
+                            // Keep this close to the 10px radius the inputs inherit from
+                            // MuiOutlinedInput — a much rounder shell reads as a mismatch.
+                            borderRadius: 1.5,
                             backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
                             border: '1px solid',
                             borderColor: 'divider',

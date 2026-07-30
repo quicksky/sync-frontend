@@ -378,30 +378,30 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                         <Typography fontSize={fontSize}>{formatUSD(transaction.amount)}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell style={{paddingBottom: 0, paddingTop: 0}}
+                                                    <TableCell sx={{p: 0, border: 0}}
                                                                colSpan={columns.length}>
                                                         <Collapse in={openTransactionId === transaction.transaction_id}
                                                                   timeout="auto"
                                                                   unmountOnExit>
                                                             <Box sx={{
-                                                                m: 1,
-                                                                p: 2,
-                                                                borderRadius: 2.5,
+                                                                px: isMobile ? 2 : 3,
+                                                                py: isMobile ? 2 : 2.5,
                                                                 backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
-                                                                border: '1px solid',
+                                                                borderTop: '1px solid',
+                                                                borderBottom: '1px solid',
                                                                 borderColor: 'divider',
-                                                                borderLeftWidth: 3,
-                                                                borderLeftColor: '#A67C42',
-                                                                boxShadow: '0 2px 8px rgba(11, 23, 41, 0.05)',
+                                                                borderLeft: '3px solid #A67C42',
+                                                                boxShadow: 'inset 0 2px 6px rgba(11, 23, 41, 0.04)',
                                                             }}>
                                                                 <Typography variant="subtitle1" fontWeight={700}
-                                                                            sx={{mb: 1}}>
+                                                                            sx={{mb: 0}}>
                                                                     Edit Transaction
                                                                 </Typography>
                                                                 <FormControl color="secondary"
                                                                              variant="outlined"
                                                                              fullWidth
-                                                                             margin="normal">
+                                                                             margin="none"
+                                                                             sx={{mt: 2}}>
                                                                     <InputLabel color="secondary">Account</InputLabel>
                                                                     <Select
                                                                         labelId="label-for-account" label="Account"
@@ -423,13 +423,14 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                     color="secondary"
                                                                     value={memo}
                                                                     label="Memo"
-                                                                    fullWidth margin="normal"
+                                                                    fullWidth margin="none"
+                                                                    sx={{mt: 2}}
                                                                     onChange={(e) => setMemo(e.target.value)}/>
 
                                                                 {isMobile ? (
                                                                     <>
                                                                         <Grid container justifyContent="space-between"
-                                                                              alignItems="center">
+                                                                              alignItems="center" sx={{mt: 2}}>
                                                                             <Grid item>
                                                                                 <Button variant="contained"
                                                                                         component="label"
@@ -494,7 +495,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                                                         ) : undefined}
                                                                     </>
                                                                 ) : (
-                                                                    <Grid container>
+                                                                    <Grid container sx={{mt: 2}}>
                                                                         <Grid item>
                                                                             <Button variant="contained"
                                                                                     component="label"
