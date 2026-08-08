@@ -1,36 +1,44 @@
 import React, {ChangeEvent, useState} from 'react';
 import {useDropzone} from 'react-dropzone';
 import {styled} from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
+import {CloudUpload} from '@mui/icons-material';
 import {compressionValue, pdfFileType, supportedFileTypes} from "../helpers/fileInfo";
 import Compress from "compress.js";
 
-const getColor = (props: { isDragAccept: boolean; isDragReject: boolean; isDragActive: boolean }) => {
+const getColor = (theme: any, props: { isDragAccept: boolean; isDragReject: boolean; isDragActive: boolean }) => {
     if (props.isDragAccept) {
-        return '#00e676';
+        return theme.palette.success.main;
     }
     if (props.isDragReject) {
-        return '#ff1744';
+        return theme.palette.error.main;
     }
     if (props.isDragActive) {
-        return '#2196f3';
+        return theme.palette.secondary.dark;
     }
-    return '#eeeeee';
+    return theme.palette.divider;
 };
 
 // @ts-ignore
 const StyledDropzone = styled('div')(
     ({theme, ...props}) => ({
-        border: '2px dashed #00e676',
-        borderRadius: '5px',
-        padding: theme.spacing(2),
+        border: `2px dashed ${getColor(theme, props as any)}`,
+        borderRadius: theme.shape.borderRadius,
+        padding: theme.spacing(3),
         textAlign: 'center',
-        transition: 'border .3s ease-in-out',
+        backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
+        transition: 'border-color .2s ease-in-out, background-color .2s ease-in-out, transform .2s ease-in-out',
+        cursor: 'pointer',
+        transform: (props as any).isDragActive ? 'scale(1.01)' : 'scale(1)',
+        '&:hover': {
+            backgroundImage: 'linear-gradient(180deg, #F5F7FB 0%, #EFF2F7 100%)',
+        },
     }),
 );
 
@@ -83,7 +91,20 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
             <DialogContent>
                 <StyledDropzone {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
                     <input {...getInputProps()} />
-                    <Typography>
+                    <Box sx={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        mx: 'auto',
+                        mb: 1.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundImage: 'linear-gradient(135deg, #EDDFC4 0%, #D9BF95 100%)',
+                    }}>
+                        <CloudUpload sx={{color: 'primary.main', fontSize: 28}}/>
+                    </Box>
+                    <Typography color="text.secondary">
                         Drag a file here or click to select a file
                     </Typography>
                 </StyledDropzone>
@@ -103,7 +124,7 @@ const SyncFileUpload: React.FC<DropzoneDialogProps> = ({open, onClose, onSave}) 
                     onClose()
                     setFileToUpload(undefined)
                 }}>Cancel</Button>
-                <Button color={'secondary'} onClick={() => {
+                <Button variant="contained" color={'secondary'} onClick={() => {
                     onClose()
                     if (fileToUpload) {
                         onSave(fileToUpload.file)

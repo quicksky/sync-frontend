@@ -6,6 +6,7 @@ import {Close} from "@mui/icons-material";
 import {Viewer} from "@react-pdf-viewer/core";
 import {useMediaQuery} from "react-responsive";
 import {isMobile} from "../helpers/isMobile";
+import {SHADOW_LG} from "../App";
 
 
 interface SyncPDFViewerProps {
@@ -30,11 +31,12 @@ const SyncPDFViewer: React.FC<SyncPDFViewerProps> = ({fileUrl, onClose}) => {
     //fix sizing
     return (
         <div style={{
-            borderColor: '#20202e',
-            backgroundColor: 'inherit',
-            margin: 'auto',
+            backgroundColor: '#fff',
+            margin: '20px auto',
             padding: 20,
-            border: '1px solid #888',
+            borderRadius: 16,
+            border: '1px solid rgba(21, 34, 56, 0.1)',
+            boxShadow: SHADOW_LG,
             width: isMobile() ? '100%' : "80%",
             maxHeight: isMobile() ? '10vh' : '90vh',
             overflowY: 'auto',

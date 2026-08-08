@@ -6,27 +6,42 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
     TextField,
     Typography,
     IconButton,
-    Paper, Checkbox, FormControlLabel
+    Paper, Checkbox, FormControlLabel, Tooltip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppDispatch, useAppSelector} from "../redux/store";
 import {fetchVendorList, selectVendors} from "../redux/clientSlice";
 import {addVendor, addVendorAlias, deleteVendor, deleteVendorAlias} from "../Backend";
-import {Add, PlusOne} from "@mui/icons-material";
+import {Add} from "@mui/icons-material";
 import Box from "@mui/material/Box"; // Adapt these imports to your project structure
+import {
+    DIALOG_ACTIONS_SX,
+    DIALOG_CONTENT_SX,
+    TABLE_FRAME_BODY_SX,
+    TABLE_FRAME_HEAD_SX,
+    TABLE_FRAME_SX
+} from "../App";
+
+// Aliases are transaction descriptors — long and often space-free — and columns
+// are fixed, so wrap rather than overflow.
+const TABLE_SX = {tableLayout: 'fixed' as const, overflowWrap: 'anywhere' as const};
+
+// Shared by the header and body tables so their columns line up.
+const columnGroup = (
+    <colgroup>
+        <col style={{width: '30%'}}/>
+        <col style={{width: '52%'}}/>
+        <col style={{width: '18%'}}/>
+    </colgroup>
+);
 
 
 interface AddAliasDialogProps {
@@ -58,10 +73,10 @@ const AddAliasDialog: React.FC<AddAliasDialogProps> = ({open, onClose, vendorId,
             <DialogContent>
                 <FormControlLabel
                     control={<Checkbox sx={{
-                        "&, & + .MuiFormControlLabel-label": {
-                            color: "secondary.main"
+                        "& + .MuiFormControlLabel-label": {
+                            color: "primary.main"
                         }
-                    }} color="secondary" checked={startsWith}
+                    }} checked={startsWith}
                                        onChange={(evt) => setStartsWith(evt.target.checked)}/>}
                     label="Starts with"
                     name="starts_with"
@@ -81,7 +96,7 @@ const AddAliasDialog: React.FC<AddAliasDialogProps> = ({open, onClose, vendorId,
                 />
             </DialogContent>
             <DialogActions>
-                <Button variant={'contained'} onClick={() => {
+                <Button onClick={() => {
                     setStartsWith(false)
                     setAlias('')
                     onClose()
@@ -112,24 +127,21 @@ const AddVendorDialog: React.FC<AddVendorDialogProps> = ({open, onClose, setErro
     };
 
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Add New Vendor</DialogTitle>
-            <DialogContent>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+            <DialogTitle sx={{pb: 0}}>Add New Vendor</DialogTitle>
+            <DialogContent sx={DIALOG_CONTENT_SX}>
                 <TextField
-                    focused
                     color="secondary"
                     required
-                    margin="dense"
                     label="Vendor Name"
                     name="vendor_name"
                     id="vendor_name"
                     fullWidth
-                    variant="standard"
                     onChange={(e) => setVendorName(e.target.value)}
                 />
             </DialogContent>
-            <DialogActions>
-                <Button variant='contained' onClick={() => {
+            <DialogActions sx={DIALOG_ACTIONS_SX}>
+                <Button onClick={() => {
                     setVendorName('')
                     onClose()
                 }}>Cancel</Button>
@@ -152,8 +164,8 @@ const ConfirmationDialog: React.FC<{
             <DialogContentText>{message}</DialogContentText>
         </DialogContent>
         <DialogActions>
-            <Button variant='contained' onClick={onClose}>Cancel</Button>
-            <Button onClick={onConfirm} color="secondary" variant='contained'>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onConfirm} color="error" variant='contained'>
                 Delete
             </Button>
         </DialogActions>
@@ -178,12 +190,11 @@ const ErrorDialog: React.FC<{
     </Dialog>
 );
 
-const Vendors: React.FC = () => {
+const VendorsPanel: React.FC = () => {
     const vendors = useAppSelector(selectVendors);
     const [addAliasDialogOpen, setAddAliasDialogOpen] = useState(false);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-    const [confirmDialogAction, setConfirmDialogAction] = useState<() => void>(() => () => {
-    });
+    const [confirmDialogAction, setConfirmDialogAction] = useState<() => void>(() => () => {});
     const [errorDialogOpen, setErrorDialogOpen] = useState<boolean>(false)
     const dispatch = useAppDispatch()
     const [addVendorDialogOpen, setAddVendorDialogOpen] = useState(false);
@@ -211,56 +222,77 @@ const Vendors: React.FC = () => {
 
     return (
         <>
-            <Box display="flex" justifyContent="flex-end">
-                <Button variant="contained" color="primary" onClick={() => setAddVendorDialogOpen(true)}
-                        sx={{margin: 2}}>
-                    Add New Vendor
-                </Button>
-            </Box>
+            <Box sx={{width: "65%", mx: 'auto', display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0}}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 2, flexShrink: 0}}>
+                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25}}>
+                        <Box sx={{
+                            width: 4,
+                            height: 22,
+                            borderRadius: 2,
+                            backgroundImage: 'linear-gradient(180deg, #D9BF95 0%, #A67C42 100%)',
+                        }}/>
+                        <Typography variant="h6" fontWeight={700}>Vendors</Typography>
+                    </Box>
+                    <Button variant="contained" color="primary" onClick={() => setAddVendorDialogOpen(true)}>
+                        Add New Vendor
+                    </Button>
+                </Box>
 
-            <TableContainer component={Paper} sx={{maxWidth: "75%", mx: 'auto', my: 2}}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Vendor Name</TableCell>
-                            <TableCell>Aliases</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {vendors.map((vendor) => (
-                            <TableRow key={vendor.id}>
-                                <TableCell>{vendor.vendor_name}</TableCell>
-                                <TableCell>
-                                    {vendor.aliases.map((alias, index) => (
-                                        <div key={index} style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                                            <Typography>{alias.starts_with ? "(starts with)* " + alias.vendor_alias : alias.vendor_alias}</Typography>
-                                            <IconButton
-                                                onClick={() => openConfirmDialog(() => handleDeleteAlias(vendor.id, alias.vendor_alias), "Confirm Delete", `Are you sure you want to delete alias "${alias.vendor_alias}"?`)}>
-                                                <DeleteIcon fontSize="small"/>
-                                            </IconButton>
-                                        </div>
-                                    ))}
-                                </TableCell>
-                                <TableCell>
-                                    <IconButton
-                                        onClick={() => handleOpenAddAliasDialog(vendor.id)}><Add></Add></IconButton>
-                                    <IconButton
-                                        onClick={() => openConfirmDialog(() => handleDeleteVendor(vendor.id), "Confirm Delete", `Are you sure you want to delete vendor "${vendor.vendor_name}"?`)}>
-                                        <DeleteIcon/>
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                <Paper elevation={1} sx={TABLE_FRAME_SX}>
+                    <Box sx={TABLE_FRAME_HEAD_SX}>
+                        <Table sx={TABLE_SX}>
+                            {columnGroup}
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Vendor Name</TableCell>
+                                    <TableCell>Aliases</TableCell>
+                                    <TableCell align="center">Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                        </Table>
+                    </Box>
+                    <Box tabIndex={0} sx={TABLE_FRAME_BODY_SX}>
+                        <Table aria-label="vendors table" sx={TABLE_SX}>
+                            {columnGroup}
+                            <TableBody>
+                                {vendors.map((vendor) => (
+                                    <TableRow key={vendor.id} hover>
+                                        <TableCell>{vendor.vendor_name}</TableCell>
+                                        <TableCell>
+                                            {vendor.aliases.map((alias, index) => (
+                                                <div key={index} style={{display: 'flex', alignItems: 'center'}}>
+                                                    <IconButton size="small"
+                                                        onClick={() => openConfirmDialog(() => handleDeleteAlias(vendor.id, alias.vendor_alias), "Confirm Delete", `Are you sure you want to delete alias "${alias.vendor_alias}"?`)}>
+                                                        <DeleteIcon fontSize="small"/>
+                                                    </IconButton>
+                                                    <Typography variant="body2">{alias.starts_with ? "(starts with)* " + alias.vendor_alias : alias.vendor_alias}</Typography>
+                                                </div>
+                                            ))}
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <Tooltip title="Add alias">
+                                                <IconButton
+                                                    onClick={() => handleOpenAddAliasDialog(vendor.id)}><Add fontSize="small"/></IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Delete vendor">
+                                                <IconButton color="error"
+                                                    onClick={() => openConfirmDialog(() => handleDeleteVendor(vendor.id), "Confirm Delete", `Are you sure you want to delete vendor "${vendor.vendor_name}"?`)}>
+                                                    <DeleteIcon fontSize="small"/>
+                                                </IconButton>
+                                            </Tooltip>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Box>
+                </Paper>
+            </Box>
             {currentVendorId !== null && (
                 <AddAliasDialog
                     open={addAliasDialogOpen}
                     onClose={() => {
                         setAddAliasDialogOpen(false)
-
                     }}
                     vendorId={currentVendorId}
                     setErrorDialog={setErrorDialogOpen}
@@ -287,5 +319,4 @@ const Vendors: React.FC = () => {
     );
 };
 
-export default Vendors;
-
+export default VendorsPanel;

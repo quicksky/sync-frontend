@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Button, TextField, Container, Typography, Grid} from '@mui/material';
+import {Button, TextField} from '@mui/material';
 import {useNavigate} from 'react-router-dom';
 import {loginUser} from "./redux/userSlice";
 import {useAppDispatch} from "./redux/store";
-import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import {getUserApi} from "./Backend";
+import AuthShell from "./components/AuthShell";
 
 const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -36,67 +34,43 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <Container component="main" maxWidth="xs" sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            height: '80vh'
-        }}>
-            <CssBaseline/>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                }}
+        <AuthShell title="Sign in to Sync" variant="brand" error={error ? errorText : undefined}>
+            <TextField
+                margin="normal"
+                error={error}
+                fullWidth
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                label="Email"
+                autoCapitalize={'none'}
+            />
+            <TextField
+                margin="normal"
+                error={error}
+                fullWidth
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                label="Password"
+            />
+            <Button
+                onClick={handleLogin}
+                fullWidth
+                variant="contained"
+                color="secondary"
+                size="large"
+                sx={{mt: 3, mb: 1}}
             >
-                <Avatar sx={{m: 1, bgcolor: '#FFFFFF'}}>
-                    <LockOutlinedIcon/>
-                </Avatar>
-                <Typography component="h1" variant="h5" color={error ? 'error' : 'primary'}>
-                    {error ? errorText : "Sign in"}
-                </Typography>
-                <Box sx={{mt: 1}}>
-                    <TextField
-                        margin="normal"
-                        focused
-                        error={error}
-                        fullWidth
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        label="Email"
-                        autoCapitalize={'none'}
-                        sx={{input: {color: '#FFFFFF'}}}
-                    />
-                    <TextField
-                        margin="normal"
-                        focused
-                        error={error}
-                        fullWidth
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        label="Password"
-                        sx={{input: {color: '#FFFFFF'}}}
-                    />
-                    <Button
-                        onClick={handleLogin}
-                        fullWidth
-                        variant="contained"
-                        sx={{mt: 2, mb: 1}}
-                    >
-                        Sign In
-                    </Button>
-                    <Grid container justifyContent={"right"}>
-                        <Button onClick={() => navigate('/forgotPassword')}>Forgot
-                            Password</Button>
-                    </Grid>
-                </Box>
+                Sign In
+            </Button>
+            <Box sx={{display: 'flex', justifyContent: 'center', mt: 1}}>
+                <Button size="small" onClick={() => navigate('/forgotPassword')}>
+                    Forgot password?
+                </Button>
             </Box>
-        </Container>
+        </AuthShell>
     )
 }
 export default LoginPage

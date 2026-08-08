@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {resetUserPassword, validPassword} from "./Backend";
-import {Button, Container, TextField, Typography} from "@mui/material";
-import Box from "@mui/material/Box";
+import {Button, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import AuthShell from "./components/AuthShell";
 
 const Onboarding: React.FC = () => {
     const params = new URLSearchParams(document.location.search);
@@ -41,45 +41,29 @@ const Onboarding: React.FC = () => {
 
 
     return (
-        <Container component="main" maxWidth="xs" sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            height: '80vh'
-        }}>
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-            }}>
-                <Typography variant="h4" color="primary">Create Password</Typography>
-                <TextField
-                    focused
-                    type="password"
-                    label="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{input: {color: '#FFFFFF'}}}
-                />
-                <TextField
-                    focused
-                    type="password"
-                    label="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{input: {color: '#FFFFFF'}}}
-                />
-                <Button variant="contained" color="primary" onClick={handleSubmit}>
-                    Submit
-                </Button>
-                {error ? <Typography color={"white"}>{errorText}</Typography> : undefined}
-            </Box>
-        </Container>
+        <AuthShell title="Create Password" subtitle="Set a password to finish setting up your account"
+                   error={error ? errorText : undefined}>
+            <TextField
+                type="password"
+                label="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+                fullWidth
+            />
+            <TextField
+                type="password"
+                label="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                margin="normal"
+                fullWidth
+            />
+            <Button variant="contained" color="secondary" size="large" fullWidth
+                    onClick={handleSubmit} sx={{mt: 2}}>
+                Submit
+            </Button>
+        </AuthShell>
     )
 
 };

@@ -21,7 +21,7 @@ import {
     Checkbox,
     CircularProgress,
     FormControlLabel,
-    InputAdornment, createTheme, ThemeProvider, Tooltip
+    InputAdornment, createTheme, ThemeProvider, Tooltip, alpha
 } from '@mui/material';
 import {
     approveTransaction,
@@ -53,7 +53,7 @@ import {useMediaQuery} from "react-responsive"
 import {fetchUserList, selectActiveUsers} from "./redux/clientSlice";
 import {selectUser, User} from "./redux/userSlice";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
-import {theme} from "./App";
+import {CHECKBOX_APPROVED_SX, theme} from "./App";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import dayjs, {Dayjs} from "dayjs";
 import SyncPDFViewer from "./components/SyncPDFViewer";
@@ -126,16 +126,14 @@ const TableRowMemo = memo(({
     return (
         <TableRow key={transaction.transaction_id}
                   sx={{
-                      "background-color": transaction.admin_approved ? "#acfcac" : "white",
+                      backgroundColor: isEditable ? alpha('#A67C42', 0.08) : transaction.admin_approved ? alpha('#22C55E', 0.1) : 'transparent',
+                      borderLeft: transaction.admin_approved ? '3px solid #22C55E' : '3px solid transparent',
+                      '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#22C55E', 0.16) : 'rgba(21, 42, 74, 0.04)'},
                   }}>
             <TableCell align={"center"}
                        sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
-                <Checkbox sx={{
-                    "&, & + .MuiFormControlLabel-label": {
-                        color: "secondary.main"
-                    }
-                }} color="secondary"
-                          checked={transaction.admin_approved}
+                <Checkbox checked={transaction.admin_approved}
+                          sx={CHECKBOX_APPROVED_SX}
                           onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
             </TableCell>
             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '8%'}}
@@ -160,11 +158,10 @@ const TableRowMemo = memo(({
                             wordBreak: 'normal', overflowWrap: 'break-word'
                         }}
                         size="medium"
-                        focused
                         fullWidth
                         multiline
-                        rows={4}
-                        color='warning'
+                        minRows={1}
+                        color='secondary'
                         value={editState?.memo || ''}
                         onChange={handleMemoChangeLocal}/>
                 ) : <Typography variant="body2"
@@ -175,9 +172,11 @@ const TableRowMemo = memo(({
             <TableCell sx={{marginX: '0px', paddingX: '0px', width: '12%'}}
                        align="center">
                 {isEditable ? (
-                    <FormControl variant="outlined" focused fullWidth
-                                 color="warning">
-                        <Select labelId="label-for-account"
+                    <FormControl variant="outlined" fullWidth
+                                 color="secondary">
+                        <InputLabel id={`account-label-${transaction.transaction_id}`}>Account</InputLabel>
+                        <Select labelId={`account-label-${transaction.transaction_id}`}
+                                label="Account"
                                 value={editState?.accountId ? String(editState.accountId) : "-1"}
                                 onChange={handleAccountChangeLocal}>
                             <MenuItem key={-1} value={-1}>{"<none>"}</MenuItem>
@@ -210,9 +209,9 @@ const TableRowMemo = memo(({
                 {isEditable ? (
                     <>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
-                            <IconButton sx={{margin: '0px', padding: '0px'}}
+                            <IconButton sx={{margin: '0px', padding: '0px'}} color="success"
                                         onClick={handleSubmitLocal}><Check/></IconButton>
-                            <IconButton sx={{margin: '0px', padding: '0px'}}
+                            <IconButton sx={{margin: '0px', padding: '0px'}} color="error"
                                         onClick={handleCancelLocal}><Close/></IconButton>
                         </div>
                     </>
@@ -244,7 +243,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const dispatch = useAppDispatch();
     const [page, setPage] = useState(0);
     const rowsPerPage = 50;
-    const isMobile = useMediaQuery({maxWidth: 500})
+    const isMobile = useMediaQuery({maxWidth: 600})
     const [activeTransactionId, setActiveTransactionId] = useState<string>("");
     const [editingStates, setEditingStates] = useState<Record<string, {accountId: number | null, memo: string | null}>>({});
     const [isPdfViewerOpen, setPdfViewerOpen] = useState<boolean>(false);
@@ -267,9 +266,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
     const newTheme = () => createTheme({
         ...theme,
         components: {
+            ...theme.components,
             MuiTextField: {
                 defaultProps: {
                     size: "small",
+                    color: "secondary",
                 }
             }
         }
@@ -512,17 +513,50 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                     setUploadTransactionId("")
                 }} onSave={onFileUpload}/>
                     <Paper
-                        style={{
-                            padding: '20px',
-                            marginTop: '20px',
-                            marginBottom: '20px',
+                        elevation={1}
+                        sx={isMobile ? {
+                            p: 1.5,
+                            mt: 2.5,
+                            mb: 2.5,
                             overflowX: 'auto',
-                            width: '80%'
+                            width: '100%',
+                        } : {
+                            p: 3,
+                            mt: 3,
+                            mb: 3,
+                            width: '80%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flex: '0 1 auto',
+                            minHeight: 0,
                         }}>
-                        {/*<Typography variant="h6" style={{marginBottom: '20px'}}>*/}
-                        {/*    Admin View*/}
-                        {/*</Typography>*/}
-                        <Box sx={{mb: 2}}>
+                        {isMobile ? undefined :
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5, flexShrink: 0}}>
+                                <Box sx={{
+                                    width: 4,
+                                    height: 22,
+                                    borderRadius: 2,
+                                    backgroundImage: 'linear-gradient(180deg, #D9BF95 0%, #A67C42 100%)',
+                                }}/>
+                                <Typography variant="h6" fontWeight={700}>
+                                    Transactions
+                                </Typography>
+                            </Box>}
+                        <Box sx={{
+                            mb: 2.5,
+                            p: 1.5,
+                            flexShrink: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 0,
+                            // Keep this close to the 10px radius the inputs inherit from
+                            // MuiOutlinedInput — a much rounder shell reads as a mismatch.
+                            borderRadius: 1.5,
+                            backgroundImage: 'linear-gradient(180deg, #FBFCFE 0%, #F5F7FB 100%)',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                        }}>
                             <TextField
                                 sx={{mr: 2}}
                                 color={"secondary"}
@@ -539,10 +573,11 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                         position={"end"}><IconButton
                                         onClick={() => clearSearch()}><Close/></IconButton></InputAdornment> : undefined
                                 }}/>
-                            <FormControl sx={{minWidth: "20%"}} size={"small"}>
-                                {!transactionRequest.filters?.user_card_number ?
-                                    <InputLabel>User</InputLabel> : undefined}
+                            <FormControl sx={{minWidth: "20%"}} size={"small"} variant="outlined">
+                                <InputLabel id="user-filter-label">User</InputLabel>
                                 <Select
+                                    labelId="user-filter-label"
+                                    label="User"
                                     color={"secondary"}
                                     size={"small"}
                                     value={userSelectBoxValue}
@@ -562,7 +597,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     onChange={handleStartDateChange}
                                     name="start_date"
                                     format={"YYYY-MM-DD"}
-
+                                    maxDate={endDate ?? undefined}
                                 ></DatePicker>
                                 <DatePicker
                                     sx={{ml: 2, maxWidth: "15%"}}
@@ -570,47 +605,53 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     onChange={handleEndDateChange}
                                     label="End Date"
                                     name="end_date"
-                                    format={"YYYY-MM-DD"}></DatePicker>
+                                    format={"YYYY-MM-DD"}
+                                    minDate={startDate ?? undefined}></DatePicker>
                             </ThemeProvider>
                             {startDate || endDate ?
                                 <IconButton onClick={() => clearDates()}><Close/></IconButton> : undefined}
                         </Box>
-                        <TableContainer component={Paper}>
+                        <TableContainer component={Paper} elevation={0}
+                                        tabIndex={isMobile ? undefined : 0}
+                                        sx={isMobile ? {border: '1px solid', borderColor: 'divider'} : {
+                                            border: '1px solid',
+                                            borderColor: 'divider',
+                                            flex: '0 1 auto',
+                                            minHeight: 0,
+                                            overflow: 'auto',
+                                        }}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Reviewed</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Status</TableCell>
                                         <TableCell
                                             sx={{
-                                                color: "primary.main",
                                                 marginX: '0px',
                                                 paddingX: '20px'
                                             }}>Date</TableCell>
                                         <TableCell sx={{
-                                            color: "primary.main",
                                             marginX: '0px',
                                             paddingX: '0px'
                                         }}>Description</TableCell>
                                         <TableCell
                                             sx={{
-                                                color: "primary.main",
                                                 marginX: '0px',
-                                                paddingX: '0px'
+                                                paddingX: '10px'
                                             }}>Memo</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Account</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="right">Owner</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="right">Amount</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Receipt</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align='center'>Edit</TableCell>
-                                        <TableCell sx={{color: "primary.main", marginX: '0px', paddingX: '10px'}}
+                                        <TableCell sx={{marginX: '0px', paddingX: '10px'}}
                                                    align='center'>Upload</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -618,7 +659,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                     {transactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((transaction) => {
                                         const isEditable = activeTransactionId === transaction.transaction_id;
                                         const editState = editingStates[transaction.transaction_id];
-                                        
+
                                         return (
                                             <TableRowMemo
                                                 key={transaction.transaction_id}
@@ -645,6 +686,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         {paginationLoading ?
                             (<CircularProgress/>) :
                             (<TablePagination
+                                sx={{flexShrink: 0}}
                                 rowsPerPageOptions={[50]}
                                 component="div"
                                 count={count}

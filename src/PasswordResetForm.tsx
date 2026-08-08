@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {initiatePasswordReset, resetUserPassword} from "./Backend";
-import {Button, Container, TextField, Typography} from "@mui/material";
-import Box from "@mui/material/Box";
+import {initiatePasswordReset} from "./Backend";
+import {Button, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import AuthShell from "./components/AuthShell";
 
 const PasswordResetForm: React.FC = () => {
     const [email, setEmail] = useState<string>("");
@@ -21,34 +21,20 @@ const PasswordResetForm: React.FC = () => {
 
 
     return (
-        <Container component="main" maxWidth="xs" sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            height: '80vh'
-        }}>
-            <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-            }}>
-                <Typography variant="h4" color="primary">Enter your Email</Typography>
-                <TextField
-                    focused
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    margin="normal"
-                    fullWidth
-                    sx={{input: {color: '#FFFFFF'}}}
-                />
-                <Button variant="contained" color="primary" onClick={handleSubmit}>
-                    Submit
-                </Button>
-                {error ? <Typography>{errorText}</Typography> : undefined}
-            </Box>
-        </Container>
+        <AuthShell title="Forgot your password?" subtitle="Enter your email and we'll send you a reset link"
+                   error={error ? errorText : undefined}>
+            <TextField
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                margin="normal"
+                fullWidth
+            />
+            <Button variant="contained" color="secondary" size="large" fullWidth
+                    onClick={handleSubmit} sx={{mt: 2}}>
+                Submit
+            </Button>
+        </AuthShell>
     )
 
 };
