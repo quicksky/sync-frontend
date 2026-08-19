@@ -299,6 +299,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                         } :
                         {
                             p: 3,
+                            pt: 1.5,
                             pb: 0.5,
                             mt: 3,
                             mb: 4,
@@ -309,7 +310,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                             minHeight: 0,
                         }}>
                         {isMobile ? undefined :
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5, flexShrink: 0}}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 1.25, flexShrink: 0}}>
                                 <Box sx={{
                                     width: 4,
                                     height: 22,
