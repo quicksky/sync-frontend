@@ -131,7 +131,7 @@ const TableRowMemo = memo(({
                       '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#22C55E', 0.16) : 'rgba(21, 42, 74, 0.04)'},
                   }}>
             <TableCell align={"center"}
-                       sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                       sx={{marginX: '0px', paddingLeft: '12px', paddingRight: '0px', width: '5%'}}>
                 <Checkbox checked={transaction.admin_approved}
                           sx={CHECKBOX_APPROVED_SX}
                           onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
@@ -146,12 +146,12 @@ const TableRowMemo = memo(({
             <TableCell sx={{
                 marginX: '0px',
                 paddingX: '00px',
-                width: '9%'
+                width: '20%'
             }}>
                 {transaction.name} {transaction.alias ? (
                 <b>({transaction.alias})</b>) : undefined}
             </TableCell>
-            <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
+            <TableCell sx={{marginX: '0px', paddingX: '10px', width: '21%'}}>
                 {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
                     <TextField
                         style={{
@@ -623,7 +623,7 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingLeft: '12px', paddingRight: '0px'}}
                                                    align="center">Reviewed</TableCell>
                                         <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Status</TableCell>
