@@ -20,7 +20,7 @@ const BORDER = "rgba(21, 34, 56, 0.08)";
 const GOLD = "#D9BF95";
 const GOLD_LIGHT = "#EDDFC4";
 const SECONDARY_DARK = "#A67C42";
-const GREEN_MAIN = "#22C55E";
+const GREEN_MAIN = "#16A34A";
 
 // Shared gradient / elevation tokens so pages/components can reuse the same
 // depth language instead of inventing one-off shadows and gradients.
