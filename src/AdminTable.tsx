@@ -126,9 +126,9 @@ const TableRowMemo = memo(({
     return (
         <TableRow key={transaction.transaction_id}
                   sx={{
-                      backgroundColor: isEditable ? alpha('#A67C42', 0.08) : transaction.admin_approved ? alpha('#16A34A', 0.14) : 'transparent',
+                      backgroundColor: isEditable ? alpha('#A67C42', 0.08) : transaction.admin_approved ? alpha('#16A34A', 0.35) : 'transparent',
                       borderLeft: transaction.admin_approved ? '3px solid #16A34A' : '3px solid transparent',
-                      '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#16A34A', 0.22) : 'rgba(21, 42, 74, 0.04)'},
+                      '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#16A34A', 0.45) : 'rgba(21, 42, 74, 0.04)'},
                   }}>
             <TableCell align={"center"}
                        sx={{marginX: '0px', paddingLeft: '12px', paddingRight: '0px', width: '5%'}}>
