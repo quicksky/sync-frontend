@@ -57,11 +57,12 @@ const SuccessPage: React.FC = () => {
             flexDirection: 'column',
             alignItems: 'center',
             width: '100%',
-            pb: 4,
             // On desktop the table panel owns its scrolling, so the page itself is
-            // pinned to the viewport. Mobile keeps ordinary page scroll.
+            // pinned to the viewport and the panel's own mt/mb create the top/bottom
+            // gaps symmetrically. Mobile keeps ordinary page scroll and needs its own
+            // bottom breathing room since nothing else provides it.
             ...(isMobile
-                ? {justifyContent: 'center', minHeight: '100vh'}
+                ? {justifyContent: 'center', minHeight: '100vh', pb: 4}
                 : {height: '100vh', overflow: 'hidden'}),
         }}>
             <MainAppBar adminViewState={adminViewState}/>

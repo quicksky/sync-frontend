@@ -299,16 +299,18 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                         } :
                         {
                             p: 3,
+                            pt: 1.5,
+                            pb: 0.5,
                             mt: 3,
-                            mb: 3,
+                            mb: 4,
                             width: '39.17%',
                             display: 'flex',
                             flexDirection: 'column',
-                            flex: '0 1 auto',
+                            flex: '1 1 auto',
                             minHeight: 0,
                         }}>
                         {isMobile ? undefined :
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5, flexShrink: 0}}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 1.25, flexShrink: 0}}>
                                 <Box sx={{
                                     width: 4,
                                     height: 22,
@@ -326,7 +328,7 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                                 borderColor: 'divider',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                flex: '0 1 auto',
+                                flex: '1 1 auto',
                                 minHeight: 0,
                                 overflow: 'hidden',
                             }}>
@@ -562,7 +564,20 @@ const TransactionList: React.FC<TransactionListProps> = ({transactions, accounts
                         {paginationLoading ?
                             (<CircularProgress/>) :
                             (<TablePagination
-                                sx={{flexShrink: 0}}
+                                sx={{
+                                    flexShrink: 0,
+                                    minHeight: 0,
+                                    mt: 0.5,
+                                    '& .MuiTablePagination-toolbar': {
+                                        minHeight: 0,
+                                        paddingTop: 0,
+                                        paddingBottom: 0,
+                                    },
+                                    '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                                        marginTop: 0,
+                                        marginBottom: 0,
+                                    },
+                                }}
                                 rowsPerPageOptions={[50]}
                                 component="div"
                                 count={count}

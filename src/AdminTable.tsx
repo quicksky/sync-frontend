@@ -126,12 +126,12 @@ const TableRowMemo = memo(({
     return (
         <TableRow key={transaction.transaction_id}
                   sx={{
-                      backgroundColor: isEditable ? alpha('#A67C42', 0.08) : transaction.admin_approved ? alpha('#22C55E', 0.1) : 'transparent',
-                      borderLeft: transaction.admin_approved ? '3px solid #22C55E' : '3px solid transparent',
-                      '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#22C55E', 0.16) : 'rgba(21, 42, 74, 0.04)'},
+                      backgroundColor: isEditable ? alpha('#A67C42', 0.08) : transaction.admin_approved ? alpha('#16A34A', 0.14) : 'transparent',
+                      borderLeft: transaction.admin_approved ? '3px solid #16A34A' : '3px solid transparent',
+                      '&:hover': {backgroundColor: isEditable ? alpha('#A67C42', 0.12) : transaction.admin_approved ? alpha('#16A34A', 0.22) : 'rgba(21, 42, 74, 0.04)'},
                   }}>
             <TableCell align={"center"}
-                       sx={{marginX: '0px', paddingX: '0px', width: '9%'}}>
+                       sx={{marginX: '0px', paddingLeft: '12px', paddingRight: '0px', width: '5%'}}>
                 <Checkbox checked={transaction.admin_approved}
                           sx={CHECKBOX_APPROVED_SX}
                           onChange={(evt) => onTransactionCheckboxClick(evt.target.checked, transaction.transaction_id)}/>
@@ -146,12 +146,12 @@ const TableRowMemo = memo(({
             <TableCell sx={{
                 marginX: '0px',
                 paddingX: '00px',
-                width: '9%'
+                width: '20%'
             }}>
                 {transaction.name} {transaction.alias ? (
                 <b>({transaction.alias})</b>) : undefined}
             </TableCell>
-            <TableCell sx={{marginX: '0px', paddingX: '10px', width: '28%'}}>
+            <TableCell sx={{marginX: '0px', paddingX: '10px', width: '21%'}}>
                 {<div style={{wordBreak: 'break-all'}}> {isEditable ? (
                     <TextField
                         style={{
@@ -522,16 +522,18 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                             width: '100%',
                         } : {
                             p: 3,
+                            pt: 1.5,
+                            pb: 0.5,
                             mt: 3,
-                            mb: 3,
+                            mb: 4,
                             width: '80%',
                             display: 'flex',
                             flexDirection: 'column',
-                            flex: '0 1 auto',
+                            flex: '1 1 auto',
                             minHeight: 0,
                         }}>
                         {isMobile ? undefined :
-                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 2.5, flexShrink: 0}}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 1.25, mb: 1.25, flexShrink: 0}}>
                                 <Box sx={{
                                     width: 4,
                                     height: 22,
@@ -616,14 +618,14 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                                         sx={isMobile ? {border: '1px solid', borderColor: 'divider'} : {
                                             border: '1px solid',
                                             borderColor: 'divider',
-                                            flex: '0 1 auto',
+                                            flex: '1 1 auto',
                                             minHeight: 0,
                                             overflow: 'auto',
                                         }}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{marginX: '0px', paddingX: '0px'}}
+                                        <TableCell sx={{marginX: '0px', paddingLeft: '12px', paddingRight: '0px'}}
                                                    align="center">Reviewed</TableCell>
                                         <TableCell sx={{marginX: '0px', paddingX: '0px'}}
                                                    align="center">Status</TableCell>
@@ -686,7 +688,20 @@ const AdminTable: React.FC<AdminTableProps> = ({transactions, accounts, count}) 
                         {paginationLoading ?
                             (<CircularProgress/>) :
                             (<TablePagination
-                                sx={{flexShrink: 0}}
+                                sx={{
+                                    flexShrink: 0,
+                                    minHeight: 0,
+                                    mt: 0.5,
+                                    '& .MuiTablePagination-toolbar': {
+                                        minHeight: 0,
+                                        paddingTop: 0,
+                                        paddingBottom: 0,
+                                    },
+                                    '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                                        marginTop: 0,
+                                        marginBottom: 0,
+                                    },
+                                }}
                                 rowsPerPageOptions={[50]}
                                 component="div"
                                 count={count}
